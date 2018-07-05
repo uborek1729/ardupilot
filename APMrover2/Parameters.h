@@ -173,13 +173,24 @@ public:
         //
         k_param_camera,
         k_param_camera_mount,
-        k_param_camera_mount2,          // unused
+        k_param_camera_mount2,          // unused, 225
 
-        //
+        //sweep parameters
+        k_param_sweep_min_freq, //226
+        k_param_sweep_max_freq, //227
+        k_param_sweep_amplitude, //228
+        k_param_sweep_length,  //229
+
+
         // 240: PID Controllers
         k_param_pidNavSteer = 230,
         k_param_pidServoSteer,  // unused
         k_param_pidSpeedThrottle,
+
+        //another sweep parameter
+        k_param_sweep_flag, //233
+
+
 
         // high RC channels
         k_param_rc_9_old = 235,
@@ -197,7 +208,12 @@ public:
         k_param_steerController,
         k_param_barometer,
         k_param_notify,
-        k_param_button,
+        k_param_button,  //249
+
+        //more sweep parameters
+        k_param_sweep_axis, //250
+        k_param_sweep_fadein, //251
+        k_param_sweep_fadeout, //252
 
         k_param_DataFlash = 253,  // Logging Group
 
@@ -241,6 +257,33 @@ public:
     AP_Float    turn_max_g;
     AP_Int16    pivot_turn_angle;
     AP_Int16    gcs_pid_mask;
+
+    // Sweep parameters
+    // Automated Frequency Sweep minimum frequency
+    AP_Float            sweep_min_freq;
+
+    // Automated Frequency Sweep maximum frequency
+    AP_Float            sweep_max_freq;
+
+    // Automated Frequency Sweep Amplitude
+    AP_Float            sweep_amplitude;
+
+    // Automated Frequency Sweep input axis
+    AP_Int8             sweep_axis;
+
+    // Automated Frequency Sweep analysis type (broken loop or disturbance rejection)
+    AP_Int8             sweep_input;
+
+    // Length of automated sweep
+    AP_Int16            sweep_length;
+
+    // Length of fade in for automated sweep
+     AP_Float			sweep_fadein;
+
+     //Length of fade out for automated sweep
+     AP_Float 			sweep_fadeout;
+
+     AP_Int8 			sweep_flag;
 
     // Throttle
     //

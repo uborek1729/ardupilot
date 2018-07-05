@@ -244,10 +244,25 @@ void Rover::set_servos(void) {
     static uint16_t last_throttle;
     bool apply_skid_mix = true;  // Normaly true, false when the mixage is done by the controler with skid_steer_in = 1
 
+    // Set automated frequency sweep flag based on channel 6
+    if (g.sweep_flag > 0) {
+        set_sweep_flag(true);
+    } else {
+        set_sweep_flag(false);
+    }
+
     if (control_mode == MANUAL || control_mode == LEARNING) {
         // do a direct pass through of radio values
-        SRV_Channels::set_output_pwm(SRV_Channel::k_steering, channel_steer->read());
+    	if (g.sweep_axis == 1){
+        SRV_Channels::set_output_pwm(SRV_Channel::k_steering, channel_steer->read()+ _sweep_output);
         SRV_Channels::set_output_pwm(SRV_Channel::k_throttle, channel_throttle->read());
+    	}
+
+    	if (g.sweep_axis == 2){
+        SRV_Channels::set_output_pwm(SRV_Channel::k_steering, channel_steer->read()+ _sweep_output);
+        SRV_Channels::set_output_pwm(SRV_Channel::k_throttle, channel_throttle->read());
+    	}
+
         if (failsafe.bits & FAILSAFE_EVENT_THROTTLE) {
             // suppress throttle if in failsafe and manual
             SRV_Channels::set_output_pwm(SRV_Channel::k_throttle, channel_throttle->get_radio_trim());
@@ -353,6 +368,69 @@ void Rover::set_servos(void) {
     // ----------------------------------------
     SRV_Channels::output_ch_all();
 #endif
+}
+
+float Rover::auto_sweep()
+{
+    float dtSweep = 0.0025;
+    float c1Sweep = 4;
+    float c2Sweep = 0.0187;
+    float kSweep;
+    float wSweep;
+    float sweepInput;
+    float SweepFadeAmplitude=1;
+
+    float TrecLowFreq = 2 * floorf(2 * M_PI / (g.sweep_min_freq)); // two cycles at min freq.
+    float loopCounterLowFreq = floorf(TrecLowFreq/dtSweep);
+    float loopCounterMaxSweep = floorf(g.sweep_length/dtSweep);
+    float loopCounterFadeIn = floorf(g.sweep_fadein / dtSweep);
+    float loopCounterFadeOut = floorf(g.sweep_fadeout / dtSweep);
+
+    if (_sweep_flag && loopCounterSweep==0) {
+        thetaSweep = 0;
+        kSweep = 0;
+        wSweep = 0;
+        sweepInput = 0;
+        loopCounterSweep = 1;
+    } else if (_sweep_flag && loopCounterSweep>0) {
+        if (loopCounterSweep < loopCounterLowFreq) {
+            wSweep = g.sweep_min_freq;
+            thetaSweep = thetaSweep + wSweep*dtSweep;
+            loopCounterSweep++;
+        } else if (loopCounterSweep < loopCounterMaxSweep) {
+            kSweep = c2Sweep*( expf(c1Sweep*(((float)loopCounterSweep-loopCounterLowFreq)*dtSweep) / (g.sweep_length-TrecLowFreq) ) - 1 );
+            wSweep = g.sweep_min_freq + kSweep*(g.sweep_max_freq - g.sweep_min_freq);
+            thetaSweep = thetaSweep + wSweep*dtSweep;
+            loopCounterSweep++;
+        } else {
+            thetaSweep = 0;
+        }
+
+    	//Add fading functionality
+    	if (loopCounterSweep > 0) {
+    		if (loopCounterSweep < loopCounterFadeIn)
+    			SweepFadeAmplitude = (float)loopCounterSweep / loopCounterFadeIn;
+    		else if ( (loopCounterSweep >= loopCounterFadeIn)
+    				&&  ( loopCounterSweep <= (loopCounterMaxSweep - loopCounterFadeOut))) {
+    			SweepFadeAmplitude = 1;
+    		} else if (loopCounterSweep
+    				> (loopCounterMaxSweep - loopCounterFadeOut)) {
+    			SweepFadeAmplitude = 1
+    					- ((float) loopCounterSweep - loopCounterMaxSweep
+    							+ loopCounterFadeOut) / loopCounterFadeOut;
+    		}
+    	} else {
+    		SweepFadeAmplitude = 1;
+    	}
+
+            sweepInput = SweepFadeAmplitude *g.sweep_amplitude*sinf(thetaSweep);
+
+    } else if (!_sweep_flag) {
+        loopCounterSweep=0;
+        sweepInput = 0;
+    }
+
+    return sweepInput;
 }
 
 

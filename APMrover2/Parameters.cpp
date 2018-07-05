@@ -374,6 +374,65 @@ const AP_Param::Info Rover::var_info[] = {
     // @User: Standard
     GSCALAR(turn_max_g,             "TURN_MAX_G",      2.0f),
 
+
+    // @Param: SWEEP_MIN
+    // @DisplayName: Sweep Minimum Frequency
+    // @Description: Automated Sweep minimum frequency in rad/sec
+    // @Range: 0.1 2
+    // @User: Advanced
+    GSCALAR(sweep_min_freq,  "SWEEP_MIN",  0.4f),
+
+
+    // @Param: SWEEP_MAX
+    // @DisplayName: Sweep Maximum Frequency
+    // @Description: Automated Sweep maximum frequency in rad/sec
+    // @Range: 2 60
+    // @User: Advanced
+    GSCALAR(sweep_max_freq, "SWEEP_MAX",  30.0f),
+
+    // @Param: SWEEP_AMPL
+    // @DisplayName: Sweep Amplitude
+    // @Description: Automated Sweep Amplitude
+    // @Range: 0.1 2
+    // @User: Advanced
+    GSCALAR(sweep_amplitude,"SWEEP_AMPL", 0.1f),
+
+    // @Param: SWEEP_LENGTH
+    // @DisplayName: Sweep Length
+    // @Description: Length of Automated Sweep in seconds
+    // @Range: 60 240
+    // @User: Advanced
+    GSCALAR(sweep_length, "SWEEP_LENGTH", 90),
+
+    // @Param: SWEEP_AXIS
+    // @DisplayName: Sweep Input Axis
+    // @Description: Automated Sweep Input Axis
+    // @Range: 0 2
+    // @Values: 0:Disabled, 1:Steering, 2:Throttle
+    GSCALAR(sweep_axis,"SWEEP_AXIS", 0),
+
+    // @Param: SWEEP_ON_FLAG
+    // @DisplayName: Flag to turn on frequency sweep
+    // @Description: Turn on freq. sweep by setting to '1'
+    // @Range: 0 1
+    // @Values: 0:Disabled, 1:Enabled
+    // @User: Advanced
+    GSCALAR(sweep_flag,"SWEEP_ON_FLAG", 0),
+
+    // @Param: SWEEP_FADE_I
+    // @DisplayName: Time to fade in sweep
+    // @Description: Length of fade in, in seconds
+    // @Range: 0 40
+    // @User: Advanced
+    GSCALAR(sweep_fadein,"SWEEP_FADE_I", 1.0f),
+
+    // @Param: SWEEP_FADE_O
+    // @DisplayName: Time to fade out sweep
+    // @Description: Length of fade out, in seconds
+    // @Range: 0 40
+    // @User: Advanced
+    GSCALAR(sweep_fadeout, "SWEEP_FADE_O", 1.0f),
+
     // @Group: STEER2SRV_
     // @Path: ../libraries/APM_Control/AP_SteerController.cpp
     GOBJECT(steerController,        "STEER2SRV_",   AP_SteerController),

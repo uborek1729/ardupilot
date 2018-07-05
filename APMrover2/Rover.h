@@ -360,6 +360,18 @@ private:
     // Counter of main loop executions.  Used for performance monitoring and failsafe processing
     uint16_t mainLoop_count;
 
+    // Automated frequency sweep counter
+    uint16_t            loopCounterSweep;
+
+    // Automated Frequency Sweep current frequency
+    float               thetaSweep;
+
+    // flags used to determine if sweep is running
+    bool                _sweep_flag;
+
+    // Automated Frequency Sweep current value
+    float               _sweep_output;
+
     // set if we are driving backwards
     bool in_reverse;
 
@@ -481,6 +493,9 @@ private:
     bool verify_wait_delay();
     bool verify_within_distance();
     bool verify_yaw();
+
+
+
 #if CAMERA == ENABLED
     void do_take_picture();
     void log_picture();
@@ -605,6 +620,16 @@ public:
     int8_t test_ins(uint8_t argc, const Menu::arg *argv);
     int8_t test_mag(uint8_t argc, const Menu::arg *argv);
     int8_t test_sonar(uint8_t argc, const Menu::arg *argv);
+
+    //frequency sweep
+    float auto_sweep();
+
+    // Sets auto sweep flag
+    void set_sweep_flag(bool swp_flag) { _sweep_flag = swp_flag; _sweep_output = auto_sweep(); }
+
+    // Return current sweep output value.
+    float get_sweep() const { return _sweep_output; }
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
     int8_t test_shell(uint8_t argc, const Menu::arg *argv);
 #endif
