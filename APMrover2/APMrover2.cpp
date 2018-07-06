@@ -55,8 +55,8 @@ const AP_Scheduler::Task Rover::scheduler_tasks[] = {
     SCHED_TASK(navigate,               10,   1600),
     SCHED_TASK(update_compass,         10,   2000),
     SCHED_TASK(update_commands,        10,   1000),
-    SCHED_TASK(update_logging1,        10,   1000),
-    SCHED_TASK(update_logging2,        10,   1000),
+    SCHED_TASK(update_logging1,        50,   1000),
+    SCHED_TASK(update_logging2,        50,   1000),
     SCHED_TASK(gcs_retry_deferred,     50,   1000),
     SCHED_TASK(gcs_update,             50,   1700),
     SCHED_TASK(gcs_data_stream_send,   50,   3000),
@@ -182,6 +182,7 @@ void Rover::ahrs_update()
         Log_Write_Attitude();
     }
 
+
     if (should_log(MASK_LOG_IMU)) {
         DataFlash.Log_Write_IMU(ins);
     }
@@ -283,7 +284,7 @@ void Rover::update_logging1(void)
 void Rover::update_logging2(void)
 {
     if (should_log(MASK_LOG_STEERING)) {
-        if (control_mode == STEERING || control_mode == AUTO || control_mode == RTL || control_mode == GUIDED) {
+        if (control_mode == STEERING || control_mode == AUTO || control_mode == RTL || control_mode == GUIDED || control_mode == MANUAL) {
             Log_Write_Steering();
         }
     }

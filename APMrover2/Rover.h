@@ -107,6 +107,15 @@ public:
     void setup(void) override;
     void loop(void) override;
 
+    //frequency sweep
+    float auto_sweep();
+
+    // Sets auto sweep flag
+    void set_sweep_flag(bool swp_flag) { _sweep_flag = swp_flag; _sweep_output = auto_sweep(); }
+
+    // Return current sweep output value.
+    float get_sweep() const { return _sweep_output; }
+
 private:
     AP_HAL::BetterStream* cliSerial;
 
@@ -621,14 +630,7 @@ public:
     int8_t test_mag(uint8_t argc, const Menu::arg *argv);
     int8_t test_sonar(uint8_t argc, const Menu::arg *argv);
 
-    //frequency sweep
-    float auto_sweep();
 
-    // Sets auto sweep flag
-    void set_sweep_flag(bool swp_flag) { _sweep_flag = swp_flag; _sweep_output = auto_sweep(); }
-
-    // Return current sweep output value.
-    float get_sweep() const { return _sweep_output; }
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
     int8_t test_shell(uint8_t argc, const Menu::arg *argv);

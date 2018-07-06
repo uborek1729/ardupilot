@@ -257,10 +257,13 @@ void Rover::set_servos(void) {
         SRV_Channels::set_output_pwm(SRV_Channel::k_steering, channel_steer->read()+ _sweep_output);
         SRV_Channels::set_output_pwm(SRV_Channel::k_throttle, channel_throttle->read());
     	}
-
-    	if (g.sweep_axis == 2){
+    	else if (g.sweep_axis == 2){
         SRV_Channels::set_output_pwm(SRV_Channel::k_steering, channel_steer->read()+ _sweep_output);
         SRV_Channels::set_output_pwm(SRV_Channel::k_throttle, channel_throttle->read());
+    	}
+    	else{
+            SRV_Channels::set_output_pwm(SRV_Channel::k_steering, channel_steer->read());
+            SRV_Channels::set_output_pwm(SRV_Channel::k_throttle, channel_throttle->read());
     	}
 
         if (failsafe.bits & FAILSAFE_EVENT_THROTTLE) {

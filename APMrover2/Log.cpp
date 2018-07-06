@@ -56,6 +56,10 @@ bool Rover::print_log_menu(void)
     return(true);
 }
 
+
+
+
+
 int8_t Rover::dump_log(uint8_t argc, const Menu::arg *argv)
 {
     int16_t dump_log_num;
@@ -189,6 +193,7 @@ struct PACKED log_Steering {
     uint64_t time_us;
     float demanded_accel;
     float achieved_accel;
+    float sweep;
 };
 
 // Write a steering packet
@@ -199,6 +204,7 @@ void Rover::Log_Write_Steering()
         time_us        : AP_HAL::micros64(),
         demanded_accel : lateral_acceleration,
         achieved_accel : ahrs.groundspeed() * ins.get_gyro().z,
+        sweep		   : _sweep_output,
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -458,7 +464,7 @@ const LogStructure Rover::log_structure[] = {
     { LOG_ARM_DISARM_MSG, sizeof(log_Arm_Disarm),
       "ARM", "QBH", "TimeUS,ArmState,ArmChecks" },
     { LOG_STEERING_MSG, sizeof(log_Steering),
-      "STER", "Qff",   "TimeUS,Demanded,Achieved" },
+      "STER", "Qfff",   "TimeUS,Demanded,Achieved,Sweep" },
     { LOG_GUIDEDTARGET_MSG, sizeof(log_GuidedTarget),
       "GUID",  "QBffffff",    "TimeUS,Type,pX,pY,pZ,vX,vY,vZ" },
     { LOG_ERROR_MSG, sizeof(log_Error),
