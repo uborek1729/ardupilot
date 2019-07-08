@@ -124,7 +124,7 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @DisplayName: Sweep Input Axis
     // @Description: Automated Sweep Input Axis
     // @Range: 0 3
-    // @Values: 0:Disabled, 1:Pitch, 2:Roll, 3:Yaw, 4:Throttle/Collective
+    // @Values: 0:Disabled, 1:Pitch, 2:Roll, 3:Yaw, 4:Throttle/Collective, 5:Pitch + Roll 6: Yaw+Heave 7: All axes
     // @User: Advanced
     AP_GROUPINFO("SWEEP_AXIS", 21, AC_AttitudeControl, _sweep_axis, 0),
 
@@ -132,7 +132,7 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @DisplayName: Sweep Input
     // @Description: Automated Sweep Input point in code
     // @Range: 0 2
-    // @Values: 0:Disabled, 1:Disturbance rejection, 2:broken loop
+    // @Values: 0:Disabled, 1:Disturbance rejection, 2:broken loop, 3:MultiSine
     // @User: Advanced
     AP_GROUPINFO("SWEEP_INPUT", 22, AC_AttitudeControl, _sweep_input, 0),
 
@@ -260,12 +260,22 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
     _attitude_target_quat.to_euler(_attitude_target_euler_angle.x, _attitude_target_euler_angle.y, _attitude_target_euler_angle.z);
 
     if (_sweep_input==1) {
-        if (_sweep_axis==1){
+        if (_sweep_axis==1 || _sweep_axis==5 || _sweep_axis==7){
             _attitude_target_euler_angle.x = _attitude_target_euler_angle.x + _sweep_output;
-        } else if (_sweep_axis==2) {
+        } if (_sweep_axis==2 || _sweep_axis==5 || _sweep_axis==7) {
             _attitude_target_euler_angle.y = _attitude_target_euler_angle.y + _sweep_output;
-        } else if (_sweep_axis==3) {
+        } if (_sweep_axis==3 || _sweep_axis==6 || _sweep_axis==7) {
             _attitude_target_euler_angle.z = _attitude_target_euler_angle.z + _sweep_output;
+        }
+    }
+
+    if (_sweep_input==3) {
+        if (_sweep_axis==1 || _sweep_axis==5 || _sweep_axis==7){
+            _attitude_target_euler_angle.x = _attitude_target_euler_angle.x + _roll_MS_input;
+        }if (_sweep_axis==2 || _sweep_axis==5 || _sweep_axis==7) {
+            _attitude_target_euler_angle.y = _attitude_target_euler_angle.y + _pitch_MS_input;
+        }if (_sweep_axis==3 || _sweep_axis==6 || _sweep_axis==7) {
+            _attitude_target_euler_angle.z = _attitude_target_euler_angle.z + _yaw_MS_input;
         }
     }
 
@@ -702,7 +712,7 @@ float AC_AttitudeControl::rate_target_to_motor_roll(float rate_actual_rads, floa
     // Compute output in range -1 ~ +1
     float output = get_rate_roll_pid().get_p() + integrator + get_rate_roll_pid().get_d() + get_rate_roll_pid().get_ff(rate_target_rads);
 
-    if (_sweep_axis==1 && _sweep_input==2){
+    if ((_sweep_axis==1 || _sweep_axis==5 || _sweep_axis==7) && _sweep_input==2){
         output = output + _sweep_output;
     }
 
@@ -729,7 +739,7 @@ float AC_AttitudeControl::rate_target_to_motor_pitch(float rate_actual_rads, flo
     // Compute output in range -1 ~ +1
     float output = get_rate_pitch_pid().get_p() + integrator + get_rate_pitch_pid().get_d() + get_rate_pitch_pid().get_ff(rate_target_rads);
 
-    if (_sweep_axis==2 && _sweep_input==2){
+    if ((_sweep_axis==2 || _sweep_axis==5 || _sweep_axis==7) && _sweep_input==2){
         output = output + _sweep_output;
     }
 
@@ -756,8 +766,12 @@ float AC_AttitudeControl::rate_target_to_motor_yaw(float rate_actual_rads, float
     // Compute output in range -1 ~ +1
     float output = get_rate_yaw_pid().get_p() + integrator + get_rate_yaw_pid().get_d() + get_rate_yaw_pid().get_ff(rate_target_rads);
 
-    if (_sweep_axis==3 && _sweep_input==2){
+    if ((_sweep_axis==3 || _sweep_axis==6 || _sweep_axis==7) && _sweep_input==2){
         output = output + _sweep_output;
+    }
+
+    if ((_sweep_axis==3 || _sweep_axis==6 || _sweep_axis==7) && _sweep_input==3){
+        output = output + _yaw_MS_input;
     }
 
     // Constrain output
@@ -870,7 +884,7 @@ float AC_AttitudeControl::auto_sweep()
     float c2Sweep = 0.0187;
     float kSweep;
     float wSweep;
-    float sweepInput;
+    float sweepInput=0;
     float SweepFadeAmplitude=1;
 
     float TrecLowFreq = 2 * floorf(2 * M_PI / (_sweep_min_freq)); // two cycles at min freq.
@@ -879,54 +893,123 @@ float AC_AttitudeControl::auto_sweep()
     float loopCounterFadeIn = floorf(_sweep_fadein / dtSweep);
     float loopCounterFadeOut = floorf(_sweep_fadeout / dtSweep);
 
-    if (_sweep_flag && loopCounterSweep==0) {
-        thetaSweep = 0;
-        kSweep = 0;
-        wSweep = 0;
-        sweepInput = 0;
-        loopCounterSweep = 1;
-    } else if (_sweep_flag && loopCounterSweep>0) {
-        if (loopCounterSweep < loopCounterLowFreq) {
-            wSweep = _sweep_min_freq;
-            thetaSweep = thetaSweep + wSweep*dtSweep;
-            loopCounterSweep++;
-        } else if (loopCounterSweep < loopCounterMaxSweep) {
-            kSweep = c2Sweep*( expf(c1Sweep*(((float)loopCounterSweep-loopCounterLowFreq)*dtSweep) / (_sweep_length-TrecLowFreq) ) - 1 );
-            wSweep = _sweep_min_freq + kSweep*(_sweep_max_freq - _sweep_min_freq);
-            thetaSweep = thetaSweep + wSweep*dtSweep;
-            loopCounterSweep++;
-        } else {
-            thetaSweep = 0;
-        }
+    //for multisweep
+    float T = 2*(2*M_PI/_sweep_min_freq); //length of record;
+	float minf=2/T ;   //minimum frequency in Hz.
+	float maxf=_sweep_max_freq/(2*M_PI);
+	float M=floorf((maxf-minf)*T)+1;
+	float count =0;
+	float numinputs;
+	float psweep=0;
+	float rsweep=0;
+	float ysweep=0;
+	float hsweep=0;
+	float freq;
 
-    	//Add fading functionality
-    	if (loopCounterSweep > 0) {
-    		if (loopCounterSweep < loopCounterFadeIn)
-    			SweepFadeAmplitude = (float)loopCounterSweep / loopCounterFadeIn;
-    		else if ( (loopCounterSweep >= loopCounterFadeIn)
-    				&&  ( loopCounterSweep <= (loopCounterMaxSweep - loopCounterFadeOut))) {
-    			SweepFadeAmplitude = 1;
-    		} else if (loopCounterSweep
-    				> (loopCounterMaxSweep - loopCounterFadeOut)) {
-    			SweepFadeAmplitude = 1
-    					- ((float) loopCounterSweep - loopCounterMaxSweep
-    							+ loopCounterFadeOut) / loopCounterFadeOut;
-    		}
-    	} else {
-    		SweepFadeAmplitude = 1;
-    	}
+	if (_sweep_axis < 5){
+		numinputs=1;
+	} else if (_sweep_axis==5 || _sweep_axis==6){
+		numinputs=2;
+	} else if (_sweep_axis == 7){
+		numinputs=4;
+	}else {
+		numinputs=0;
+	}
 
-        if (_sweep_input==1 || _sweep_input==2){
-            sweepInput = SweepFadeAmplitude *_sweep_amplitude*sinf(thetaSweep);
-        } else {
-            sweepInput = 0;
-        }
-    } else if (!_sweep_flag) {
-        loopCounterSweep=0;
-        sweepInput = 0;
-    }
+
+
+	if (_sweep_flag && loopCounterSweep==0) {
+		thetaSweep = 0;
+		kSweep = 0;
+		wSweep = 0;
+		sweepInput = 0;
+		loopCounterSweep = 1;
+	} else if (_sweep_flag && loopCounterSweep>0 && _sweep_input<3) {
+		if (loopCounterSweep < loopCounterLowFreq) {
+			wSweep = _sweep_min_freq;
+			thetaSweep = thetaSweep + wSweep*dtSweep;
+			loopCounterSweep++;
+		} else if (loopCounterSweep < loopCounterMaxSweep) {
+			kSweep = c2Sweep*( expf(c1Sweep*(((float)loopCounterSweep-loopCounterLowFreq)*dtSweep) / (_sweep_length-TrecLowFreq) ) - 1 );
+			wSweep = _sweep_min_freq + kSweep*(_sweep_max_freq - _sweep_min_freq);
+			thetaSweep = thetaSweep + wSweep*dtSweep;
+			loopCounterSweep++;
+		} else {
+			thetaSweep = 0;
+		}
+
+		//Add fading functionality
+		if (loopCounterSweep > 0) {
+			if (loopCounterSweep < loopCounterFadeIn)
+				SweepFadeAmplitude = (float)loopCounterSweep / loopCounterFadeIn;
+			else if ( (loopCounterSweep >= loopCounterFadeIn)
+					&&  ( loopCounterSweep <= (loopCounterMaxSweep - loopCounterFadeOut))) {
+				SweepFadeAmplitude = 1;
+			} else if (loopCounterSweep
+					> (loopCounterMaxSweep - loopCounterFadeOut)) {
+				SweepFadeAmplitude = 1
+						- ((float) loopCounterSweep - loopCounterMaxSweep
+								+ loopCounterFadeOut) / loopCounterFadeOut;
+			}
+		} else {
+			SweepFadeAmplitude = 1;
+		}
+		if (_sweep_input == 1 || _sweep_input==2){
+			sweepInput = SweepFadeAmplitude *_sweep_amplitude*sinf(thetaSweep);
+		}
+		else {
+			sweepInput=0;
+		}
+
+	} else if (_sweep_flag && loopCounterSweep>0 && _sweep_input == 3){
+		if (loopCounterSweep < loopCounterMaxSweep){
+			// add up all frequencies at each time step during the sweep;
+			while (count<M) {
+				if (_sweep_axis==2 || _sweep_axis==5 || _sweep_axis==7){
+					freq=minf+count*(1/T);
+					psweep = psweep+_sweep_amplitude*0.1*sinf(2*M_PI*freq*(float)loopCounterSweep*dtSweep+M_PI*(count*count)/(M/numinputs));
+					count++;
+				}
+				if (_sweep_axis==1 || _sweep_axis==5 || _sweep_axis==7){
+					freq=minf+count*(1/T);
+					rsweep = rsweep+_sweep_amplitude*0.1*sinf(2*M_PI*freq*(float)loopCounterSweep*dtSweep+M_PI*(count*count)/(M/numinputs));
+					count++;
+				}
+				if (_sweep_axis==3 || _sweep_axis==6 || _sweep_axis==7){
+					freq=minf+count*(1/T);
+					ysweep = ysweep+_sweep_amplitude*0.1*sinf(2*M_PI*freq*(float)loopCounterSweep*dtSweep+M_PI*(count*count)/(M/numinputs));
+					count++;
+				}
+				if (_sweep_axis==4 || _sweep_axis==6 || _sweep_axis==7){
+					freq=minf+count*(1/T);
+					hsweep = hsweep+_sweep_amplitude*0.1*sinf(2*M_PI*freq*(float)loopCounterSweep*dtSweep+M_PI*(count*count)/(M/numinputs));
+					count++;
+				}
+			}
+			loopCounterSweep++;
+			sweepInput=psweep;
+		} else {
+			psweep=0;
+			rsweep=0;
+			ysweep=0;
+			hsweep=0;
+			sweepInput=psweep;
+		}
+
+	}
+	else if (!_sweep_flag) {
+		loopCounterSweep=0;
+		sweepInput = 0;
+		psweep=0;
+		rsweep=0;
+		ysweep=0;
+		hsweep=0;
+	}
 
     _sweep_flag_m1 = _sweep_flag;
-
+	_pitch_MS_input=psweep;
+	_roll_MS_input=rsweep;
+	_yaw_MS_input=ysweep;
+	_heave_MS_input=hsweep;
     return sweepInput;
 }

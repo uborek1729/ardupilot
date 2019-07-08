@@ -46,6 +46,7 @@ Copter::Copter(void) :
     initial_armed_bearing(0),
     loiter_time_max(0),
     loiter_time(0),
+    QSahrs(ahrs),
 #if FRSKY_TELEM_ENABLED == ENABLED
     frsky_telemetry(ahrs, battery, rangefinder),
 #endif

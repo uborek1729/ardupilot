@@ -172,6 +172,13 @@ void Copter::setup()
 
     init_ardupilot();
 
+    flight_modes[0] = QUADSQUAD;
+    flight_modes[1] = STABILIZE;
+    flight_modes[2] = STABILIZE;
+    flight_modes[3] = ALT_HOLD;
+    flight_modes[4] = ALT_HOLD;
+    flight_modes[5] = ALT_HOLD;
+
     // initialise the main loop scheduler
     scheduler.init(&scheduler_tasks[0], ARRAY_SIZE(scheduler_tasks));
 
@@ -261,8 +268,15 @@ void Copter::fast_loop()
     // update INS immediately to get current gyro data populated
     ins.update();
     
-    // run low level rate controllers that only require IMU data
-    attitude_control->rate_controller_run();
+    if (control_mode == QUADSQUAD){
+        // do nothing, quad squad is self contained
+    }
+    else{
+        // run low level rate controllers that only require IMU data
+        attitude_control->rate_controller_run();
+    }
+
+
 
     // send outputs to the motors library immediately
     motors_output();

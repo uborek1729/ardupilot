@@ -86,6 +86,10 @@ public:
     // Sets the pitch acceleration limit in centidegrees/s/s
     float get_accel_pitch_max() { return _accel_pitch_max; }
 
+    float mixer_roll() const { return _motors.get_roll(); }
+    float mixer_pitch() const { return _motors.get_pitch(); }
+    float mixer_yaw() const { return _motors.get_yaw(); }
+
     // Sets the pitch acceleration limit in centidegrees/s/s
     void set_accel_pitch_max(float accel_pitch_max) { _accel_pitch_max = accel_pitch_max; }
 
@@ -164,6 +168,7 @@ public:
 
     // Set z-axis angular velocity in centidegrees/s
     void rate_bf_yaw_target(float rate_cds) { _rate_target_ang_vel.z = radians(rate_cds*0.01f); }
+
 
     // Return roll rate step size in radians/s that results in maximum output after 4 time steps
     float max_rate_step_bf_roll();
@@ -247,6 +252,18 @@ public:
 
     // Return current sweep output value.
     float get_sweep() const { return _sweep_output; }
+
+    //get multisine values
+    float get_pitch_MS() const { return _pitch_MS_input; }
+
+    //get multisine values
+    float get_roll_MS() const { return _roll_MS_input; }
+
+    //get multisine values
+    float get_yaw_MS() const { return _yaw_MS_input; }
+
+    //get multisine values
+    float get_heave_MS() const { return _heave_MS_input; }
 
     // sanity check parameters.  should be called once before take-off
     virtual void parameter_sanity_check() {}
@@ -421,6 +438,13 @@ protected:
 
     // Automated Frequency Sweep current frequency
     float               thetaSweep;
+
+    //Multisine inputs
+    float 				_pitch_MS_input;
+    float 				_roll_MS_input;
+    float 				_yaw_MS_input;
+    float 				_heave_MS_input;
+
 
     // References to external libraries
     const AP_AHRS_View&  _ahrs;

@@ -205,9 +205,14 @@ void AC_AttitudeControl_Multi::set_throttle_out(float throttle_in, bool apply_an
         _angle_boost = 0.0f;
     }
 
-    if (_sweep_axis==4 && _sweep_input==2){
+    if ((_sweep_axis==4 || _sweep_axis==6 || _sweep_axis==7) && _sweep_input==2){
         throttle_in = throttle_in + _sweep_output;
     }
+
+    if ( (_sweep_axis==4 || _sweep_axis==6 || _sweep_axis==7) && _sweep_input==3){
+        throttle_in = throttle_in + _heave_MS_input;
+    }
+
 
     _motors.set_throttle(throttle_in);
     _motors.set_throttle_avg_max(get_throttle_avg_max(MAX(throttle_in, _throttle_in)));
@@ -264,6 +269,7 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     _motors.set_roll(rate_target_to_motor_roll(gyro_latest.x, _rate_target_ang_vel.x));
     _motors.set_pitch(rate_target_to_motor_pitch(gyro_latest.y, _rate_target_ang_vel.y));
     _motors.set_yaw(rate_target_to_motor_yaw(gyro_latest.z, _rate_target_ang_vel.z));
+
 
     control_monitor_update();
 }

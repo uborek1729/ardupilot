@@ -2157,7 +2157,11 @@ void DataFlash_Class::Log_Write_Rate(const AP_AHRS &ahrs,
         control_accel   : (float)accel_target.z,
         accel           : (float)(-(ahrs.get_accel_ef_blended().z + GRAVITY_MSS) * 100.0f),
         accel_out       : motors.get_throttle(),
-        sweep_out       : attitude_control.get_sweep()
+        sweep_out       : attitude_control.get_sweep(),
+        pitch_MS		: attitude_control.get_pitch_MS(),
+        roll_MS			: attitude_control.get_roll_MS(),
+        yaw_MS			: attitude_control.get_yaw_MS(),
+        heave_MS		: attitude_control.get_heave_MS(),
     };
     WriteBlock(&pkt_rate, sizeof(pkt_rate));
 }

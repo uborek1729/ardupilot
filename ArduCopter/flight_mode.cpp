@@ -114,6 +114,10 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             success = avoid_adsb_init(ignore_checks);
             break;
 
+        case QUADSQUAD:
+            success = quadsquad_init(ignore_checks);
+            break;
+
         case GUIDED_NOGPS:
             success = guided_nogps_init(ignore_checks);
             break;
@@ -189,6 +193,10 @@ void Copter::update_flight_mode()
             #else
                 stabilize_run();
             #endif
+            break;
+
+        case QUADSQUAD:
+           quadsquad_run();
             break;
 
         case ALT_HOLD:
@@ -432,6 +440,9 @@ void Copter::notify_flight_mode(control_mode_t mode)
         case GUIDED_NOGPS:
             notify.set_flight_mode_str("GNGP");
             break;
+        case QUADSQUAD:
+        	notify.set_flight_mode_str("QDSQ");
+             break;
         default:
             notify.set_flight_mode_str("----");
             break;

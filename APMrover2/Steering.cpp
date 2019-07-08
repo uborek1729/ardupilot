@@ -245,7 +245,7 @@ void Rover::set_servos(void) {
     bool apply_skid_mix = true;  // Normaly true, false when the mixage is done by the controler with skid_steer_in = 1
 
     // Set automated frequency sweep flag based on channel 6
-    if (g.sweep_flag > 0) {
+    if (RC_Channels::rc_channel(CH_6)->get_radio_in() < 1350) {
         set_sweep_flag(true);
     } else {
         set_sweep_flag(false);
@@ -375,7 +375,7 @@ void Rover::set_servos(void) {
 
 float Rover::auto_sweep()
 {
-    float dtSweep = 0.0025;
+    float dtSweep = 0.02;
     float c1Sweep = 4;
     float c2Sweep = 0.0187;
     float kSweep;

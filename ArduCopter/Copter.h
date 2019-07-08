@@ -92,6 +92,8 @@
 #include <AP_Button/AP_Button.h>
 #include <AP_Arming/AP_Arming.h>
 #include <AP_VisualOdom/AP_VisualOdom.h>
+#include <QS_InnerRateLoop/QS_InnerRateLoop.h> //quadsquad
+
 
 // Configuration
 #include "defines.h"
@@ -154,10 +156,12 @@ private:
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::MultiCopter aparm;
 
-
     // cliSerial isn't strictly necessary - it is an alias for hal.console. It may
     // be deprecated in favor of hal.console in later releases.
     AP_HAL::BetterStream* cliSerial;
+
+    untitledModelClass QS_InnerRateLoop_Obj;//
+    AP_AHRS&      QSahrs;
 
     // Global parameters are all contained within the 'g' class.
     Parameters g;
@@ -311,6 +315,28 @@ private:
 
     // receiver RSSI
     uint8_t receiver_rssi;
+
+    struct { //quadsquad specific ipnuts
+        int16_t ch1 ;
+        int16_t ch2 ;
+        int16_t ch3 ;
+        int16_t ch4 ;
+        int16_t ch5 ;
+        int16_t ch6 ;
+        int16_t ch7 ;
+        int16_t ch8 ;
+    } GSInputs;
+
+    bool engage; //quadsquad specific
+    float score; //quadsquad specific
+    float VeSqrSum; //quadsquad
+    float PeSqrSum; //quad squad
+    float pNcmd;
+    float pEcmd;
+    float pDcmd;
+    float vmax;
+    float pmax;
+    float trajectorycount;
 
     // Failsafe
     struct {
@@ -935,6 +961,8 @@ private:
     void sport_run();
     bool stabilize_init(bool ignore_checks);
     void stabilize_run();
+    bool quadsquad_init(bool ignore_checks); //quadsquad
+    void quadsquad_run(); //quadsquad
     void crash_check();
     void parachute_check();
     void parachute_release();
