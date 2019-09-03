@@ -85,6 +85,13 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 10
     GSCALAR(pilot_takeoff_alt,  "PILOT_TKOFF_ALT",  PILOT_TKOFF_ALT_DEFAULT),
 
+    // @Param: ALPHA_TRAJ
+    // @DisplayName: Agressiveness of Trajectory
+    // @Description: More agressive manuever as alpha gets bigger
+    // @Range: 0 3
+    // @User: Advanced
+    GSCALAR(alpha,"ALPHA", 0.5f),
+
     // @Param: PILOT_TKOFF_DZ
     // @DisplayName: Takeoff trigger deadzone
     // @Description: Offset from mid stick at which takeoff is triggered

@@ -426,7 +426,8 @@ protected:
      //Length of fade out for automated sweep
      AP_Float 			_sweep_fadeout;
 
-    // flags used to determine if sweep is running
+
+     // flags used to determine if sweep is running
     bool                _sweep_flag;
     bool                _sweep_flag_m1;
 

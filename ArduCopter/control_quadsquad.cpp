@@ -14,11 +14,8 @@ bool Copter::quadsquad_init(bool ignore_checks)
 
     // set target altitude to zero for reporting
     pos_control->set_alt_target(0);
-  //  QS_InnerRateLoop_Obj.initialize();
+    QS_InnerRateLoop_Obj.initialize();
     engage=0;
-
-
-
     VeSqrSum=0;
     PeSqrSum=0;
     pNcmd=0;
@@ -28,6 +25,8 @@ bool Copter::quadsquad_init(bool ignore_checks)
     pmax=1;
     score = 0;
     trajectorycount=1;
+    log_counter_qs=0;
+
  //   trajGen.setRp(5);
  //   trajGen.setRv(5);
 //    trajGen.setManeuver(7);
@@ -63,6 +62,55 @@ void Copter::quadsquad_run()
      const Vector3f &gyro = ins.get_gyro();
 
 
+       if (log_counter_qs ++ % 10 == 0){
+       DataFlash_Class::instance()->Log_Write("QS", "TimeUS,p,q,r,ph,th,psi,lat,lon,col,pd,mx,my,mz,mth" , "Qffffffffffffff",
+                                               AP_HAL::micros64(),
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.p_rps,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.q_rps,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.r_rps,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.phi_rad,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.theta_rad,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_rad,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lat,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lon,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_col,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_ped,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_x,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_y,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_z,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle);
+
+
+       DataFlash_Class::instance()->Log_Write("QS2", "TimeUS,swpx,swpy,swpz,swpth,eng,phic,thtc,psic,vzc,tst,tstt" , "Qfffffffffff",
+                                               AP_HAL::micros64(),
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.pitch_sweep,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.roll_sweep,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.yaw_sweep,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.coll_sweep,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.engage,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.phi_cmd,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.theta_cmd,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.psi_cmd,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.vz_cmd,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.test1,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.test2);
+
+       DataFlash_Class::instance()->Log_Write("QS3", "TimeUS,pN,pE,pD,vN,vE,vD,tSW,tON,pNc,pEc,pDc,psc" , "Qffffffffffff",
+                                               AP_HAL::micros64(),
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posNorthKF,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posEastKF,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posDownKF,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vN_fpsKF,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vE_fpsKF,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vD_fpsKF,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.TrajectoryON,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.vehheadingcmd);
+                             }
+
 
 
  //    Vector3f posNED
@@ -77,7 +125,7 @@ void Copter::quadsquad_run()
 
      const float &input_throttle = attitude_control->get_throttle_mix();
     // if not armed or throttle at zero, set throttle to zero and exit immediately
-    if(!motors->armed()|| ap.throttle_zero) {
+    if(!motors->armed()) {
         attitude_control->set_throttle_out(0,true,g.throttle_filt);
         // slow start if landed
         if (ap.land_complete) {
@@ -93,35 +141,35 @@ void Copter::quadsquad_run()
      // To-Do: convert get_pilot_desired_lean_angles to return angles as floats
 //     get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
 
-        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lat = channel_roll->get_control_in(); //
-        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lon = channel_pitch->get_control_in(); //
-        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_col = channel_throttle->get_control_in(); //
-        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_ped = channel_yaw->get_control_in(); //
+        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lat = channel_roll->get_control_in()/float(4500); //
+        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lon = channel_pitch->get_control_in()/float(4500); //
+        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_col = channel_throttle->get_control_in()/float(1000); //
+        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_ped = channel_yaw->get_control_in()/float(4500); //
 
-        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vN_fpsKF = curr_vel.x; //m/s
-        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vE_fpsKF = curr_vel.y; // m/s
-        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vD_fpsKF = curr_vel.z; // m/s
+        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vN_fpsKF = curr_vel.x / float(100); //convert cm/s to m/s
+        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vE_fpsKF = curr_vel.y / float(100); // convert cm/s to m/s
+        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vD_fpsKF = curr_vel.z / float(-100); // convert cm/s to m/s
 
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.p_rps = gyro.x;
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.q_rps = gyro.y;
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.r_rps = gyro.z;
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.p_rps = gyro.x; //rad/s
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.q_rps = gyro.y; //rad/s
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.r_rps = gyro.z ; //rad/s
 
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.phi_rad = QSahrs.roll_sensor / (57.3f*100.0f);
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.theta_rad = QSahrs.pitch_sensor / (57.3f*100.0f);
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_rad = QSahrs.yaw_sensor / (57.3f*100.0f);
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.phi_rad = QSahrs.roll_sensor / (57.3f*100.0f); //convert to rad
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.theta_rad = QSahrs.pitch_sensor / (57.3f*100.0f); //convert to rad
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_rad = QSahrs.yaw_sensor / (57.3f*100.0f); //convert to rad
 
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posNorthKF = curr_pos.x;  //m
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posEastKF = curr_pos.y;  //m
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posDownKF = curr_pos.z; // m
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posNorthKF = curr_pos.x / float(100);  //convert cm to m
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posEastKF = curr_pos.y / float(100);  //convert cm to m
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posDownKF = curr_pos.z / float(-100);  //convert cm to m
 
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_x = attitude_control->mixer_roll(); //check that x is roll!
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_x = attitude_control->mixer_roll();
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_y = attitude_control->mixer_pitch();
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_z = attitude_control->mixer_yaw();
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_throttle = input_throttle;
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_throttle = attitude_control->get_throttle_in();
 
-         //QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = 0;
 
-     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.CH8_flag = read_3pos_switch(CH_8);
+
+     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.CH8_flag = read_3pos_switch(CH_6);
      QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.rc_6 = read_3pos_switch(CH_6);
 
      //     Scale Sweep Size
@@ -138,6 +186,9 @@ void Copter::quadsquad_run()
 
 //
  //    Trajectory on or off
+
+     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = read_3pos_switch(CH_6);
+     /*
      if(GSInputs.ch2==0){
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = 0;
  //        trajGen.enabled(false);
@@ -147,20 +198,18 @@ void Copter::quadsquad_run()
         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = 1;
   //       trajGen.enabled(true);
      }
+     */
      //Scale RV
-         if(GSInputs.ch4 == 0){
-             QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rv = 1;
+         if(g.alpha <= 0 || g.alpha > 3 ){
+             QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rv = 2;
          }
              else {
-                 QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rv = (float(GSInputs.ch4)/10);
+                 QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rv = 1/g.alpha;
          }
-    //Scale Rp
-         if(GSInputs.ch5 == 0){
+    //Scale Rp (actually don't)
              QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rp = 1;
-         }
-             else {
-                 QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rp = (float(GSInputs.ch5)/10);
-         }
+
+
 //
 //     trajGen.step();
 //
@@ -180,7 +229,7 @@ void Copter::quadsquad_run()
 
      QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.engage = engage;
 
- //    QS_InnerRateLoop_Obj.step();
+     QS_InnerRateLoop_Obj.step();
 
      engage = 1;
 
@@ -235,7 +284,7 @@ void Copter::quadsquad_run()
  //    attitude_control.qs_controller_set(mix_x, mix_y, mix_z, throttle);
  //    attitude_control.qs_controller_run;
 
-     //     motors->set_stabilizing(true); old versiono of code used this.
+     //     motors->set_stabilizing(true); old version of code used this.
      motors->set_roll(mix_x);
      motors->set_pitch(mix_y);
      motors->set_yaw(mix_z);

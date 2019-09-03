@@ -53,7 +53,7 @@ void Copter::stabilize_run()
 
     // Set automated frequency sweep flag based on channel 6
     if (RC_Channels::rc_channel(CH_6)->get_radio_in() > 1500) {
-        attitude_control->set_sweep_flag(true);
+        attitude_control->set_sweep_flag(false);
     } else {
         attitude_control->set_sweep_flag(false);
     }

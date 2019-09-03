@@ -110,6 +110,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK(check_dynamic_flight,  50,     75),
 #endif
     SCHED_TASK(fourhundred_hz_logging,400,    50),
+   // SCHED_TASK(quadsquad_logging_loop,100,   80),
     SCHED_TASK(update_notify,         50,     90),
     SCHED_TASK(one_hz_loop,            1,    100),
     SCHED_TASK(ekf_check,             10,     75),
@@ -175,9 +176,9 @@ void Copter::setup()
     flight_modes[0] = QUADSQUAD;
     flight_modes[1] = STABILIZE;
     flight_modes[2] = STABILIZE;
-    flight_modes[3] = ALT_HOLD;
-    flight_modes[4] = ALT_HOLD;
-    flight_modes[5] = ALT_HOLD;
+    flight_modes[3] = STABILIZE;
+    flight_modes[4] = STABILIZE;
+    flight_modes[5] = STABILIZE;
 
     // initialise the main loop scheduler
     scheduler.init(&scheduler_tasks[0], ARRAY_SIZE(scheduler_tasks));
@@ -398,6 +399,31 @@ void Copter::fourhundred_hz_logging()
         Log_Write_Attitude();
     }
 }
+
+/*
+void Copter::quadsquad_logging_loop()
+{
+    Log_Write_QSCONT();
+    Log_Write_QSCONT2();
+    Log_Write_QSCONT3();
+ //   Log_Write_SYSID();
+//    Log_Write_MLINK();
+
+    //below comes from ten_hz_logging_loop
+    Log_Write_Attitude(); //right at start of ten_hz after IF statement
+
+    DataFlash.Log_Write_RCIN();
+    if (should_log(MASK_LOG_RCOUT)) {
+        DataFlash.Log_Write_RCOUT();
+    }
+
+    //below is moved up from fifty_hz_logging_loop
+    // log IMU data if we're not already logging at the higher rate
+    if (should_log(MASK_LOG_IMU) && !(should_log(MASK_LOG_IMU_FAST) || should_log(MASK_LOG_IMU_RAW))) {
+        DataFlash.Log_Write_IMU(ins);
+    }
+}
+*/
 
 // ten_hz_logging_loop
 // should be run at 10hz

@@ -116,7 +116,7 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
 
         case QUADSQUAD:
             success = quadsquad_init(ignore_checks);
-            break;
+        break;
 
         case GUIDED_NOGPS:
             success = guided_nogps_init(ignore_checks);

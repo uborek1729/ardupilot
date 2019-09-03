@@ -1,20 +1,27 @@
 //
+// Sponsored License - for use in support of a program or activity
+// sponsored by MathWorks.  Not for government, commercial or other
+// non-sponsored organizational use.
+//
 // File: rtwtypes.h
 //
 // Code generated for Simulink model 'QS_InnerRateLoop'.
 //
-// Model version                  : 1.287
-// Simulink Coder version         : 8.6 (R2014a) 27-Dec-2013
-// C/C++ source code generated on : Thu Jun 08 14:44:18 2017
+// Model version                  : 1.488
+// Simulink Coder version         : 9.1 (R2019a) 23-Nov-2018
+// C/C++ source code generated on : Wed Jul 31 11:16:21 2019
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex
-// Code generation objectives: Unspecified
+// Code generation objectives:
+//    1. Execution efficiency
+//    2. RAM efficiency
+//    3. ROM efficiency
 // Validation result: Not run
 //
 
-#ifndef __RTWTYPES_H__
-#define __RTWTYPES_H__
+#ifndef RTWTYPES_H
+#define RTWTYPES_H
 
 // Logical type definitions
 #if (!defined(__cplusplus))
@@ -26,8 +33,6 @@
 #   define true                        (1U)
 #  endif
 #endif
-
-#define __TMWTYPES__
 
 //=======================================================================*
 //  Target hardware information
@@ -56,8 +61,8 @@ typedef float real32_T;
 typedef double real64_T;
 
 //===========================================================================*
-//  Generic type definitions: real_T, time_T, boolean_T, int_T, uint_T,       *
-//                            ulong_T, char_T and byte_T.                     *
+//  Generic type definitions: boolean_T, char_T, byte_T, int_T, uint_T,       *
+//                            real_T, time_T, ulong_T.                        *
 // ===========================================================================
 typedef double real_T;
 typedef double time_T;
@@ -69,68 +74,6 @@ typedef char char_T;
 typedef unsigned char uchar_T;
 typedef char_T byte_T;
 
-//===========================================================================*
-//  Complex number type definitions                                           *
-// ===========================================================================
-#define CREAL_T
-
-typedef struct {
-  real32_T re;
-  real32_T im;
-} creal32_T;
-
-typedef struct {
-  real64_T re;
-  real64_T im;
-} creal64_T;
-
-typedef struct {
-  real_T re;
-  real_T im;
-} creal_T;
-
-#define CINT8_T
-
-typedef struct {
-  int8_T re;
-  int8_T im;
-} cint8_T;
-
-#define CUINT8_T
-
-typedef struct {
-  uint8_T re;
-  uint8_T im;
-} cuint8_T;
-
-#define CINT16_T
-
-typedef struct {
-  int16_T re;
-  int16_T im;
-} cint16_T;
-
-#define CUINT16_T
-
-typedef struct {
-  uint16_T re;
-  uint16_T im;
-} cuint16_T;
-
-#define CINT32_T
-
-typedef struct {
-  int32_T re;
-  int32_T im;
-} cint32_T;
-
-#define CUINT32_T
-
-typedef struct {
-  uint32_T re;
-  uint32_T im;
-} cuint32_T;
-
 //=======================================================================*
 //  Min and Max:                                                          *
 //    int8_T, int16_T, int32_T     - signed 8, 16, or 32 bit integers     *
@@ -139,48 +82,17 @@ typedef struct {
 #define MAX_int8_T                     ((int8_T)(127))
 #define MIN_int8_T                     ((int8_T)(-128))
 #define MAX_uint8_T                    ((uint8_T)(255U))
-#define MIN_uint8_T                    ((uint8_T)(0U))
 #define MAX_int16_T                    ((int16_T)(32767))
 #define MIN_int16_T                    ((int16_T)(-32768))
 #define MAX_uint16_T                   ((uint16_T)(65535U))
-#define MIN_uint16_T                   ((uint16_T)(0U))
 #define MAX_int32_T                    ((int32_T)(2147483647))
 #define MIN_int32_T                    ((int32_T)(-2147483647-1))
 #define MAX_uint32_T                   ((uint32_T)(0xFFFFFFFFU))
-#define MIN_uint32_T                   ((uint32_T)(0U))
 
 // Block D-Work pointer type
 typedef void * pointer_T;
 
-// Simulink specific types
-#ifndef __ZERO_CROSSING_TYPES__
-#define __ZERO_CROSSING_TYPES__
-
-// Trigger directions: falling, either, and rising
-typedef enum {
-  FALLING_ZERO_CROSSING = -1,
-  ANY_ZERO_CROSSING = 0,
-  RISING_ZERO_CROSSING = 1
-} ZCDirection;
-
-// Previous state of a trigger signal
-typedef uint8_T ZCSigState;
-
-// Initial value of a trigger zero crossing signal
-#define UNINITIALIZED_ZCSIG            0x03U
-#define NEG_ZCSIG                      0x02U
-#define POS_ZCSIG                      0x01U
-#define ZERO_ZCSIG                     0x00U
-
-// Current state of a trigger signal
-typedef enum {
-  FALLING_ZCEVENT = -1,
-  NO_ZCEVENT = 0,
-  RISING_ZCEVENT = 1
-} ZCEventType;
-
-#endif                                 // __ZERO_CROSSING_TYPES__
-#endif                                 // __RTWTYPES_H__
+#endif                                 // RTWTYPES_H
 
 //
 // File trailer for generated code.

@@ -155,6 +155,7 @@ void Copter::do_erase_logs(void)
     gcs_send_text(MAV_SEVERITY_INFO, "Log erase complete");
 }
 
+
 #if AUTOTUNE_ENABLED == ENABLED
 struct PACKED log_AutoTune {
     LOG_PACKET_HEADER;

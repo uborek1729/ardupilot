@@ -191,7 +191,6 @@ public:
         k_param_sweep_flag, //233
 
 
-
         // high RC channels
         k_param_rc_9_old = 235,
         k_param_rc_10_old,

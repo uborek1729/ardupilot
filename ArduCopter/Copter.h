@@ -337,6 +337,9 @@ private:
     float vmax;
     float pmax;
     float trajectorycount;
+    int log_counter_qs;
+
+
 
     // Failsafe
     struct {
@@ -666,6 +669,7 @@ private:
     void barometer_accumulate(void);
     void perf_update(void);
     void fast_loop();
+    //void quadsquad_logging_loop(); //quadsquad
     void rc_loop();
     void throttle_loop();
     void update_mount();
@@ -761,6 +765,9 @@ private:
     void Log_Write_Baro(void);
     void Log_Write_Parameter_Tuning(uint8_t param, float tuning_val, int16_t control_in, int16_t tune_low, int16_t tune_high);
     void Log_Write_Home_And_Origin();
+    //void Log_Write_QSCONT(); //quadsquad
+    //void Log_Write_QSCONT2(); //quadsquad
+    //void Log_Write_QSCONT3(); //quadsquad
     void Log_Sensor_Health();
 #if FRAME_CONFIG == HELI_FRAME
     void Log_Write_Heli(void);

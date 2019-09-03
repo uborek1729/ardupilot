@@ -1,484 +1,298 @@
 //
+// Sponsored License - for use in support of a program or activity
+// sponsored by MathWorks.  Not for government, commercial or other
+// non-sponsored organizational use.
+//
 // File: QS_InnerRateLoop.cpp
 //
 // Code generated for Simulink model 'QS_InnerRateLoop'.
 //
-// Model version                  : 1.287
-// Simulink Coder version         : 8.6 (R2014a) 27-Dec-2013
-// C/C++ source code generated on : Thu Jun 08 14:44:18 2017
+// Model version                  : 1.488
+// Simulink Coder version         : 9.1 (R2019a) 23-Nov-2018
+// C/C++ source code generated on : Wed Jul 31 11:16:21 2019
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex
-// Code generation objectives: Unspecified
+// Code generation objectives:
+//    1. Execution efficiency
+//    2. RAM efficiency
+//    3. ROM efficiency
 // Validation result: Not run
 //
 #include "QS_InnerRateLoop.h"
 #include "QS_InnerRateLoop_private.h"
 
-real32_T look1_iflf_binlxpw(real32_T u0, const real32_T bp0[], const real32_T
-  table[], uint32_T maxIndex)
+uint32_T plook_u32ff_evencg(real32_T u, real32_T bp0, real32_T bpSpace, uint32_T
+  maxIndex, real32_T *fraction)
 {
-  real32_T frac;
-  uint32_T iRght;
-  uint32_T iLeft;
-  uint32_T bpIdx;
-
-  // Lookup 1-D
-  // Search method: 'binary'
-  // Use previous index: 'off'
-  // Interpolation method: 'Linear'
-  // Extrapolation method: 'Linear'
-  // Use last breakpoint for index at or above upper limit: 'off'
-  // Remove protection against out-of-range input in generated code: 'off'
+  uint32_T bpIndex;
+  real32_T invSpc;
+  real32_T fbpIndex;
 
   // Prelookup - Index and Fraction
-  // Index Search method: 'binary'
-  // Extrapolation method: 'Linear'
+  // Index Search method: 'even'
   // Use previous index: 'off'
   // Use last breakpoint for index at or above upper limit: 'off'
-  // Remove protection against out-of-range input in generated code: 'off'
+  // Remove protection against out-of-range input in generated code: 'on'
 
-  if (u0 <= bp0[0U]) {
-    iLeft = 0U;
-    frac = (u0 - bp0[0U]) / (bp0[1U] - bp0[0U]);
-  } else if (u0 < bp0[maxIndex]) {
-    // Binary Search
-    bpIdx = maxIndex >> 1U;
-    iLeft = 0U;
-    iRght = maxIndex;
-    while (iRght - iLeft > 1U) {
-      if (u0 < bp0[bpIdx]) {
-        iRght = bpIdx;
-      } else {
-        iLeft = bpIdx;
-      }
-
-      bpIdx = (iRght + iLeft) >> 1U;
-    }
-
-    frac = (u0 - bp0[iLeft]) / (bp0[iLeft + 1U] - bp0[iLeft]);
+  invSpc = 1.0F / bpSpace;
+  fbpIndex = (u - bp0) * invSpc;
+  if (fbpIndex < maxIndex) {
+    bpIndex = static_cast<uint32_T>(fbpIndex);
+    *fraction = (u - (static_cast<real32_T>(bpIndex) * bpSpace + bp0)) * invSpc;
   } else {
-    iLeft = maxIndex - 1U;
-    frac = (u0 - bp0[maxIndex - 1U]) / (bp0[maxIndex] - bp0[maxIndex - 1U]);
+    bpIndex = maxIndex - 1U;
+    *fraction = 1.0F;
   }
 
-  // Interpolation 1-D
-  // Interpolation method: 'Linear'
-  // Use last breakpoint for index at or above upper limit: 'off'
-  // Overflow mode: 'portable wrapping'
-
-  return (table[iLeft + 1U] - table[iLeft]) * frac + table[iLeft];
+  return bpIndex;
 }
 
-real32_T look1_iflf_pbinlcapw(real32_T u0, const real32_T bp0[], const real32_T
-  table[], uint32_T prevIndex[], uint32_T maxIndex)
+real32_T intrp1d_fu32fl_pw(uint32_T bpIndex, real32_T frac, const real32_T
+  table[])
 {
-  real32_T y;
-  real32_T frac;
-  uint32_T startIndex;
-  uint32_T iRght;
-  uint32_T iLeft;
-  uint32_T found;
+  // Column-major Interpolation 1-D
+  // Interpolation method: 'Linear point-slope'
+  // Use last breakpoint for index at or above upper limit: 'off'
+  // Overflow mode: 'portable wrapping'
 
-  // Lookup 1-D
-  // Search method: 'binary'
-  // Use previous index: 'on'
-  // Interpolation method: 'Linear'
-  // Extrapolation method: 'Clip'
-  // Use last breakpoint for index at or above upper limit: 'on'
-  // Remove protection against out-of-range input in generated code: 'off'
+  return (table[bpIndex + 1U] - table[bpIndex]) * frac + table[bpIndex];
+}
+
+uint32_T plook_u32ff_evenca(real32_T u, real32_T bp0, real32_T bpSpace, uint32_T
+  maxIndex, real32_T *fraction)
+{
+  uint32_T bpIndex;
+  real32_T invSpc;
+  real32_T fbpIndex;
 
   // Prelookup - Index and Fraction
-  // Index Search method: 'binary'
+  // Index Search method: 'even'
   // Extrapolation method: 'Clip'
-  // Use previous index: 'on'
+  // Use previous index: 'off'
   // Use last breakpoint for index at or above upper limit: 'on'
   // Remove protection against out-of-range input in generated code: 'off'
 
-  if (u0 <= bp0[0U]) {
-    startIndex = 0U;
-    frac = 0.0F;
-  } else if (u0 < bp0[maxIndex]) {
-    startIndex = prevIndex[0U];
-
-    // Binary Search using Previous Index
-    iLeft = 0U;
-    iRght = maxIndex;
-    found = 0U;
-    while (found == 0U) {
-      if (u0 < bp0[startIndex]) {
-        iRght = startIndex - 1U;
-        startIndex = (iRght + iLeft) >> 1U;
-      } else if (u0 < bp0[startIndex + 1U]) {
-        found = 1U;
-      } else {
-        iLeft = startIndex + 1U;
-        startIndex = (iRght + iLeft) >> 1U;
-      }
-    }
-
-    frac = (u0 - bp0[startIndex]) / (bp0[startIndex + 1U] - bp0[startIndex]);
+  if (u <= bp0) {
+    bpIndex = 0U;
+    *fraction = 0.0F;
   } else {
-    startIndex = maxIndex;
-    frac = 0.0F;
+    invSpc = 1.0F / bpSpace;
+    fbpIndex = (u - bp0) * invSpc;
+    if (fbpIndex < maxIndex) {
+      bpIndex = static_cast<uint32_T>(fbpIndex);
+      *fraction = (u - (static_cast<real32_T>(bpIndex) * bpSpace + bp0)) *
+        invSpc;
+    } else {
+      bpIndex = maxIndex;
+      *fraction = 0.0F;
+    }
   }
 
-  prevIndex[0U] = startIndex;
+  return bpIndex;
+}
 
-  // Interpolation 1-D
-  // Interpolation method: 'Linear'
+real32_T intrp1d_fu32fla_pw(uint32_T bpIndex, real32_T frac, const real32_T
+  table[], uint32_T maxIndex)
+{
+  real32_T y;
+
+  // Column-major Interpolation 1-D
+  // Interpolation method: 'Linear point-slope'
   // Use last breakpoint for index at or above upper limit: 'on'
   // Overflow mode: 'portable wrapping'
 
-  if (startIndex == maxIndex) {
-    y = table[startIndex];
+  if (bpIndex == maxIndex) {
+    y = table[bpIndex];
   } else {
-    y = (table[startIndex + 1U] - table[startIndex]) * frac + table[startIndex];
+    y = (table[bpIndex + 1U] - table[bpIndex]) * frac + table[bpIndex];
   }
 
   return y;
 }
 
+uint32_T plook_u32ff_evenxg(real32_T u, real32_T bp0, real32_T bpSpace, uint32_T
+  maxIndex, real32_T *fraction)
+{
+  uint32_T bpIndex;
+  real32_T invSpc;
+  real32_T fbpIndex;
+
+  // Prelookup - Index and Fraction
+  // Index Search method: 'even'
+  // Use previous index: 'off'
+  // Use last breakpoint for index at or above upper limit: 'off'
+  // Remove protection against out-of-range input in generated code: 'on'
+
+  invSpc = 1.0F / bpSpace;
+  fbpIndex = (u - bp0) * invSpc;
+  if (fbpIndex < maxIndex) {
+    bpIndex = static_cast<uint32_T>(fbpIndex);
+    *fraction = (u - (static_cast<real32_T>(bpIndex) * bpSpace + bp0)) * invSpc;
+  } else {
+    bpIndex = maxIndex - 1U;
+    *fraction = (u - (static_cast<real32_T>((maxIndex - 1U)) * bpSpace + bp0)) *
+      invSpc;
+  }
+
+  return bpIndex;
+}
+
+uint32_T plook_u32ff_bincg(real32_T u, const real32_T bp[], uint32_T maxIndex,
+  real32_T *fraction)
+{
+  uint32_T bpIndex;
+  uint32_T iRght;
+  uint32_T bpIdx;
+
+  // Prelookup - Index and Fraction
+  // Index Search method: 'binary'
+  // Use previous index: 'off'
+  // Use last breakpoint for index at or above upper limit: 'off'
+  // Remove protection against out-of-range input in generated code: 'on'
+
+  // Binary Search
+  bpIdx = maxIndex >> 1U;
+  bpIndex = 0U;
+  iRght = maxIndex;
+  while (iRght - bpIndex > 1U) {
+    if (u < bp[bpIdx]) {
+      iRght = bpIdx;
+    } else {
+      bpIndex = bpIdx;
+    }
+
+    bpIdx = (iRght + bpIndex) >> 1U;
+  }
+
+  *fraction = (u - bp[bpIndex]) / (bp[bpIndex + 1U] - bp[bpIndex]);
+  return bpIndex;
+}
+
+real32_T intrp2d_fu32fl_pw(const uint32_T bpIndex[], const real32_T frac[],
+  const real32_T table[], const uint32_T stride)
+{
+  real32_T yL_1d;
+  uint32_T offset_1d;
+
+  // Column-major Interpolation 2-D
+  // Interpolation method: 'Linear point-slope'
+  // Use last breakpoint for index at or above upper limit: 'off'
+  // Overflow mode: 'portable wrapping'
+
+  offset_1d = bpIndex[1U] * stride + bpIndex[0U];
+  yL_1d = (table[offset_1d + 1U] - table[offset_1d]) * frac[0U] +
+    table[offset_1d];
+  offset_1d += stride;
+  return (((table[offset_1d + 1U] - table[offset_1d]) * frac[0U] +
+           table[offset_1d]) - yL_1d) * frac[1U] + yL_1d;
+}
+
 // Model step function
 void untitledModelClass::step()
 {
-  // local block i/o variables
-  real32_T rtb_Gain1_h;
-  real32_T rtb_Gain1_c;
-  real32_T rtb_DataTypeConversion17;
-  real32_T rtb_Gain1_n;
-  boolean_T rtb_LogicalOperator1_f;
-  real32_T rtb_TrigonometricFunction3;
+  int32_T iU;
+  uint32_T bpIdx;
+  uint32_T bpIdx_0;
+  uint32_T bpIndices[2];
+  real32_T fractions[2];
+  uint32_T bpIndices_0[2];
+  real32_T fractions_0[2];
+  real32_T rtb_Saturation1_p;
+  real32_T rtb_uDLookupTable_cs;
+  real32_T rtb_Saturation_h;
+  real32_T rtb_Saturation8;
+  real32_T rtb_Add5_e;
+  real32_T rtb_Add6_i;
   real32_T rtb_TrigonometricFunction6;
-  boolean_T rtb_LogicalOperator1;
-  boolean_T rtb_LogicalOperator2;
+  real32_T rtb_TrigonometricFunction3;
+  real32_T rtb_TmpSignalConversionAtProduc[9];
+  boolean_T rtb_LogicalOperator2_g;
   real_T rtb_Sum2;
-  real32_T rtb_ProportionalGain;
-  real32_T rtb_TrigonometricFunction3_i;
-  real32_T rtb_TrigonometricFunction6_f;
-  real32_T rtb_Sqrt;
-  real32_T rtb_DLookupTable1;
-  real32_T rtb_Saturation;
-  real32_T rtb_ProportionalGain_o;
-  real32_T rtb_DLookupTable1_mp;
-  real32_T rtb_Saturation1;
-  real32_T rtb_Saturation2;
-  real32_T rtb_Product2_d;
-  real32_T rtb_Gain2;
-  real32_T rtb_Divide1_o;
-  real32_T rtb_DLookupTable3;
-  real32_T rtb_Gain1;
-  real32_T rtb_TrigonometricFunction3_j;
-  real32_T rtb_Divide4_f;
-  real32_T rtb_TrigonometricFunction6_k;
-  real32_T rtb_Divide5_k;
-  real32_T rtb_DLookupTable1_j;
-  real32_T rtb_Divide3_h;
-  real32_T rtb_Divide9_lo;
-  real32_T rtb_Divide10_f;
-  real32_T rtb_DLookupTable;
-  real32_T rtb_Divide2_c;
-  real32_T rtb_DLookupTable2;
-  real32_T rtb_Divide4_l;
-  real32_T rtb_mstofts2;
-  real32_T rtb_Switch1_k;
-  real32_T rtb_Gain;
-  real32_T rtb_DiscreteTimeIntegrator1_m;
-  real32_T rtb_derivativecutofffrequency1;
-  real32_T rtb_mstofts;
-  real32_T rtb_DLookupTable2_o;
-  real32_T rtb_Product2_n;
-  real32_T rtb_Switch1_a;
-  real32_T rtb_derivativecutofffrequenc_ap;
-  real32_T rtb_Sum4_i;
-  real32_T rtb_deg2rad2;
-  real32_T rtb_derivativecutofffrequenc_nd;
-  real32_T rtb_Sum2_cl;
-  real32_T rtb_Gain_bw;
-  real32_T rtb_Gain_fc;
-  real32_T rtb_Switch_if;
+  boolean_T rtb_LogicalOperator1_n;
   real32_T rtb_Product;
-  real32_T rtb_Switch_b5;
+  real32_T rtb_Product_ng;
+  real32_T rtb_Saturation2_h;
+  real32_T rtb_Product_ee;
+  real32_T rtb_Switch2_cz;
+  real32_T rtb_Product2;
+  real32_T rtb_Gain2;
+  real32_T rtb_Sum4_a;
+  real32_T rtb_uDLookupTable3;
+  real32_T rtb_Sum3_f;
+  real32_T rtb_derivativecutofffrequency_b;
+  real32_T rtb_Sum4_b;
+  real32_T rtb_Add5_ky;
+  real32_T rtb_Add7_d;
+  real32_T rtb_Sum2_pj;
+  real32_T rtb_Saturation2_o;
+  real32_T rtb_Add6_a;
+  real32_T rtb_Switch_ep;
+  real32_T rtb_Product_of;
+  real32_T rtb_Gain1;
+  real32_T rtb_DiscreteTimeIntegrator1;
+  boolean_T rtb_LogicalOperator2_e;
+  boolean_T rtb_RelationalOperator4_e;
+  real_T rtb_Gain;
+  real32_T rtb_Saturation5_k;
+  real32_T rtb_Sum1_c0;
+  real32_T rtb_Product_ib;
+  real32_T rtb_uDLookupTable1;
+  real32_T rtb_DiscreteTimeIntegrator_hs;
+  real32_T rtb_Sum1_fe;
+  real32_T rtb_Product_jr;
+  real32_T rtb_uDLookupTable;
+  real32_T rtb_uDLookupTable1_p;
+  real32_T rtb_DiscreteTimeIntegrator_cv;
+  real32_T rtb_Saturation_k;
+  real32_T rtb_uDLookupTable2_bw;
   real32_T rtb_Product_n;
-  real32_T rtb_Switch_ao;
-  real32_T rtb_Product_d;
-  real32_T rtb_Switch_gw;
-  real32_T rtb_Gain3_a;
-  real32_T rtb_TrigonometricFunction2;
-  real32_T rtb_Add5;
-  real32_T rtb_Add6;
-  real32_T rtb_TrigonometricFunction5;
-  real32_T rtb_Add7;
-  real32_T rtb_TrigonometricFunction4;
-  real32_T rtb_TrigonometricFunction1;
-  real32_T rtb_Binv1[4];
-  real32_T rtb_Product1;
-  int32_T rtb_Sum_dv;
-  real32_T rtb_MultiportSwitch1;
-  real32_T rtb_Saturation_m;
-  real32_T rtb_Product2_l4;
-  real32_T rtb_Product_jq;
-  real32_T rtb_Product1_p;
-  real32_T rtb_Product3;
-  real32_T rtb_DiscreteTimeIntegrator_ab;
-  real32_T rtb_mstofts1;
-  real32_T rtb_DLookupTable5;
-  real32_T rtb_Product1_i;
-  real32_T rtb_Switch1_kj;
-  real32_T rtb_TrigonometricFunction3_c;
-  real32_T rtb_TrigonometricFunction6_fg;
-  real32_T rtb_Sum_m;
-  real32_T rtb_MultiportSwitch2;
-  real32_T rtb_DiscreteTimeIntegrator_ph;
-  real32_T rtb_Switch_e;
-  real32_T rtb_Add5_j;
-  real32_T rtb_Add6_h;
-  real32_T rtb_Add7_g;
-  real32_T rtb_Sum1;
-  real32_T rtb_Sum2_im;
-  real32_T rtb_Sum3;
-  real32_T rtb_Sum4;
-  real32_T rtb_Switch_gx;
-  real32_T rtb_Sum_e;
-  real32_T rtb_Sum2_d;
-  real32_T rtb_Sum4_k;
-  real32_T rtb_Switch_p;
-  real32_T rtb_Sum_as;
-  real32_T rtb_Sum2_b;
-  real32_T rtb_Switch_ba;
-  real32_T rtb_Switch_g;
-  real32_T rtb_Sum4_d;
-  real32_T rtb_Sum4_px;
-  real32_T rtb_Switch_d;
-  real32_T rtb_Sum_ds;
-  real32_T rtb_Sum2_l;
-  real32_T rtb_derivativecutofffrequenc_ib;
-  real32_T rtb_DLookupTable3_m;
-  real32_T rtb_DLookupTable1_mh;
-  real32_T rtb_derivativecutofffrequenc_m5;
-  real32_T rtb_DLookupTable6;
-  real32_T rtb_DLookupTable4;
-  real32_T rtb_Sum2_o;
-  real32_T DiscreteTimeIntegrator1;
-  real32_T DiscreteTimeIntegrator;
-  real32_T DiscreteTimeIntegrator1_j;
-  real32_T DiscreteTimeIntegrator1_e;
-  real32_T DiscreteTimeIntegrator_h;
-  real32_T DiscreteTransferFcn_tmp;
-  real32_T DiscreteTransferFcn1_tmp;
-  real32_T DiscreteTransferFcn2_tmp;
-  real32_T rtb_Gain_4[4];
-  real32_T tmp[4];
-  real32_T rtb_TrigonometricFunction2_0[9];
-  real32_T rtb_Gain_5[4];
+  real32_T rtb_uDLookupTable1_l;
+  real32_T rtb_DiscreteTimeIntegrator_nt;
+  real32_T rtb_Product_ear;
+  real32_T rtb_uDLookupTable_k;
+  real32_T rtb_DiscreteTimeIntegrator_ia;
+  real32_T rtb_Product_hg[4];
+  real32_T rtb_DeadZone3;
+  real32_T rtb_DiscreteTimeIntegrator_fi;
+  real32_T rtb_uDLookupTable_d;
+  real32_T rtb_DiscreteTimeIntegrator_k1;
+  real32_T rtb_Sum1_lq;
+  real32_T rtb_DiscreteTimeIntegrator_h;
+  real32_T rtb_Sum1_gg;
+  real32_T rtb_DiscreteTimeIntegrator_n;
+  boolean_T rtb_RelationalOperator_b1;
+  real32_T rtb_DeadZone;
+  real32_T rtb_Abs;
+  real32_T rtb_Sum1_gw;
+  real32_T rtb_uDLookupTable2[36];
+  real32_T rtb_uDLookupTable2_k5[16];
+  real32_T rtb_Sum1_f[4];
+  real32_T rtb_Product_b[4];
   int32_T i;
-  int32_T rtb_Switch_m;
-  real32_T rtb_Sum1_0;
-
-  // Outputs for Enabled SubSystem: '<Root>/Enabled Subsystem Grab and Freeze Value Upon Engagement' incorporates:
-  //   EnablePort: '<S4>/Enable'
-
-  // Logic: '<Root>/Logical Operator' incorporates:
-  //   Inport: '<Root>/engage'
-  //   Inport: '<Root>/mixer_in_throttle'
-  //   Inport: '<Root>/mixer_in_x'
-  //   Inport: '<Root>/mixer_in_y'
-  //   Inport: '<Root>/mixer_in_z'
-  //   Inport: '<S4>/In1'
-
-  if (!QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_B.In1[0] = QS_InnerRateLoop_U.mixer_in_throttle;
-    QS_InnerRateLoop_B.In1[1] = QS_InnerRateLoop_U.mixer_in_y;
-    QS_InnerRateLoop_B.In1[2] = QS_InnerRateLoop_U.mixer_in_x;
-    QS_InnerRateLoop_B.In1[3] = QS_InnerRateLoop_U.mixer_in_z;
-  }
-
-  // End of Logic: '<Root>/Logical Operator'
-  // End of Outputs for SubSystem: '<Root>/Enabled Subsystem Grab and Freeze Value Upon Engagement' 
-
-  // Trigonometry: '<S34>/Trigonometric Function3' incorporates:
-  //   Inport: '<Root>/psi_rad'
-
-  rtb_TrigonometricFunction3 = (real32_T)cos(QS_InnerRateLoop_U.psi_rad);
-
-  // Trigonometry: '<S34>/Trigonometric Function6' incorporates:
-  //   Inport: '<Root>/psi_rad'
-
-  rtb_TrigonometricFunction6 = (real32_T)sin(QS_InnerRateLoop_U.psi_rad);
-
-  // Sum: '<S46>/Sum2' incorporates:
-  //   Delay: '<S46>/Delay1'
-  //   Delay: '<S46>/Delay2'
-  //   Inport: '<Root>/CH8_flag'
-  //   RelationalOperator: '<S46>/Relational Operator2'
-
-  rtb_Sum2 = (real_T)(QS_InnerRateLoop_U.CH8_flag >
-                      QS_InnerRateLoop_DWork.Delay1_DSTATE) +
-    QS_InnerRateLoop_DWork.Delay2_DSTATE;
-
-  // Logic: '<Root>/Logical Operator1' incorporates:
-  //   Inport: '<Root>/CH8_flag'
-  //   Inport: '<Root>/Trajectory Switch'
-
-  rtb_LogicalOperator1 = (QS_InnerRateLoop_U.TrajectorySwitch &&
-    (QS_InnerRateLoop_U.CH8_flag != 0.0F));
-
-  // Outputs for Enabled SubSystem: '<S8>/Enabled Subsystem1' incorporates:
-  //   EnablePort: '<S48>/Enable'
-
-  // Logic: '<S8>/Logical Operator3' incorporates:
-  //   Inport: '<Root>/input_col'
-  //   Inport: '<Root>/input_lat'
-  //   Inport: '<Root>/input_lon'
-  //   Inport: '<Root>/input_ped'
-  //   Inport: '<S48>/col'
-  //   Inport: '<S48>/lat'
-  //   Inport: '<S48>/lon'
-  //   Inport: '<S48>/ped'
-
-  if (!rtb_LogicalOperator1) {
-    QS_InnerRateLoop_B.lon = QS_InnerRateLoop_U.input_lon;
-    QS_InnerRateLoop_B.lat = QS_InnerRateLoop_U.input_lat;
-    QS_InnerRateLoop_B.col_f = QS_InnerRateLoop_U.input_col;
-    QS_InnerRateLoop_B.ped = QS_InnerRateLoop_U.input_ped;
-  }
-
-  // End of Logic: '<S8>/Logical Operator3'
-  // End of Outputs for SubSystem: '<S8>/Enabled Subsystem1'
-
-  // Sum: '<S8>/Sum1' incorporates:
-  //   Inport: '<Root>/input_lon'
-
-  rtb_Sum1 = QS_InnerRateLoop_U.input_lon - QS_InnerRateLoop_B.lon;
-
-  // Sum: '<S8>/Sum2' incorporates:
-  //   Inport: '<Root>/input_lat'
-
-  rtb_Sum2_im = QS_InnerRateLoop_U.input_lat - QS_InnerRateLoop_B.lat;
-
-  // Sum: '<S8>/Sum3' incorporates:
-  //   Inport: '<Root>/input_col'
-
-  rtb_Sum3 = QS_InnerRateLoop_U.input_col - QS_InnerRateLoop_B.col_f;
-
-  // Sum: '<S8>/Sum4' incorporates:
-  //   Inport: '<Root>/input_ped'
-
-  rtb_Sum4 = QS_InnerRateLoop_U.input_ped - QS_InnerRateLoop_B.ped;
-
-  // DeadZone: '<S47>/Dead Zone2'
-  if (rtb_Sum1 > 135.0F) {
-    rtb_Sum1_0 = rtb_Sum1 - 135.0F;
-  } else if (rtb_Sum1 >= -135.0F) {
-    rtb_Sum1_0 = 0.0F;
-  } else {
-    rtb_Sum1_0 = rtb_Sum1 - -135.0F;
-  }
-
-  // End of DeadZone: '<S47>/Dead Zone2'
-
-  // DeadZone: '<S47>/Dead Zone1'
-  if (rtb_Sum2_im > 135.0F) {
-    DiscreteTransferFcn_tmp = rtb_Sum2_im - 135.0F;
-  } else if (rtb_Sum2_im >= -135.0F) {
-    DiscreteTransferFcn_tmp = 0.0F;
-  } else {
-    DiscreteTransferFcn_tmp = rtb_Sum2_im - -135.0F;
-  }
-
-  // End of DeadZone: '<S47>/Dead Zone1'
-
-  // DeadZone: '<S47>/Dead Zone3'
-  if (rtb_Sum3 > 50.0F) {
-    DiscreteTransferFcn1_tmp = rtb_Sum3 - 50.0F;
-  } else if (rtb_Sum3 >= -50.0F) {
-    DiscreteTransferFcn1_tmp = 0.0F;
-  } else {
-    DiscreteTransferFcn1_tmp = rtb_Sum3 - -50.0F;
-  }
-
-  // End of DeadZone: '<S47>/Dead Zone3'
-
-  // DeadZone: '<S47>/Dead Zone4'
-  if (rtb_Sum4 > 135.0F) {
-    DiscreteTransferFcn2_tmp = rtb_Sum4 - 135.0F;
-  } else if (rtb_Sum4 >= -135.0F) {
-    DiscreteTransferFcn2_tmp = 0.0F;
-  } else {
-    DiscreteTransferFcn2_tmp = rtb_Sum4 - -135.0F;
-  }
-
-  // End of DeadZone: '<S47>/Dead Zone4'
-
-  // Logic: '<S8>/Logical Operator2' incorporates:
-  //   Abs: '<S47>/Abs'
-  //   Abs: '<S47>/Abs1'
-  //   Abs: '<S47>/Abs2'
-  //   Abs: '<S47>/Abs3'
-  //   Logic: '<S47>/Logical Operator'
-  //   Logic: '<S47>/Logical Operator1'
-
-  rtb_LogicalOperator2 = ((!(((real32_T)fabs(rtb_Sum1_0) != 0.0F) || ((real32_T)
-    fabs(DiscreteTransferFcn_tmp) != 0.0F) || ((real32_T)fabs
-    (DiscreteTransferFcn1_tmp) != 0.0F) || ((real32_T)fabs
-    (DiscreteTransferFcn2_tmp) != 0.0F))) && rtb_LogicalOperator1);
-
-  // Logic: '<S8>/Logical Operator1'
-  rtb_LogicalOperator1_f = ((rtb_Sum2 != 0.0) && rtb_LogicalOperator2);
-
-  // DiscreteIntegrator: '<S39>/Discrete-Time Integrator'
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRese <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRese == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE =
-      QS_InnerRateLoop_ConstB.Constant;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE >= 5.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = 5.0F;
-    } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE <= -5.0F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = -5.0F;
-      }
-    }
-  }
-
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE >= 5.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = 5.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE <= -5.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = -5.0F;
-    }
-  }
-
-  // DiscreteIntegrator: '<S31>/Discrete-Time Integrator'
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOADI != 0) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n = 0.0F;
-  }
-
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_h <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_h == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n = 0.0F;
-  }
-
-  // Gain: '<S39>/Proportional Gain' incorporates:
-  //   DiscreteIntegrator: '<S31>/Discrete-Time Integrator'
-  //   Inport: '<Root>/pos North (KF)'
-  //   Sum: '<S39>/Sum'
-
-  rtb_ProportionalGain = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n
-    - QS_InnerRateLoop_U.posNorthKF) * 2.0F;
+  real32_T tmp;
+  real32_T rtb_Sum1_j_idx_0;
+  real32_T rtb_Sum1_j_idx_1;
+  real32_T rtb_Sum1_j_idx_3;
+  int32_T tmp_0;
+  real32_T rtb_uDLookupTable_l_tmp;
+  real32_T rtb_Product_b_tmp;
+  real32_T rtb_derivativecutofffrequency_0;
+  real32_T rtb_Product_b_tmp_0;
+  real32_T rtb_Product_b_tmp_1;
 
   // Trigonometry: '<S6>/Trigonometric Function3' incorporates:
   //   Inport: '<Root>/psi_rad'
+  //   Trigonometry: '<S60>/Trigonometric Function3'
 
-  rtb_TrigonometricFunction3_i = (real32_T)cos(QS_InnerRateLoop_U.psi_rad);
+  rtb_Gain1 = static_cast<real32_T>(cos((real_T)QS_InnerRateLoop_U.psi_rad));
 
   // Trigonometry: '<S6>/Trigonometric Function6' incorporates:
   //   Inport: '<Root>/psi_rad'
+  //   Trigonometry: '<S60>/Trigonometric Function6'
 
-  rtb_TrigonometricFunction6_f = (real32_T)sin(QS_InnerRateLoop_U.psi_rad);
+  rtb_uDLookupTable_l_tmp = static_cast<real32_T>(sin((real_T)
+    QS_InnerRateLoop_U.psi_rad));
 
   // Sum: '<S6>/Add5' incorporates:
   //   Inport: '<Root>/vD_fps (KF)'
@@ -487,13 +301,21 @@ void untitledModelClass::step()
   //   Product: '<S6>/Divide'
   //   Product: '<S6>/Divide2'
   //   Product: '<S6>/Divide6'
+  //   Trigonometry: '<S6>/Trigonometric Function3'
+  //   Trigonometry: '<S6>/Trigonometric Function6'
 
-  rtb_Add5 = (QS_InnerRateLoop_ConstB.TrigonometricFunction2 *
-              rtb_TrigonometricFunction3_i * QS_InnerRateLoop_U.vN_fpsKF +
-              QS_InnerRateLoop_ConstB.TrigonometricFunction2 *
-              rtb_TrigonometricFunction6_f * QS_InnerRateLoop_U.vE_fpsKF) +
-    -QS_InnerRateLoop_ConstB.TrigonometricFunction5_m *
+  rtb_Add5_e = (QS_InnerRateLoop_ConstB.TrigonometricFunction2 * rtb_Gain1 *
+                QS_InnerRateLoop_U.vN_fpsKF +
+                QS_InnerRateLoop_ConstB.TrigonometricFunction2 *
+                rtb_uDLookupTable_l_tmp * QS_InnerRateLoop_U.vE_fpsKF) +
+    -QS_InnerRateLoop_ConstB.TrigonometricFunction5 *
     QS_InnerRateLoop_U.vD_fpsKF;
+
+  // Product: '<S6>/Divide1' incorporates:
+  //   Product: '<S6>/Divide7'
+
+  rtb_Add6_i = QS_InnerRateLoop_ConstB.TrigonometricFunction4 *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction5;
 
   // Sum: '<S6>/Add6' incorporates:
   //   Inport: '<Root>/vD_fps (KF)'
@@ -508,19 +330,86 @@ void untitledModelClass::step()
   //   Product: '<S6>/Divide8'
   //   Sum: '<S6>/Add1'
   //   Sum: '<S6>/Add3'
+  //   Trigonometry: '<S6>/Trigonometric Function3'
+  //   Trigonometry: '<S6>/Trigonometric Function6'
 
-  rtb_Add6 = ((QS_InnerRateLoop_ConstB.TrigonometricFunction4_m *
-               QS_InnerRateLoop_ConstB.TrigonometricFunction5_m *
-               rtb_TrigonometricFunction3_i -
-               QS_InnerRateLoop_ConstB.TrigonometricFunction1_o *
-               rtb_TrigonometricFunction6_f) * QS_InnerRateLoop_U.vN_fpsKF +
-              (QS_InnerRateLoop_ConstB.TrigonometricFunction4_m *
-               QS_InnerRateLoop_ConstB.TrigonometricFunction5_m *
-               rtb_TrigonometricFunction6_f +
-               QS_InnerRateLoop_ConstB.TrigonometricFunction1_o *
-               rtb_TrigonometricFunction3_i) * QS_InnerRateLoop_U.vE_fpsKF) +
-    QS_InnerRateLoop_ConstB.TrigonometricFunction4_m *
+  rtb_Add6_i = ((rtb_Add6_i * rtb_Gain1 -
+                 QS_InnerRateLoop_ConstB.TrigonometricFunction1 *
+                 rtb_uDLookupTable_l_tmp) * QS_InnerRateLoop_U.vN_fpsKF +
+                (rtb_Add6_i * rtb_uDLookupTable_l_tmp +
+                 QS_InnerRateLoop_ConstB.TrigonometricFunction1 * rtb_Gain1) *
+                QS_InnerRateLoop_U.vE_fpsKF) +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction4 *
     QS_InnerRateLoop_ConstB.TrigonometricFunction2 * QS_InnerRateLoop_U.vD_fpsKF;
+
+  // Sqrt: '<Root>/Sqrt1' incorporates:
+  //   Math: '<Root>/Math Function3'
+  //   Math: '<Root>/Math Function4'
+  //   Sum: '<Root>/Add1'
+  //
+  //  About '<Root>/Math Function3':
+  //   Operator: magnitude^2
+  //
+  //  About '<Root>/Math Function4':
+  //   Operator: magnitude^2
+
+  rtb_Saturation8 = static_cast<real32_T>(sqrt((real_T)(rtb_Add5_e * rtb_Add5_e
+    + rtb_Add6_i * rtb_Add6_i)));
+
+  // Saturate: '<Root>/Saturation8'
+  if (rtb_Saturation8 > 6.5F) {
+    rtb_Saturation8 = 6.5F;
+  } else {
+    if (rtb_Saturation8 < 0.0F) {
+      rtb_Saturation8 = 0.0F;
+    }
+  }
+
+  // End of Saturate: '<Root>/Saturation8'
+
+  // Lookup_n-D: '<S52>/1-D Lookup Table2' incorporates:
+  //   Constant: '<S52>/Constant'
+  //   Delay: '<S10>/Delay1'
+  //   Lookup_n-D: '<S51>/1-D Lookup Table2'
+
+  bpIndices[0U] = plook_u32ff_bincg(rtb_Saturation8,
+    QS_InnerRateLoop_ConstP.pooled6, 4U, &rtb_Saturation5_k);
+  fractions[0U] = rtb_Saturation5_k;
+  for (iU = 0; iU < 36; iU++) {
+    bpIndices[1U] = plook_u32ff_bincg(QS_InnerRateLoop_ConstP.pooled16[iU],
+      QS_InnerRateLoop_ConstP.pooled16, 35U, &rtb_Saturation5_k);
+    fractions[1U] = rtb_Saturation5_k;
+    rtb_uDLookupTable2[iU] = intrp2d_fu32fl_pw(bpIndices, fractions,
+      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_g, 5U);
+  }
+
+  // Lookup_n-D: '<S51>/1-D Lookup Table2' incorporates:
+  //   Constant: '<S51>/Constant'
+  //   Delay: '<S10>/Delay1'
+  //   Lookup_n-D: '<S52>/1-D Lookup Table2'
+
+  bpIndices_0[0U] = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  fractions_0[0U] = rtb_Saturation5_k;
+  for (iU = 0; iU < 16; iU++) {
+    bpIndices_0[1U] = plook_u32ff_evencg(QS_InnerRateLoop_ConstP.pooled17[iU],
+      1.0F, 1.0F, 15U, &rtb_Saturation5_k);
+    fractions_0[1U] = rtb_Saturation5_k;
+    rtb_uDLookupTable2_k5[iU] = intrp2d_fu32fl_pw(bpIndices_0, fractions_0,
+      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_b, 5U);
+  }
+
+  // Trigonometry: '<S5>/Trigonometric Function2' incorporates:
+  //   Inport: '<Root>/theta_rad'
+
+  rtb_Saturation_h = static_cast<real32_T>(cos((real_T)
+    QS_InnerRateLoop_U.theta_rad));
+
+  // Product: '<S6>/Divide4' incorporates:
+  //   Product: '<S6>/Divide9'
+
+  rtb_uDLookupTable_cs = QS_InnerRateLoop_ConstB.TrigonometricFunction1 *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction5;
 
   // Sum: '<S6>/Add7' incorporates:
   //   Inport: '<Root>/vD_fps (KF)'
@@ -535,154 +424,353 @@ void untitledModelClass::step()
   //   Product: '<S6>/Divide9'
   //   Sum: '<S6>/Add2'
   //   Sum: '<S6>/Add4'
+  //   Trigonometry: '<S6>/Trigonometric Function3'
+  //   Trigonometry: '<S6>/Trigonometric Function6'
 
-  rtb_Add7 = ((QS_InnerRateLoop_ConstB.TrigonometricFunction1_o *
-               QS_InnerRateLoop_ConstB.TrigonometricFunction5_m *
-               rtb_TrigonometricFunction3_i +
-               QS_InnerRateLoop_ConstB.TrigonometricFunction4_m *
-               rtb_TrigonometricFunction6_f) * QS_InnerRateLoop_U.vN_fpsKF +
-              (QS_InnerRateLoop_ConstB.TrigonometricFunction1_o *
-               QS_InnerRateLoop_ConstB.TrigonometricFunction5_m *
-               rtb_TrigonometricFunction6_f -
-               QS_InnerRateLoop_ConstB.TrigonometricFunction4_m *
-               rtb_TrigonometricFunction3_i) * QS_InnerRateLoop_U.vE_fpsKF) +
-    QS_InnerRateLoop_ConstB.TrigonometricFunction1_o *
+  rtb_uDLookupTable_cs = ((rtb_uDLookupTable_cs * rtb_Gain1 +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction4 * rtb_uDLookupTable_l_tmp) *
+    QS_InnerRateLoop_U.vN_fpsKF + (rtb_uDLookupTable_cs *
+    rtb_uDLookupTable_l_tmp - QS_InnerRateLoop_ConstB.TrigonometricFunction4 *
+    rtb_Gain1) * QS_InnerRateLoop_U.vE_fpsKF) +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction1 *
     QS_InnerRateLoop_ConstB.TrigonometricFunction2 * QS_InnerRateLoop_U.vD_fpsKF;
 
-  // Sqrt: '<Root>/Sqrt' incorporates:
-  //   Math: '<Root>/Math Function'
-  //   Math: '<Root>/Math Function1'
-  //   Math: '<Root>/Math Function2'
-  //   Sum: '<Root>/Add'
-  //
-  //  About '<Root>/Math Function':
-  //   Operator: magnitude^2
-  //
-  //  About '<Root>/Math Function1':
-  //   Operator: magnitude^2
-  //
-  //  About '<Root>/Math Function2':
-  //   Operator: magnitude^2
+  // Trigonometry: '<S5>/Trigonometric Function5' incorporates:
+  //   Inport: '<Root>/theta_rad'
 
-  rtb_Sqrt = (real32_T)sqrt((rtb_Add5 * rtb_Add5 + rtb_Add6 * rtb_Add6) +
-    rtb_Add7 * rtb_Add7);
+  rtb_Saturation1_p = static_cast<real32_T>(sin((real_T)
+    QS_InnerRateLoop_U.theta_rad));
 
-  // Lookup_n-D: '<S39>/1-D Lookup Table1'
-  rtb_DLookupTable1 = look1_iflf_binlxpw(rtb_Sqrt, *(real32_T (*)[7])&
-    QS_InnerRateLoop_ConstP.pooled11[0], *(real32_T (*)[7])&
-    QS_InnerRateLoop_ConstP.pooled24[0], 6U);
+  // Trigonometry: '<S5>/Trigonometric Function4' incorporates:
+  //   Inport: '<Root>/phi_rad'
 
-  // Product: '<S39>/Product2' incorporates:
-  //   DiscreteIntegrator: '<S39>/Discrete-Time Integrator'
-  //   Sum: '<S39>/Sum1'
+  rtb_TrigonometricFunction6 = static_cast<real32_T>(sin((real_T)
+    QS_InnerRateLoop_U.phi_rad));
 
-  rtb_Sum1_0 = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE +
-                rtb_ProportionalGain) * rtb_DLookupTable1;
+  // Trigonometry: '<S5>/Trigonometric Function1' incorporates:
+  //   Inport: '<Root>/phi_rad'
 
-  // Saturate: '<S32>/Saturation'
-  if (rtb_Sum1_0 > 10.0F) {
-    rtb_Saturation = 10.0F;
-  } else if (rtb_Sum1_0 < -10.0F) {
-    rtb_Saturation = -10.0F;
-  } else {
-    rtb_Saturation = rtb_Sum1_0;
+  rtb_TrigonometricFunction3 = static_cast<real32_T>(cos((real_T)
+    QS_InnerRateLoop_U.phi_rad));
+
+  // SignalConversion: '<S52>/TmpSignal ConversionAtProductInport2' incorporates:
+  //   Product: '<S5>/Divide'
+  //   Product: '<S5>/Divide2'
+  //   Product: '<S5>/Divide6'
+  //   Sum: '<S5>/Add5'
+
+  rtb_TmpSignalConversionAtProduc[0] = (rtb_Saturation_h *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction3 * rtb_Add5_e +
+    rtb_Saturation_h * QS_InnerRateLoop_ConstB.TrigonometricFunction6 *
+    rtb_Add6_i) + -rtb_Saturation1_p * rtb_uDLookupTable_cs;
+
+  // Product: '<S5>/Divide1' incorporates:
+  //   Product: '<S5>/Divide7'
+
+  rtb_Product = rtb_TrigonometricFunction6 * rtb_Saturation1_p;
+
+  // SignalConversion: '<S52>/TmpSignal ConversionAtProductInport2' incorporates:
+  //   Product: '<S5>/Divide1'
+  //   Product: '<S5>/Divide11'
+  //   Product: '<S5>/Divide13'
+  //   Product: '<S5>/Divide15'
+  //   Product: '<S5>/Divide3'
+  //   Product: '<S5>/Divide7'
+  //   Product: '<S5>/Divide8'
+  //   Sum: '<S5>/Add1'
+  //   Sum: '<S5>/Add3'
+  //   Sum: '<S5>/Add6'
+
+  rtb_TmpSignalConversionAtProduc[1] = ((rtb_Product *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction3 - rtb_TrigonometricFunction3 *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction6) * rtb_Add5_e + (rtb_Product *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction6 + rtb_TrigonometricFunction3 *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction3) * rtb_Add6_i) +
+    rtb_TrigonometricFunction6 * rtb_Saturation_h * rtb_uDLookupTable_cs;
+
+  // Product: '<S5>/Divide4' incorporates:
+  //   Product: '<S5>/Divide9'
+
+  rtb_Product = rtb_TrigonometricFunction3 * rtb_Saturation1_p;
+
+  // SignalConversion: '<S52>/TmpSignal ConversionAtProductInport2' incorporates:
+  //   Inport: '<Root>/p_rps'
+  //   Inport: '<Root>/phi_rad'
+  //   Inport: '<Root>/psi_rad'
+  //   Inport: '<Root>/q_rps'
+  //   Inport: '<Root>/r_rps'
+  //   Inport: '<Root>/theta_rad'
+  //   Product: '<S5>/Divide10'
+  //   Product: '<S5>/Divide12'
+  //   Product: '<S5>/Divide14'
+  //   Product: '<S5>/Divide16'
+  //   Product: '<S5>/Divide4'
+  //   Product: '<S5>/Divide5'
+  //   Product: '<S5>/Divide9'
+  //   Sum: '<S5>/Add2'
+  //   Sum: '<S5>/Add4'
+  //   Sum: '<S5>/Add7'
+
+  rtb_TmpSignalConversionAtProduc[2] = ((rtb_Product *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction3 + rtb_TrigonometricFunction6 *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction6) * rtb_Add5_e + (rtb_Product *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction6 - rtb_TrigonometricFunction6 *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction3) * rtb_Add6_i) +
+    rtb_TrigonometricFunction3 * rtb_Saturation_h * rtb_uDLookupTable_cs;
+  rtb_TmpSignalConversionAtProduc[3] = QS_InnerRateLoop_U.p_rps;
+  rtb_TmpSignalConversionAtProduc[4] = QS_InnerRateLoop_U.q_rps;
+  rtb_TmpSignalConversionAtProduc[5] = QS_InnerRateLoop_U.r_rps;
+  rtb_TmpSignalConversionAtProduc[6] = QS_InnerRateLoop_U.phi_rad;
+  rtb_TmpSignalConversionAtProduc[7] = QS_InnerRateLoop_U.theta_rad;
+  rtb_TmpSignalConversionAtProduc[8] = QS_InnerRateLoop_U.psi_rad;
+
+  // Sum: '<S83>/Sum2' incorporates:
+  //   Delay: '<S83>/Delay1'
+  //   Delay: '<S83>/Delay2'
+  //   Inport: '<Root>/CH8_flag'
+  //   RelationalOperator: '<S83>/Relational Operator2'
+
+  rtb_Sum2 = static_cast<real_T>((QS_InnerRateLoop_U.CH8_flag >
+    QS_InnerRateLoop_DWork.Delay1_DSTATE)) +
+    QS_InnerRateLoop_DWork.Delay2_DSTATE;
+
+  // Outputs for Enabled SubSystem: '<S8>/Enabled Subsystem1' incorporates:
+  //   EnablePort: '<S85>/Enable'
+
+  // Logic: '<S8>/Logical Operator3' incorporates:
+  //   Inport: '<Root>/CH8_flag'
+  //   Inport: '<Root>/input_col'
+  //   Inport: '<Root>/input_lat'
+  //   Inport: '<Root>/input_lon'
+  //   Inport: '<Root>/input_ped'
+  //   Inport: '<S85>/col'
+  //   Inport: '<S85>/lat'
+  //   Inport: '<S85>/lon'
+  //   Inport: '<S85>/ped'
+
+  if (QS_InnerRateLoop_U.CH8_flag == 0.0F) {
+    QS_InnerRateLoop_B.lon = QS_InnerRateLoop_U.input_lon;
+    QS_InnerRateLoop_B.lat = QS_InnerRateLoop_U.input_lat;
+    QS_InnerRateLoop_B.col_h = QS_InnerRateLoop_U.input_col;
+    QS_InnerRateLoop_B.ped = QS_InnerRateLoop_U.input_ped;
   }
 
-  // End of Saturate: '<S32>/Saturation'
+  // End of Logic: '<S8>/Logical Operator3'
+  // End of Outputs for SubSystem: '<S8>/Enabled Subsystem1'
 
-  // DiscreteIntegrator: '<S38>/Discrete-Time Integrator'
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_e <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_e == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g =
-      QS_InnerRateLoop_ConstB.Constant_o;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g >= 5.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g = 5.0F;
-    } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g <= -5.0F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g = -5.0F;
-      }
+  // Sum: '<S8>/Sum1' incorporates:
+  //   Inport: '<Root>/input_lon'
+
+  rtb_TrigonometricFunction3 = QS_InnerRateLoop_U.input_lon -
+    QS_InnerRateLoop_B.lon;
+
+  // DeadZone: '<S84>/Dead Zone2'
+  if (rtb_TrigonometricFunction3 > 0.05F) {
+    rtb_TrigonometricFunction3 -= 0.05F;
+  } else if (rtb_TrigonometricFunction3 >= -0.05F) {
+    rtb_TrigonometricFunction3 = 0.0F;
+  } else {
+    rtb_TrigonometricFunction3 -= -0.05F;
+  }
+
+  // End of DeadZone: '<S84>/Dead Zone2'
+
+  // Abs: '<S84>/Abs'
+  rtb_TrigonometricFunction3 = static_cast<real32_T>(fabs((real_T)
+    rtb_TrigonometricFunction3));
+
+  // Sum: '<S8>/Sum2' incorporates:
+  //   Inport: '<Root>/input_lat'
+
+  rtb_TrigonometricFunction6 = QS_InnerRateLoop_U.input_lat -
+    QS_InnerRateLoop_B.lat;
+
+  // DeadZone: '<S84>/Dead Zone1'
+  if (rtb_TrigonometricFunction6 > 0.05F) {
+    rtb_TrigonometricFunction6 -= 0.05F;
+  } else if (rtb_TrigonometricFunction6 >= -0.05F) {
+    rtb_TrigonometricFunction6 = 0.0F;
+  } else {
+    rtb_TrigonometricFunction6 -= -0.05F;
+  }
+
+  // End of DeadZone: '<S84>/Dead Zone1'
+
+  // Abs: '<S84>/Abs1'
+  rtb_TrigonometricFunction6 = static_cast<real32_T>(fabs((real_T)
+    rtb_TrigonometricFunction6));
+
+  // Sum: '<S8>/Sum3' incorporates:
+  //   Inport: '<Root>/input_col'
+
+  rtb_Saturation_h = QS_InnerRateLoop_U.input_col - QS_InnerRateLoop_B.col_h;
+
+  // DeadZone: '<S84>/Dead Zone3'
+  if (rtb_Saturation_h > 0.05F) {
+    rtb_Saturation_h -= 0.05F;
+  } else if (rtb_Saturation_h >= -0.05F) {
+    rtb_Saturation_h = 0.0F;
+  } else {
+    rtb_Saturation_h -= -0.05F;
+  }
+
+  // End of DeadZone: '<S84>/Dead Zone3'
+
+  // Abs: '<S84>/Abs2'
+  rtb_Saturation_h = static_cast<real32_T>(fabs((real_T)rtb_Saturation_h));
+
+  // Sum: '<S8>/Sum4' incorporates:
+  //   Inport: '<Root>/input_ped'
+
+  rtb_Saturation1_p = QS_InnerRateLoop_U.input_ped - QS_InnerRateLoop_B.ped;
+
+  // DeadZone: '<S84>/Dead Zone4'
+  if (rtb_Saturation1_p > 0.05F) {
+    rtb_Saturation1_p -= 0.05F;
+  } else if (rtb_Saturation1_p >= -0.05F) {
+    rtb_Saturation1_p = 0.0F;
+  } else {
+    rtb_Saturation1_p -= -0.05F;
+  }
+
+  // End of DeadZone: '<S84>/Dead Zone4'
+
+  // Abs: '<S84>/Abs3'
+  rtb_Saturation1_p = static_cast<real32_T>(fabs((real_T)rtb_Saturation1_p));
+
+  // Logic: '<S8>/Logical Operator2' incorporates:
+  //   Inport: '<Root>/CH8_flag'
+  //   Logic: '<S84>/Logical Operator'
+  //   Logic: '<S84>/Logical Operator1'
+
+  rtb_LogicalOperator2_g = ((rtb_TrigonometricFunction3 == 0.0F) &&
+    (rtb_TrigonometricFunction6 == 0.0F) && (rtb_Saturation_h == 0.0F) &&
+    (rtb_Saturation1_p == 0.0F) && (QS_InnerRateLoop_U.CH8_flag != 0.0F));
+
+  // Logic: '<S8>/Logical Operator1'
+  rtb_LogicalOperator1_n = ((rtb_Sum2 != 0.0) && rtb_LogicalOperator2_g);
+
+  // DiscreteIntegrator: '<S82>/Discrete-Time Integrator'
+  if (rtb_LogicalOperator1_n &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRese <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_a = 0.0F;
+  }
+
+  // Lookup_n-D: '<S80>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // DiscreteIntegrator: '<S57>/Discrete-Time Integrator' incorporates:
+  //   DiscreteIntegrator: '<S10>/Discrete-Time Integrator'
+  //   DiscreteIntegrator: '<S57>/Discrete-Time Integrator1'
+  //   DiscreteIntegrator: '<S57>/Discrete-Time Integrator2'
+  //   Inport: '<Root>/pos North (KF)'
+
+  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOADI != 0) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_m =
+      QS_InnerRateLoop_U.posNorthKF;
+  }
+
+  rtb_RelationalOperator4_e = !rtb_LogicalOperator1_n;
+  if ((rtb_LogicalOperator1_n &&
+       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a <= 0)) ||
+      (rtb_RelationalOperator4_e &&
+       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a == 1))) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_m =
+      QS_InnerRateLoop_U.posNorthKF;
+  }
+
+  // Product: '<S80>/Product' incorporates:
+  //   DiscreteIntegrator: '<S57>/Discrete-Time Integrator'
+  //   Inport: '<Root>/pos North (KF)'
+  //   Lookup_n-D: '<S80>/1-D Lookup Table2'
+  //   Sum: '<S65>/Sum'
+
+  rtb_Product = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_m -
+                 QS_InnerRateLoop_U.posNorthKF) * intrp1d_fu32fl_pw(bpIdx,
+    rtb_Saturation5_k, QS_InnerRateLoop_ConstP.pooled19);
+
+  // Sum: '<S65>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S82>/Discrete-Time Integrator'
+
+  rtb_Saturation_h = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_a +
+    rtb_Product;
+
+  // Saturate: '<S58>/Saturation'
+  if (rtb_Saturation_h > 10.0F) {
+    rtb_Saturation_h = 10.0F;
+  } else {
+    if (rtb_Saturation_h < -10.0F) {
+      rtb_Saturation_h = -10.0F;
     }
   }
 
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g >= 5.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g = 5.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g <= -5.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g = -5.0F;
-    }
+  // End of Saturate: '<S58>/Saturation'
+
+  // DiscreteIntegrator: '<S79>/Discrete-Time Integrator'
+  if (rtb_LogicalOperator1_n &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_o <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_h = 0.0F;
   }
 
-  // DiscreteIntegrator: '<S31>/Discrete-Time Integrator1'
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_IC_LOAD != 0) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTATE = 0.0F;
-  }
+  // Lookup_n-D: '<S77>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
 
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevRes <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevRes == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTATE = 0.0F;
-  }
-
-  // Gain: '<S38>/Proportional Gain' incorporates:
-  //   DiscreteIntegrator: '<S31>/Discrete-Time Integrator1'
+  // DiscreteIntegrator: '<S57>/Discrete-Time Integrator1' incorporates:
   //   Inport: '<Root>/pos East (KF)'
-  //   Sum: '<S38>/Sum'
 
-  rtb_ProportionalGain_o =
-    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTATE -
-     QS_InnerRateLoop_U.posEastKF) * 2.0F;
-
-  // Lookup_n-D: '<S38>/1-D Lookup Table1'
-  rtb_DLookupTable1_mp = look1_iflf_binlxpw(rtb_Sqrt, *(real32_T (*)[7])&
-    QS_InnerRateLoop_ConstP.pooled11[0], *(real32_T (*)[7])&
-    QS_InnerRateLoop_ConstP.pooled24[0], 6U);
-
-  // Product: '<S38>/Product2' incorporates:
-  //   DiscreteIntegrator: '<S38>/Discrete-Time Integrator'
-  //   Sum: '<S38>/Sum1'
-
-  rtb_Sum1_0 = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g +
-                rtb_ProportionalGain_o) * rtb_DLookupTable1_mp;
-
-  // Saturate: '<S32>/Saturation1'
-  if (rtb_Sum1_0 > 10.0F) {
-    rtb_Saturation1 = 10.0F;
-  } else if (rtb_Sum1_0 < -10.0F) {
-    rtb_Saturation1 = -10.0F;
-  } else {
-    rtb_Saturation1 = rtb_Sum1_0;
+  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_IC_LOAD != 0) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTATE =
+      QS_InnerRateLoop_U.posEastKF;
   }
 
-  // End of Saturate: '<S32>/Saturation1'
+  if ((rtb_LogicalOperator1_n &&
+       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevRes <= 0)) ||
+      (rtb_RelationalOperator4_e &&
+       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevRes == 1))) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTATE =
+      QS_InnerRateLoop_U.posEastKF;
+  }
 
-  // DiscreteIntegrator: '<S37>/Discrete-Time Integrator'
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_h3 <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_h3 == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c =
-      QS_InnerRateLoop_ConstB.Constant_p;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c >= 10.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = 10.0F;
-    } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c <= -10.0F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = -10.0F;
-      }
+  // Product: '<S77>/Product' incorporates:
+  //   DiscreteIntegrator: '<S57>/Discrete-Time Integrator1'
+  //   Inport: '<Root>/pos East (KF)'
+  //   Lookup_n-D: '<S77>/1-D Lookup Table2'
+  //   Sum: '<S64>/Sum'
+
+  rtb_Product_ng = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTATE -
+                    QS_InnerRateLoop_U.posEastKF) * intrp1d_fu32fl_pw(bpIdx,
+    rtb_Saturation5_k, QS_InnerRateLoop_ConstP.pooled19);
+
+  // Sum: '<S64>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S79>/Discrete-Time Integrator'
+
+  rtb_Saturation1_p = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_h +
+    rtb_Product_ng;
+
+  // Saturate: '<S58>/Saturation1'
+  if (rtb_Saturation1_p > 10.0F) {
+    rtb_Saturation1_p = 10.0F;
+  } else {
+    if (rtb_Saturation1_p < -10.0F) {
+      rtb_Saturation1_p = -10.0F;
     }
   }
 
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c >= 10.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = 10.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c <= -10.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = -10.0F;
-    }
+  // End of Saturate: '<S58>/Saturation1'
+
+  // DiscreteIntegrator: '<S76>/Discrete-Time Integrator'
+  if (rtb_LogicalOperator1_n &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_b <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = 0.0F;
   }
 
-  // DiscreteIntegrator: '<S31>/Discrete-Time Integrator2' incorporates:
+  // Lookup_n-D: '<S75>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // DiscreteIntegrator: '<S57>/Discrete-Time Integrator2' incorporates:
   //   Inport: '<Root>/pos Down (KF)'
 
   if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_IC_LOAD != 0) {
@@ -690,59 +778,62 @@ void untitledModelClass::step()
       QS_InnerRateLoop_U.posDownKF;
   }
 
-  if ((rtb_LogicalOperator1_f &&
+  if ((rtb_LogicalOperator1_n &&
        (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_PrevRes <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
+      (rtb_RelationalOperator4_e &&
        (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_PrevRes == 1))) {
     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_DSTATE =
       QS_InnerRateLoop_U.posDownKF;
   }
 
-  // Sum: '<S37>/Sum' incorporates:
-  //   DiscreteIntegrator: '<S31>/Discrete-Time Integrator2'
+  // Product: '<S75>/Product' incorporates:
+  //   DiscreteIntegrator: '<S57>/Discrete-Time Integrator2'
   //   Inport: '<Root>/pos Down (KF)'
+  //   Lookup_n-D: '<S75>/1-D Lookup Table2'
+  //   Sum: '<S63>/Sum'
 
-  rtb_Sum_m = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_DSTATE -
-    QS_InnerRateLoop_U.posDownKF;
+  rtb_Product_ee = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_DSTATE -
+                    QS_InnerRateLoop_U.posDownKF) * intrp1d_fu32fl_pw(bpIdx,
+    rtb_Saturation5_k, QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_k);
 
-  // Sum: '<S37>/Sum1' incorporates:
-  //   DiscreteIntegrator: '<S37>/Discrete-Time Integrator'
+  // Sum: '<S63>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S76>/Discrete-Time Integrator'
 
-  rtb_Sum1_0 = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c +
-    rtb_Sum_m;
+  rtb_Saturation2_h = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c +
+    rtb_Product_ee;
 
-  // Saturate: '<S32>/Saturation2'
-  if (rtb_Sum1_0 > 15.0F) {
-    rtb_Saturation2 = 15.0F;
-  } else if (rtb_Sum1_0 < -15.0F) {
-    rtb_Saturation2 = -15.0F;
+  // Saturate: '<S58>/Saturation2'
+  if (rtb_Saturation2_h > 15.0F) {
+    rtb_Saturation2_h = 15.0F;
   } else {
-    rtb_Saturation2 = rtb_Sum1_0;
+    if (rtb_Saturation2_h < -15.0F) {
+      rtb_Saturation2_h = -15.0F;
+    }
   }
 
-  // End of Saturate: '<S32>/Saturation2'
+  // End of Saturate: '<S58>/Saturation2'
 
   // Product: '<S9>/Product2' incorporates:
   //   DataTypeConversion: '<Root>/Data Type Conversion'
   //   Sum: '<S9>/Sum21'
   //   UnitDelay: '<S9>/Unit Delay'
 
-  rtb_Product2_d = ((real32_T)rtb_LogicalOperator1_f +
-                    QS_InnerRateLoop_DWork.UnitDelay_DSTATE) * (real32_T)
-    rtb_LogicalOperator1_f;
+  rtb_Product2 = (static_cast<real32_T>(rtb_LogicalOperator1_n) +
+                  QS_InnerRateLoop_DWork.UnitDelay_DSTATE) * static_cast<
+    real32_T>(rtb_LogicalOperator1_n);
 
   // Gain: '<S9>/Gain2'
-  rtb_Gain2 = 0.0025F * rtb_Product2_d;
+  rtb_Gain2 = 0.0025F * rtb_Product2;
 
   // Switch: '<S9>/Switch1' incorporates:
   //   Constant: '<S9>/Constant'
   //   Constant: '<S9>/Constant1'
   //   Sum: '<S9>/Sum'
 
-  if (rtb_Gain2 >= 10.0F) {
-    rtb_Sum1_0 = rtb_Gain2 - 10.0F;
+  if (rtb_Gain2 >= 20.0F) {
+    rtb_uDLookupTable3 = rtb_Gain2 - 20.0F;
   } else {
-    rtb_Sum1_0 = 0.0F;
+    rtb_uDLookupTable3 = 0.0F;
   }
 
   // End of Switch: '<S9>/Switch1'
@@ -751,581 +842,321 @@ void untitledModelClass::step()
   //   Inport: '<Root>/Rp'
   //   Inport: '<Root>/Rv'
 
-  rtb_Divide1_o = rtb_Sum1_0 / QS_InnerRateLoop_U.Rv * QS_InnerRateLoop_U.Rp;
+  rtb_Sum4_a = rtb_uDLookupTable3 / QS_InnerRateLoop_U.Rv *
+    QS_InnerRateLoop_U.Rp;
 
   // Lookup_n-D: '<S9>/1-D Lookup Table3'
-  rtb_DLookupTable3 = look1_iflf_pbinlcapw(rtb_Divide1_o, *(real32_T (*)[101])&
-    QS_InnerRateLoop_ConstP.pooled25[0], *(real32_T (*)[101])&
-    QS_InnerRateLoop_ConstP.DLookupTable3_table[0],
-    &QS_InnerRateLoop_DWork.m_bpIndex, 100U);
+  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.192F, 137U, &rtb_Saturation5_k);
+  rtb_uDLookupTable3 = intrp1d_fu32fla_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable3_tableData, 137U);
 
   // Gain: '<S9>/Gain1'
-  rtb_Gain1 = 0.0174532924F * rtb_DLookupTable3;
+  rtb_Sum3_f = 0.0174532924F * rtb_uDLookupTable3;
 
-  // Trigonometry: '<S49>/Trigonometric Function3'
-  rtb_TrigonometricFunction3_j = (real32_T)cos(rtb_Gain1);
+  // Trigonometry: '<S86>/Trigonometric Function3'
+  rtb_derivativecutofffrequency_b = static_cast<real32_T>(cos((real_T)rtb_Sum3_f));
 
-  // Product: '<S49>/Divide4'
-  rtb_Divide4_f = QS_InnerRateLoop_ConstB.TrigonometricFunction1_b *
-    QS_InnerRateLoop_ConstB.TrigonometricFunction5_d *
-    rtb_TrigonometricFunction3_j;
-
-  // Trigonometry: '<S49>/Trigonometric Function6'
-  rtb_TrigonometricFunction6_k = (real32_T)sin(rtb_Gain1);
-
-  // Product: '<S49>/Divide5'
-  rtb_Divide5_k = QS_InnerRateLoop_ConstB.TrigonometricFunction4_m2 *
-    rtb_TrigonometricFunction6_k;
+  // Trigonometry: '<S86>/Trigonometric Function6'
+  rtb_Sum3_f = static_cast<real32_T>(sin((real_T)rtb_Sum3_f));
 
   // Lookup_n-D: '<S9>/1-D Lookup Table1'
-  rtb_DLookupTable1_j = look1_iflf_pbinlcapw(rtb_Divide1_o, *(real32_T (*)[101])
-    &QS_InnerRateLoop_ConstP.pooled25[0], *(real32_T (*)[101])&
-    QS_InnerRateLoop_ConstP.pooled27[0], &QS_InnerRateLoop_DWork.m_bpIndex_k,
-    100U);
+  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.192F, 137U, &rtb_Saturation5_k);
 
   // Product: '<S9>/Divide3' incorporates:
   //   Inport: '<Root>/Rv'
+  //   Lookup_n-D: '<S9>/1-D Lookup Table1'
 
-  rtb_Divide3_h = rtb_DLookupTable1_j / QS_InnerRateLoop_U.Rv;
-
-  // Product: '<S49>/Divide9'
-  rtb_Divide9_lo = QS_InnerRateLoop_ConstB.TrigonometricFunction1_b *
-    QS_InnerRateLoop_ConstB.TrigonometricFunction5_d *
-    rtb_TrigonometricFunction6_k;
-
-  // Product: '<S49>/Divide10'
-  rtb_Divide10_f = QS_InnerRateLoop_ConstB.TrigonometricFunction4_m2 *
-    rtb_TrigonometricFunction3_j;
+  rtb_Sum4_b = intrp1d_fu32fla_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData, 137U) /
+    QS_InnerRateLoop_U.Rv;
 
   // Lookup_n-D: '<S9>/1-D Lookup Table'
-  rtb_DLookupTable = look1_iflf_pbinlcapw(rtb_Divide1_o, *(real32_T (*)[101])&
-    QS_InnerRateLoop_ConstP.pooled25[0], *(real32_T (*)[101])&
-    QS_InnerRateLoop_ConstP.pooled27[0], &QS_InnerRateLoop_DWork.m_bpIndex_p,
-    100U);
+  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.192F, 137U, &rtb_Saturation5_k);
 
   // Product: '<S9>/Divide2' incorporates:
   //   Inport: '<Root>/Rv'
+  //   Lookup_n-D: '<S9>/1-D Lookup Table'
 
-  rtb_Divide2_c = rtb_DLookupTable / QS_InnerRateLoop_U.Rv;
+  rtb_Add5_ky = intrp1d_fu32fla_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData, 137U) /
+    QS_InnerRateLoop_U.Rv;
 
   // Lookup_n-D: '<S9>/1-D Lookup Table2'
-  rtb_DLookupTable2 = look1_iflf_pbinlcapw(rtb_Divide1_o, *(real32_T (*)[101])&
-    QS_InnerRateLoop_ConstP.pooled25[0], *(real32_T (*)[101])&
-    QS_InnerRateLoop_ConstP.pooled27[0], &QS_InnerRateLoop_DWork.m_bpIndex_k4,
-    100U);
+  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.192F, 137U, &rtb_Saturation5_k);
 
   // Product: '<S9>/Divide4' incorporates:
   //   Inport: '<Root>/Rv'
+  //   Lookup_n-D: '<S9>/1-D Lookup Table2'
 
-  rtb_Divide4_l = rtb_DLookupTable2 / QS_InnerRateLoop_U.Rv;
+  rtb_Sum4_a = intrp1d_fu32fla_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_bf, 137U) /
+    QS_InnerRateLoop_U.Rv;
 
-  // Gain: '<S31>/m//s to ft//s2' incorporates:
-  //   Product: '<S49>/Divide12'
-  //   Product: '<S49>/Divide14'
-  //   Product: '<S49>/Divide16'
-  //   Sum: '<S49>/Add2'
-  //   Sum: '<S49>/Add4'
-  //   Sum: '<S49>/Add7'
+  // Product: '<S86>/Divide4' incorporates:
+  //   Product: '<S86>/Divide9'
 
-  rtb_mstofts2 = (((rtb_Divide4_f + rtb_Divide5_k) * rtb_Divide3_h +
-                   (rtb_Divide9_lo - rtb_Divide10_f) * rtb_Divide2_c) +
-                  QS_InnerRateLoop_ConstB.TrigonometricFunction1_b *
-                  QS_InnerRateLoop_ConstB.TrigonometricFunction2_m *
-                  rtb_Divide4_l) * 3.28084F;
+  rtb_Add7_d = QS_InnerRateLoop_ConstB.TrigonometricFunction1_k *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction5_o;
 
-  // Outputs for Enabled SubSystem: '<S11>/Enabled Subsystem1' incorporates:
-  //   EnablePort: '<S57>/Enable'
+  // Sum: '<S86>/Add7' incorporates:
+  //   Product: '<S86>/Divide10'
+  //   Product: '<S86>/Divide12'
+  //   Product: '<S86>/Divide14'
+  //   Product: '<S86>/Divide16'
+  //   Product: '<S86>/Divide4'
+  //   Product: '<S86>/Divide5'
+  //   Product: '<S86>/Divide9'
+  //   Sum: '<S86>/Add2'
+  //   Sum: '<S86>/Add4'
 
-  // Logic: '<S11>/Logical Operator2' incorporates:
+  rtb_Add7_d = ((rtb_Add7_d * rtb_derivativecutofffrequency_b +
+                 QS_InnerRateLoop_ConstB.TrigonometricFunction4_n * rtb_Sum3_f) *
+                rtb_Sum4_b + (rtb_Add7_d * rtb_Sum3_f -
+    QS_InnerRateLoop_ConstB.TrigonometricFunction4_n *
+    rtb_derivativecutofffrequency_b) * rtb_Add5_ky) +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction1_k *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction2_l * rtb_Sum4_a;
+
+  // Product: '<S60>/Divide4' incorporates:
+  //   Product: '<S60>/Divide9'
+
+  rtb_Sum2_pj = QS_InnerRateLoop_ConstB.TrigonometricFunction1_g *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction5_j;
+
+  // Sum: '<S58>/Sum2' incorporates:
+  //   Product: '<S60>/Divide10'
+  //   Product: '<S60>/Divide12'
+  //   Product: '<S60>/Divide14'
+  //   Product: '<S60>/Divide16'
+  //   Product: '<S60>/Divide4'
+  //   Product: '<S60>/Divide5'
+  //   Product: '<S60>/Divide9'
+  //   Sum: '<S60>/Add2'
+  //   Sum: '<S60>/Add4'
+  //   Sum: '<S60>/Add7'
+
+  rtb_Sum2_pj = (((rtb_Sum2_pj * rtb_Gain1 +
+                   QS_InnerRateLoop_ConstB.TrigonometricFunction4_k *
+                   rtb_uDLookupTable_l_tmp) * rtb_Saturation_h + (rtb_Sum2_pj *
+    rtb_uDLookupTable_l_tmp - QS_InnerRateLoop_ConstB.TrigonometricFunction4_k *
+    rtb_Gain1) * rtb_Saturation1_p) +
+                 QS_InnerRateLoop_ConstB.TrigonometricFunction1_g *
+                 QS_InnerRateLoop_ConstB.TrigonometricFunction2_a *
+                 rtb_Saturation2_h) + rtb_Add7_d;
+
+  // Saturate: '<S10>/Saturation2'
+  if (rtb_Sum2_pj > 15.0F) {
+    rtb_Saturation2_o = 15.0F;
+  } else if (rtb_Sum2_pj < -15.0F) {
+    rtb_Saturation2_o = -15.0F;
+  } else {
+    rtb_Saturation2_o = rtb_Sum2_pj;
+  }
+
+  // End of Saturate: '<S10>/Saturation2'
+
+  // Outputs for Enabled SubSystem: '<S10>/Enabled Subsystem1' incorporates:
+  //   EnablePort: '<S87>/Enable'
+
+  // Logic: '<S10>/Logical Operator2' incorporates:
   //   Inport: '<Root>/engage'
   //   Inport: '<Root>/input_col'
-  //   Inport: '<S57>/col'
+  //   Inport: '<S87>/col'
 
   if (!QS_InnerRateLoop_U.engage) {
     QS_InnerRateLoop_B.col = QS_InnerRateLoop_U.input_col;
   }
 
-  // End of Logic: '<S11>/Logical Operator2'
-  // End of Outputs for SubSystem: '<S11>/Enabled Subsystem1'
+  // End of Logic: '<S10>/Logical Operator2'
+  // End of Outputs for SubSystem: '<S10>/Enabled Subsystem1'
 
-  // Switch: '<S61>/Switch' incorporates:
-  //   Gain: '<S11>/wcmd'
+  // Switch: '<S91>/Switch' incorporates:
+  //   Gain: '<S10>/wcmd'
 
-  if (rtb_LogicalOperator1_f) {
-    // Sum: '<S32>/Sum2' incorporates:
-    //   Product: '<S34>/Divide10'
-    //   Product: '<S34>/Divide12'
-    //   Product: '<S34>/Divide14'
-    //   Product: '<S34>/Divide16'
-    //   Product: '<S34>/Divide4'
-    //   Product: '<S34>/Divide5'
-    //   Product: '<S34>/Divide9'
-    //   Sum: '<S34>/Add2'
-    //   Sum: '<S34>/Add4'
-    //   Sum: '<S34>/Add7'
-
-    rtb_Sum1_0 = (((QS_InnerRateLoop_ConstB.TrigonometricFunction1 *
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction5 *
-                    rtb_TrigonometricFunction3 +
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction4 *
-                    rtb_TrigonometricFunction6) * rtb_Saturation +
-                   (QS_InnerRateLoop_ConstB.TrigonometricFunction1 *
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction5 *
-                    rtb_TrigonometricFunction6 -
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction4 *
-                    rtb_TrigonometricFunction3) * rtb_Saturation1) +
-                  QS_InnerRateLoop_ConstB.TrigonometricFunction1 *
-                  QS_InnerRateLoop_ConstB.TrigonometricFunction2_d *
-                  rtb_Saturation2) + rtb_mstofts2;
-
-    // Saturate: '<S11>/Saturation2'
-    if (rtb_Sum1_0 > 10.0F) {
-      rtb_Switch_gx = 10.0F;
-    } else if (rtb_Sum1_0 < -10.0F) {
-      rtb_Switch_gx = -10.0F;
-    } else {
-      rtb_Switch_gx = rtb_Sum1_0;
-    }
-
-    // End of Saturate: '<S11>/Saturation2'
+  if (rtb_LogicalOperator1_n) {
+    rtb_Switch_ep = rtb_Saturation2_o;
   } else {
-    // Sum: '<S11>/Sum2' incorporates:
+    // Sum: '<S10>/Sum2' incorporates:
     //   Inport: '<Root>/input_col'
 
-    rtb_Sum2_o = QS_InnerRateLoop_U.input_col - QS_InnerRateLoop_B.col;
+    rtb_DeadZone = QS_InnerRateLoop_U.input_col - QS_InnerRateLoop_B.col;
 
-    // DeadZone: '<S11>/Dead Zone'
-    if (rtb_Sum2_o > 30.0F) {
-      rtb_Sum1_0 = rtb_Sum2_o - 30.0F;
-    } else if (rtb_Sum2_o >= -30.0F) {
-      rtb_Sum1_0 = 0.0F;
+    // DeadZone: '<S10>/Dead Zone'
+    if (rtb_DeadZone > 0.05F) {
+      rtb_DeadZone -= 0.05F;
+    } else if (rtb_DeadZone >= -0.05F) {
+      rtb_DeadZone = 0.0F;
     } else {
-      rtb_Sum1_0 = rtb_Sum2_o - -30.0F;
+      rtb_DeadZone -= -0.05F;
     }
 
-    // End of DeadZone: '<S11>/Dead Zone'
-    rtb_Switch_gx = -0.02F * rtb_Sum1_0;
+    // End of DeadZone: '<S10>/Dead Zone'
+    rtb_Switch_ep = -6.0F * rtb_DeadZone;
   }
 
-  // End of Switch: '<S61>/Switch'
+  // End of Switch: '<S91>/Switch'
 
-  // Switch: '<S61>/Switch1' incorporates:
-  //   RelationalOperator: '<S61>/Relational Operator'
-  //   Sum: '<S61>/Sum1'
-  //   UnitDelay: '<S61>/Unit Delay'
-  //   UnitDelay: '<S61>/Unit Delay1'
-  //   UnitDelay: '<S61>/Unit Delay2'
+  // Switch: '<S91>/Switch1' incorporates:
+  //   RelationalOperator: '<S91>/Relational Operator'
+  //   Sum: '<S91>/Sum1'
+  //   UnitDelay: '<S91>/Unit Delay'
+  //   UnitDelay: '<S91>/Unit Delay1'
+  //   UnitDelay: '<S91>/Unit Delay2'
 
-  if (QS_InnerRateLoop_DWork.UnitDelay_DSTATE_mj == rtb_LogicalOperator1_f) {
-    rtb_Switch1_k = QS_InnerRateLoop_DWork.UnitDelay1_DSTATE;
+  if (QS_InnerRateLoop_DWork.UnitDelay_DSTATE_ax == rtb_LogicalOperator1_n) {
+    rtb_DeadZone = QS_InnerRateLoop_DWork.UnitDelay1_DSTATE;
   } else {
-    rtb_Switch1_k = QS_InnerRateLoop_DWork.UnitDelay2_DSTATE - rtb_Switch_gx;
+    rtb_DeadZone = QS_InnerRateLoop_DWork.UnitDelay2_DSTATE - rtb_Switch_ep;
   }
 
-  // End of Switch: '<S61>/Switch1'
+  // End of Switch: '<S91>/Switch1'
 
-  // Saturate: '<S61>/Saturation'
-  if (rtb_Switch1_k > 0.0025F) {
-    rtb_Sum1_0 = 0.0025F;
-  } else if (rtb_Switch1_k < -0.0025F) {
-    rtb_Sum1_0 = -0.0025F;
+  // Saturate: '<S91>/Saturation'
+  if (rtb_DeadZone > 0.0025F) {
+    rtb_Product_of = 0.0025F;
+  } else if (rtb_DeadZone < -0.0025F) {
+    rtb_Product_of = -0.0025F;
   } else {
-    rtb_Sum1_0 = rtb_Switch1_k;
+    rtb_Product_of = rtb_DeadZone;
   }
 
-  // Sum: '<S61>/Sum' incorporates:
-  //   Saturate: '<S61>/Saturation'
+  // End of Saturate: '<S91>/Saturation'
 
-  rtb_Sum_e = rtb_Switch1_k - rtb_Sum1_0;
+  // Sum: '<S91>/Sum'
+  rtb_DeadZone -= rtb_Product_of;
 
-  // Sum: '<S61>/Sum2'
-  rtb_Sum2_d = rtb_Switch_gx + rtb_Sum_e;
+  // Sum: '<S91>/Sum2'
+  rtb_Switch_ep += rtb_DeadZone;
 
-  // Gain: '<S19>/Gain' incorporates:
-  //   Sum: '<S19>/Sum'
-  //   UnitDelay: '<S19>/Unit Delay'
+  // Lookup_n-D: '<S30>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
 
-  rtb_Gain = (rtb_Sum2_d - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_e) * 4.0F;
+  // Product: '<S30>/Product' incorporates:
+  //   Lookup_n-D: '<S30>/1-D Lookup Table2'
+  //   Sum: '<S27>/Sum'
+  //   UnitDelay: '<S27>/Unit Delay'
 
-  // DiscreteIntegrator: '<S16>/Discrete-Time Integrator1' incorporates:
-  //   Inport: '<Root>/engage'
+  rtb_Product_of = (rtb_Switch_ep - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_a) /
+    intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+                      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_j);
 
-  if (QS_InnerRateLoop_U.engage &&
-      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_i <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k = 0.0F;
-  }
+  // Product: '<S86>/Divide1' incorporates:
+  //   Product: '<S86>/Divide7'
 
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k >= 1.57068062F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k = 1.57068062F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k <= -1.57068062F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k = -1.57068062F;
-    }
-  }
+  rtb_DiscreteTimeIntegrator1 = QS_InnerRateLoop_ConstB.TrigonometricFunction4_n
+    * QS_InnerRateLoop_ConstB.TrigonometricFunction5_o;
 
-  rtb_DiscreteTimeIntegrator1_m =
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k;
+  // Sum: '<S86>/Add6' incorporates:
+  //   Product: '<S86>/Divide1'
+  //   Product: '<S86>/Divide11'
+  //   Product: '<S86>/Divide13'
+  //   Product: '<S86>/Divide15'
+  //   Product: '<S86>/Divide3'
+  //   Product: '<S86>/Divide7'
+  //   Product: '<S86>/Divide8'
+  //   Sum: '<S86>/Add1'
+  //   Sum: '<S86>/Add3'
 
-  // Gain: '<S17>/derivative cutoff frequency 1' incorporates:
-  //   DiscreteIntegrator: '<S16>/Discrete-Time Integrator1'
-  //   DiscreteIntegrator: '<S17>/Discrete-Time Integrator'
-  //   Sum: '<S17>/Sum1'
-
-  rtb_derivativecutofffrequency1 =
-    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k -
-     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_m) * 100.0F;
-
-  // DiscreteIntegrator: '<S36>/Discrete-Time Integrator'
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_g <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_g == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d =
-      QS_InnerRateLoop_ConstB.Constant_g;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d >= 0.261780113F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d = 0.261780113F;
-    } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d <=
-          -0.261780113F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d = -0.261780113F;
-      }
-    }
-  }
-
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d >= 0.261780113F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d = 0.261780113F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d <= -0.261780113F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d = -0.261780113F;
-    }
-  }
-
-  // Lookup_n-D: '<S36>/1-D Lookup Table2'
-  rtb_DLookupTable2_o = look1_iflf_binlxpw(rtb_Sqrt, *(real32_T (*)[7])&
-    QS_InnerRateLoop_ConstP.pooled11[0], *(real32_T (*)[7])&
-    QS_InnerRateLoop_ConstP.pooled35[0], 6U);
-
-  // Gain: '<S31>/m//s to ft//s' incorporates:
-  //   Product: '<S49>/Divide'
-  //   Product: '<S49>/Divide2'
-  //   Product: '<S49>/Divide6'
-  //   Sum: '<S49>/Add5'
-
-  rtb_mstofts = ((QS_InnerRateLoop_ConstB.TrigonometricFunction2_m *
-                  rtb_TrigonometricFunction3_j * rtb_Divide3_h +
-                  QS_InnerRateLoop_ConstB.TrigonometricFunction2_m *
-                  rtb_TrigonometricFunction6_k * rtb_Divide2_c) +
-                 -QS_InnerRateLoop_ConstB.TrigonometricFunction5_d *
-                 rtb_Divide4_l) * 3.28084F;
-
-  // Gain: '<S43>/Gain1' incorporates:
-  //   Gain: '<S43>/Gain'
-  //   Product: '<S34>/Divide'
-  //   Product: '<S34>/Divide2'
-  //   Product: '<S34>/Divide6'
-  //   Sum: '<S32>/Sum1'
-  //   Sum: '<S34>/Add5'
-  //   Sum: '<S43>/Sum'
-  //   Sum: '<S43>/Sum1'
-  //   UnitDelay: '<S43>/Unit Delay'
-  //   UnitDelay: '<S43>/Unit Delay1'
-
-  rtb_Gain1_h = (((((QS_InnerRateLoop_ConstB.TrigonometricFunction2_d *
-                     rtb_TrigonometricFunction3 * rtb_Saturation +
-                     QS_InnerRateLoop_ConstB.TrigonometricFunction2_d *
-                     rtb_TrigonometricFunction6 * rtb_Saturation1) +
-                    -QS_InnerRateLoop_ConstB.TrigonometricFunction5 *
-                    rtb_Saturation2) + 0.0F) -
-                  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_b) * 4.0F -
-                 QS_InnerRateLoop_DWork.UnitDelay_DSTATE_ei) * 16.0F;
-
-  // DiscreteIntegrator: '<S43>/Discrete-Time Integrator1'
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTEM_ != 0) {
-    DiscreteTimeIntegrator1 =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a;
-  } else if ((rtb_LogicalOperator1_f &&
-              (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_g <= 0)) ||
-             ((!rtb_LogicalOperator1_f) &&
-              (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_g == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a =
-      QS_InnerRateLoop_ConstB.Constant_k;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a >= 25.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a = 25.0F;
-    } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a <= -25.0F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a = -25.0F;
-      }
-    }
-
-    DiscreteTimeIntegrator1 =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a;
-  } else {
-    DiscreteTimeIntegrator1 = 0.00125F * rtb_Gain1_h +
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a;
-  }
-
-  if (DiscreteTimeIntegrator1 >= 25.0F) {
-    DiscreteTimeIntegrator1 = 25.0F;
-  } else {
-    if (DiscreteTimeIntegrator1 <= -25.0F) {
-      DiscreteTimeIntegrator1 = -25.0F;
-    }
-  }
-
-  // End of DiscreteIntegrator: '<S43>/Discrete-Time Integrator1'
-
-  // DiscreteIntegrator: '<S43>/Discrete-Time Integrator'
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_E != 0) {
-    DiscreteTimeIntegrator =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go;
-  } else if ((rtb_LogicalOperator1_f &&
-              (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_i <= 0)) ||
-             ((!rtb_LogicalOperator1_f) &&
-              (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_i == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go =
-      QS_InnerRateLoop_ConstB.Constant1;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go >= 50.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go = 50.0F;
-    } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go <= -50.0F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go = -50.0F;
-      }
-    }
-
-    DiscreteTimeIntegrator =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go;
-  } else {
-    DiscreteTimeIntegrator = 0.00125F * DiscreteTimeIntegrator1 +
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go;
-  }
-
-  if (DiscreteTimeIntegrator >= 50.0F) {
-    DiscreteTimeIntegrator = 50.0F;
-  } else {
-    if (DiscreteTimeIntegrator <= -50.0F) {
-      DiscreteTimeIntegrator = -50.0F;
-    }
-  }
-
-  // End of DiscreteIntegrator: '<S43>/Discrete-Time Integrator'
-
-  // Switch: '<S43>/Switch' incorporates:
-  //   Constant: '<S43>/Constant2'
-
-  if (rtb_LogicalOperator1_f) {
-    rtb_Sum1_0 = DiscreteTimeIntegrator;
-  } else {
-    rtb_Sum1_0 = 0.0F;
-  }
-
-  // End of Switch: '<S43>/Switch'
-
-  // Sum: '<S36>/Sum4'
-  rtb_Sum4_k = rtb_mstofts + rtb_Sum1_0;
-
-  // Product: '<S36>/Product2' incorporates:
-  //   Gain: '<S36>/Gain'
-  //   Sum: '<S36>/Sum'
-
-  rtb_Product2_n = (rtb_Sum4_k - rtb_Add5) * 0.020745486F * rtb_DLookupTable2_o;
-
-  // DiscreteIntegrator: '<S45>/Discrete-Time Integrator'
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_hj <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_hj == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_h = 0.0F;
-  }
-
-  // Switch: '<S59>/Switch' incorporates:
-  //   DeadZone: '<S11>/Dead Zone2'
-  //   Gain: '<S11>/thetacmd'
-  //   Inport: '<Root>/input_lon'
-
-  if (rtb_LogicalOperator1_f) {
-    // Lookup_n-D: '<S36>/1-D Lookup Table3'
-    rtb_DLookupTable3_m = look1_iflf_binlxpw(rtb_Sqrt, *(real32_T (*)[7])&
-      QS_InnerRateLoop_ConstP.pooled11[0], *(real32_T (*)[7])&
-      QS_InnerRateLoop_ConstP.pooled10[0], 6U);
-
-    // Gain: '<S45>/derivative cutoff frequency 1' incorporates:
-    //   DiscreteIntegrator: '<S45>/Discrete-Time Integrator'
-    //   Sum: '<S45>/Sum1'
-
-    rtb_derivativecutofffrequenc_ib = (rtb_Sum4_k -
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_h) * 10.0F;
-
-    // Lookup_n-D: '<S36>/1-D Lookup Table1'
-    rtb_DLookupTable1_mh = look1_iflf_binlxpw(rtb_Sqrt, *(real32_T (*)[7])&
-      QS_InnerRateLoop_ConstP.pooled11[0], *(real32_T (*)[7])&
-      QS_InnerRateLoop_ConstP.pooled10[0], 6U);
-
-    // Gain: '<S36>/Gain5' incorporates:
-    //   DiscreteIntegrator: '<S36>/Discrete-Time Integrator'
-    //   DiscreteIntegrator: '<S44>/Discrete-Time Integrator'
-    //   Gain: '<S36>/Gain1'
-    //   Gain: '<S36>/Gain4'
-    //   Gain: '<S44>/derivative cutoff frequency 1'
-    //   Product: '<S36>/Product'
-    //   Product: '<S36>/Product1'
-    //   Sum: '<S36>/Sum1'
-    //   Sum: '<S36>/Sum2'
-    //   Sum: '<S36>/Sum3'
-    //   Sum: '<S44>/Sum1'
-
-    rtb_Sum1_0 = -(((rtb_derivativecutofffrequenc_ib - (rtb_Add5 -
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_i) * 15.0F) *
-                    0.0829289779F * rtb_DLookupTable1_mh +
-                    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d +
-                     rtb_Product2_n)) + 0.031F * rtb_derivativecutofffrequenc_ib
-                   * rtb_DLookupTable3_m);
-
-    // Saturate: '<S11>/Saturation'
-    if (rtb_Sum1_0 > 0.523560226F) {
-      rtb_Switch_p = 0.523560226F;
-    } else if (rtb_Sum1_0 < -0.523560226F) {
-      rtb_Switch_p = -0.523560226F;
-    } else {
-      rtb_Switch_p = rtb_Sum1_0;
-    }
-
-    // End of Saturate: '<S11>/Saturation'
-  } else {
-    if (QS_InnerRateLoop_U.input_lon > 135.0F) {
-      // DeadZone: '<S11>/Dead Zone2' incorporates:
-      //   Inport: '<Root>/input_lon'
-
-      rtb_Sum1_0 = QS_InnerRateLoop_U.input_lon - 135.0F;
-    } else if (QS_InnerRateLoop_U.input_lon >= -135.0F) {
-      // DeadZone: '<S11>/Dead Zone2'
-      rtb_Sum1_0 = 0.0F;
-    } else {
-      // DeadZone: '<S11>/Dead Zone2' incorporates:
-      //   Inport: '<Root>/input_lon'
-
-      rtb_Sum1_0 = QS_InnerRateLoop_U.input_lon - -135.0F;
-    }
-
-    rtb_Switch_p = 0.000116F * rtb_Sum1_0;
-  }
-
-  // End of Switch: '<S59>/Switch'
-
-  // Switch: '<S59>/Switch1' incorporates:
-  //   RelationalOperator: '<S59>/Relational Operator'
-  //   Sum: '<S59>/Sum1'
-  //   UnitDelay: '<S59>/Unit Delay'
-  //   UnitDelay: '<S59>/Unit Delay1'
-  //   UnitDelay: '<S59>/Unit Delay2'
-
-  if (QS_InnerRateLoop_DWork.UnitDelay_DSTATE_ap == rtb_LogicalOperator1_f) {
-    rtb_Switch1_a = QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_m;
-  } else {
-    rtb_Switch1_a = QS_InnerRateLoop_DWork.UnitDelay2_DSTATE_k - rtb_Switch_p;
-  }
-
-  // End of Switch: '<S59>/Switch1'
-
-  // Saturate: '<S59>/Saturation'
-  if (rtb_Switch1_a > 0.0025F) {
-    rtb_Sum1_0 = 0.0025F;
-  } else if (rtb_Switch1_a < -0.0025F) {
-    rtb_Sum1_0 = -0.0025F;
-  } else {
-    rtb_Sum1_0 = rtb_Switch1_a;
-  }
-
-  // Sum: '<S59>/Sum' incorporates:
-  //   Saturate: '<S59>/Saturation'
-
-  rtb_Sum_as = rtb_Switch1_a - rtb_Sum1_0;
-
-  // Sum: '<S59>/Sum2'
-  rtb_Sum2_b = rtb_Switch_p + rtb_Sum_as;
-
-  // Gain: '<S20>/Gain1' incorporates:
-  //   Gain: '<S20>/Gain'
-  //   Sum: '<S20>/Sum'
-  //   Sum: '<S20>/Sum1'
-  //   UnitDelay: '<S20>/Unit Delay'
-  //   UnitDelay: '<S20>/Unit Delay1'
-
-  rtb_Gain1_c = ((rtb_Sum2_b - QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_h) *
-                 8.0F - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_i) * 32.0F;
+  rtb_Add6_a = ((rtb_DiscreteTimeIntegrator1 * rtb_derivativecutofffrequency_b -
+                 QS_InnerRateLoop_ConstB.TrigonometricFunction1_k * rtb_Sum3_f) *
+                rtb_Sum4_b + (rtb_DiscreteTimeIntegrator1 * rtb_Sum3_f +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction1_k *
+    rtb_derivativecutofffrequency_b) * rtb_Add5_ky) +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction4_n *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction2_l * rtb_Sum4_a;
 
   // DiscreteIntegrator: '<S20>/Discrete-Time Integrator1' incorporates:
   //   Inport: '<Root>/engage'
 
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTE_n != 0) {
-    DiscreteTimeIntegrator1_j =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l;
-  } else if (QS_InnerRateLoop_U.engage &&
-             (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_n <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l = 0.0F;
-    DiscreteTimeIntegrator1_j =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l;
-  } else {
-    DiscreteTimeIntegrator1_j = 0.00125F * rtb_Gain1_c +
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l;
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_g <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_o = 0.0F;
   }
 
-  if (DiscreteTimeIntegrator1_j >= 3.14136124F) {
-    DiscreteTimeIntegrator1_j = 3.14136124F;
-  } else {
-    if (DiscreteTimeIntegrator1_j <= -3.14136124F) {
-      DiscreteTimeIntegrator1_j = -3.14136124F;
-    }
-  }
+  rtb_DiscreteTimeIntegrator1 =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_o;
 
-  // End of DiscreteIntegrator: '<S20>/Discrete-Time Integrator1'
+  // Gain: '<S18>/derivative cutoff frequency 1' incorporates:
+  //   DiscreteIntegrator: '<S18>/Discrete-Time Integrator'
+  //   DiscreteIntegrator: '<S20>/Discrete-Time Integrator1'
+  //   Gain: '<S18>/derivative cutoff frequency '
+  //   Sum: '<S18>/Sum1'
 
-  // DiscreteIntegrator: '<S20>/Discrete-Time Integrator' incorporates:
+  rtb_derivativecutofffrequency_0 =
+    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_o -
+     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_b) * 100.0F;
+
+  // Sum: '<S86>/Add5' incorporates:
+  //   Product: '<S86>/Divide'
+  //   Product: '<S86>/Divide2'
+  //   Product: '<S86>/Divide6'
+
+  rtb_Add5_ky = (QS_InnerRateLoop_ConstB.TrigonometricFunction2_l *
+                 rtb_derivativecutofffrequency_b * rtb_Sum4_b +
+                 QS_InnerRateLoop_ConstB.TrigonometricFunction2_l * rtb_Sum3_f *
+                 rtb_Add5_ky) +
+    -QS_InnerRateLoop_ConstB.TrigonometricFunction5_o * rtb_Sum4_a;
+
+  // DiscreteIntegrator: '<S36>/Discrete-Time Integrator1' incorporates:
   //   Inport: '<Root>/engage'
 
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_c != 0) {
-    // Outport: '<Root>/theta_cmd'
-    QS_InnerRateLoop_Y.theta_cmd =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba;
-  } else if (QS_InnerRateLoop_U.engage &&
-             (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_l <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba = 0.0F;
-
-    // Outport: '<Root>/theta_cmd'
-    QS_InnerRateLoop_Y.theta_cmd =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba;
-  } else {
-    // Outport: '<Root>/theta_cmd'
-    QS_InnerRateLoop_Y.theta_cmd = 0.00125F * DiscreteTimeIntegrator1_j +
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba;
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_j <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_m = 0.0F;
   }
 
-  if (QS_InnerRateLoop_Y.theta_cmd >= 1.57068062F) {
-    // Outport: '<Root>/theta_cmd'
-    QS_InnerRateLoop_Y.theta_cmd = 1.57068062F;
+  rtb_Sum3_f = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_m;
+
+  // Gain: '<S34>/derivative cutoff frequency 1' incorporates:
+  //   DiscreteIntegrator: '<S34>/Discrete-Time Integrator'
+  //   DiscreteIntegrator: '<S36>/Discrete-Time Integrator1'
+  //   Gain: '<S34>/derivative cutoff frequency '
+  //   Sum: '<S34>/Sum1'
+
+  rtb_derivativecutofffrequency_b =
+    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_m -
+     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_o) * 100.0F;
+
+  // Logic: '<S9>/Logical Operator2' incorporates:
+  //   Constant: '<S9>/Constant7'
+  //   DataTypeConversion: '<Root>/Data Type Conversion'
+  //   RelationalOperator: '<S9>/Relational Operator4'
+
+  rtb_LogicalOperator2_e = (rtb_LogicalOperator1_n && (rtb_Gain2 <= 18.0F));
+
+  // Switch: '<S9>/Switch' incorporates:
+  //   Constant: '<S9>/Constant5'
+  //   RelationalOperator: '<S9>/Relational Operator3'
+  //   Sum: '<S9>/Sum3'
+
+  if (rtb_Gain2 >= 12.0F) {
+    rtb_Sum4_a = rtb_uDLookupTable3;
   } else {
-    if (QS_InnerRateLoop_Y.theta_cmd <= -1.57068062F) {
-      // Outport: '<Root>/theta_cmd'
-      QS_InnerRateLoop_Y.theta_cmd = -1.57068062F;
+    rtb_Sum4_a = 0.0F;
+  }
+
+  // End of Switch: '<S9>/Switch'
+
+  // RateLimiter: '<S9>/Rate Limiter'
+  rtb_uDLookupTable3 = rtb_Sum4_a - QS_InnerRateLoop_DWork.PrevY;
+  if (rtb_uDLookupTable3 > 0.25F) {
+    rtb_Sum4_a = QS_InnerRateLoop_DWork.PrevY + 0.25F;
+  } else {
+    if (rtb_uDLookupTable3 < -0.25F) {
+      rtb_Sum4_a = QS_InnerRateLoop_DWork.PrevY + -0.25F;
     }
   }
 
-  // End of DiscreteIntegrator: '<S20>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.PrevY = rtb_Sum4_a;
 
-  // Gain: '<S21>/derivative cutoff frequency 1' incorporates:
-  //   DiscreteIntegrator: '<S21>/Discrete-Time Integrator'
-  //   Sum: '<S21>/Sum1'
-
-  rtb_derivativecutofffrequenc_ap = (QS_InnerRateLoop_Y.theta_cmd -
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_k) * 100.0F;
+  // End of RateLimiter: '<S9>/Rate Limiter'
 
   // Outputs for Enabled SubSystem: '<Root>/Determine Heading at Start of Manuever  All trajectories relative to this heading' incorporates:
   //   EnablePort: '<S2>/Enable'
 
   // Logic: '<Root>/Logical Operator2'
-  if (!rtb_LogicalOperator1_f) {
+  if (!rtb_LogicalOperator1_n) {
     // Gain: '<S2>/Gain' incorporates:
     //   Inport: '<Root>/psi_rad'
 
@@ -1335,1809 +1166,1819 @@ void untitledModelClass::step()
   // End of Logic: '<Root>/Logical Operator2'
   // End of Outputs for SubSystem: '<Root>/Determine Heading at Start of Manuever  All trajectories relative to this heading' 
 
-  // Switch: '<S9>/Switch'
-  if (rtb_LogicalOperator1_f) {
-    rtb_Sum1_0 = rtb_DLookupTable3;
-  } else {
-    rtb_Sum1_0 = 0.0F;
-  }
-
-  // End of Switch: '<S9>/Switch'
-
   // Sum: '<Root>/Sum4'
-  rtb_Sum4_i = rtb_Sum1_0 + QS_InnerRateLoop_B.Gain;
+  rtb_Sum4_a += QS_InnerRateLoop_B.Gain;
 
-  // Gain: '<S31>/deg2rad 2'
-  rtb_deg2rad2 = 0.0174532924F * rtb_Sum4_i;
+  // Gain: '<S57>/Gain'
+  rtb_uDLookupTable3 = 0.0174532924F * rtb_Sum4_a;
 
-  // DiscreteIntegrator: '<S11>/Discrete-Time Integrator' incorporates:
-  //   UnitDelay: '<S11>/Unit Delay'
-
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOA_f != 0) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_a =
-      QS_InnerRateLoop_DWork.UnitDelay_DSTATE_l;
+  // Delay: '<S10>/Delay'
+  if (QS_InnerRateLoop_DWork.icLoad != 0) {
+    QS_InnerRateLoop_DWork.Delay_DSTATE = rtb_uDLookupTable3;
   }
-
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_b <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_b == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_a =
-      QS_InnerRateLoop_DWork.UnitDelay_DSTATE_l;
-  }
-
-  // Switch: '<S11>/Switch' incorporates:
-  //   DiscreteIntegrator: '<S11>/Discrete-Time Integrator'
-
-  if (rtb_LogicalOperator1_f) {
-    rtb_Switch_e = rtb_deg2rad2;
-  } else {
-    rtb_Switch_e = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_a;
-  }
-
-  // End of Switch: '<S11>/Switch'
-
-  // Gain: '<S27>/derivative cutoff frequency 1' incorporates:
-  //   DiscreteIntegrator: '<S27>/Discrete-Time Integrator'
-  //   Sum: '<S27>/Sum1'
-
-  rtb_derivativecutofffrequenc_nd = (rtb_Switch_e -
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mn) * 100.0F;
-
-  // DiscreteIntegrator: '<S13>/Discrete-Time Integrator' incorporates:
-  //   Inport: '<Root>/engage'
-
-  if (QS_InnerRateLoop_U.engage &&
-      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_o <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_h4 = 0.0F;
-  }
-
-  // DiscreteIntegrator: '<S19>/Discrete-Time Integrator' incorporates:
-  //   Inport: '<Root>/engage'
-
-  if (QS_InnerRateLoop_U.engage &&
-      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_p <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_iz = 0.0F;
-  }
-
-  // Sum: '<S13>/Sum2' incorporates:
-  //   DiscreteIntegrator: '<S19>/Discrete-Time Integrator'
-
-  rtb_Sum2_cl = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_iz -
-    rtb_Add7;
-
-  // DiscreteIntegrator: '<S12>/Discrete-Time Integrator' incorporates:
-  //   Inport: '<Root>/engage'
-
-  if (QS_InnerRateLoop_U.engage &&
-      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bj <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_gi = 0.0F;
-  }
-
-  // Gain: '<S12>/Gain' incorporates:
-  //   DiscreteIntegrator: '<S16>/Discrete-Time Integrator1'
-  //   Inport: '<Root>/phi_rad'
-  //   Sum: '<S12>/Sum'
-
-  rtb_Gain_bw = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k -
-                 QS_InnerRateLoop_U.phi_rad) * 474.69104F;
-
-  // DiscreteIntegrator: '<S14>/Discrete-Time Integrator' incorporates:
-  //   Inport: '<Root>/engage'
-
-  if (QS_InnerRateLoop_U.engage &&
-      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_c <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ia = 0.0F;
-  }
-
-  // Gain: '<S14>/Gain' incorporates:
-  //   Inport: '<Root>/theta_rad'
-  //   Sum: '<S14>/Sum'
-
-  rtb_Gain_fc = (QS_InnerRateLoop_Y.theta_cmd - QS_InnerRateLoop_U.theta_rad) *
-    460.130463F;
-
-  // DiscreteIntegrator: '<S15>/Discrete-Time Integrator' incorporates:
-  //   Inport: '<Root>/engage'
-
-  if (QS_InnerRateLoop_U.engage &&
-      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_m <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_kt = 0.0F;
-  }
-
-  // Switch: '<S28>/Switch' incorporates:
-  //   Constant: '<S28>/Constant1'
-  //   Constant: '<S28>/Constant2'
-  //   Gain: '<S28>/Gain1'
-  //   Switch: '<S28>/Switch1'
-
-  if (rtb_Switch_e >= 0.0F) {
-    rtb_Switch_if = rtb_Switch_e;
-    rtb_Switch_m = 1;
-  } else {
-    rtb_Switch_if = -rtb_Switch_e;
-    rtb_Switch_m = -1;
-  }
-
-  // End of Switch: '<S28>/Switch'
-
-  // Product: '<S28>/Product' incorporates:
-  //   Constant: '<S28>/Constant'
-  //   Gain: '<S28>/Gain'
-  //   Product: '<S28>/Divide'
-  //   Rounding: '<S28>/Rounding Function'
-  //   Sum: '<S28>/Subtract'
-
-  rtb_Product = (rtb_Switch_if - (real32_T)floor(rtb_Switch_if * 0.159154937F) *
-                 6.28318548F) * (real32_T)rtb_Switch_m;
-
-  // Switch: '<S23>/Switch' incorporates:
-  //   Abs: '<S23>/Abs'
-
-  if ((real32_T)fabs(rtb_Product) > 3.14159274F) {
-    // Switch: '<S23>/Switch1' incorporates:
-    //   Constant: '<S23>/Constant1'
-    //   Constant: '<S23>/Constant2'
-    //   Sum: '<S23>/Add'
-    //   Sum: '<S23>/Subtract'
-
-    if (rtb_Product >= 0.0F) {
-      rtb_Switch_ba = rtb_Product - 6.28318548F;
-    } else {
-      rtb_Switch_ba = 6.28318548F + rtb_Product;
-    }
-
-    // End of Switch: '<S23>/Switch1'
-  } else {
-    rtb_Switch_ba = rtb_Product;
-  }
-
-  // End of Switch: '<S23>/Switch'
-
-  // Switch: '<S29>/Switch' incorporates:
-  //   Constant: '<S29>/Constant1'
-  //   Constant: '<S29>/Constant2'
-  //   Gain: '<S29>/Gain1'
-  //   Inport: '<Root>/psi_rad'
-  //   Switch: '<S29>/Switch1'
-
-  if (QS_InnerRateLoop_U.psi_rad >= 0.0F) {
-    rtb_Switch_b5 = QS_InnerRateLoop_U.psi_rad;
-    rtb_Switch_m = 1;
-  } else {
-    rtb_Switch_b5 = -QS_InnerRateLoop_U.psi_rad;
-    rtb_Switch_m = -1;
-  }
-
-  // End of Switch: '<S29>/Switch'
-
-  // Product: '<S29>/Product' incorporates:
-  //   Constant: '<S29>/Constant'
-  //   Gain: '<S29>/Gain'
-  //   Product: '<S29>/Divide'
-  //   Rounding: '<S29>/Rounding Function'
-  //   Sum: '<S29>/Subtract'
-
-  rtb_Product_n = (rtb_Switch_b5 - (real32_T)floor(rtb_Switch_b5 * 0.159154937F)
-                   * 6.28318548F) * (real32_T)rtb_Switch_m;
-
-  // Switch: '<S24>/Switch' incorporates:
-  //   Abs: '<S24>/Abs'
-
-  if ((real32_T)fabs(rtb_Product_n) > 3.14159274F) {
-    // Switch: '<S24>/Switch1' incorporates:
-    //   Constant: '<S24>/Constant1'
-    //   Constant: '<S24>/Constant2'
-    //   Sum: '<S24>/Add'
-    //   Sum: '<S24>/Subtract'
-
-    if (rtb_Product_n >= 0.0F) {
-      rtb_Switch_g = rtb_Product_n - 6.28318548F;
-    } else {
-      rtb_Switch_g = 6.28318548F + rtb_Product_n;
-    }
-
-    // End of Switch: '<S24>/Switch1'
-  } else {
-    rtb_Switch_g = rtb_Product_n;
-  }
-
-  // End of Switch: '<S24>/Switch'
-
-  // Sum: '<S15>/Sum4'
-  rtb_Sum4_d = rtb_Switch_ba - rtb_Switch_g;
-
-  // Switch: '<S30>/Switch' incorporates:
-  //   Constant: '<S30>/Constant1'
-  //   Constant: '<S30>/Constant2'
-  //   Gain: '<S30>/Gain1'
-  //   Switch: '<S30>/Switch1'
-
-  if (rtb_Sum4_d >= 0.0F) {
-    rtb_Switch_ao = rtb_Sum4_d;
-    rtb_Switch_m = 1;
-  } else {
-    rtb_Switch_ao = -rtb_Sum4_d;
-    rtb_Switch_m = -1;
-  }
-
-  // End of Switch: '<S30>/Switch'
-
-  // Product: '<S30>/Product' incorporates:
-  //   Constant: '<S30>/Constant'
-  //   Gain: '<S30>/Gain'
-  //   Product: '<S30>/Divide'
-  //   Rounding: '<S30>/Rounding Function'
-  //   Sum: '<S30>/Subtract'
-
-  rtb_Product_d = (rtb_Switch_ao - (real32_T)floor(rtb_Switch_ao * 0.159154937F)
-                   * 6.28318548F) * (real32_T)rtb_Switch_m;
-
-  // Switch: '<S25>/Switch' incorporates:
-  //   Abs: '<S25>/Abs'
-
-  if ((real32_T)fabs(rtb_Product_d) > 3.14159274F) {
-    // Switch: '<S25>/Switch1' incorporates:
-    //   Constant: '<S25>/Constant1'
-    //   Constant: '<S25>/Constant2'
-    //   Sum: '<S25>/Add'
-    //   Sum: '<S25>/Subtract'
-
-    if (rtb_Product_d >= 0.0F) {
-      rtb_Switch_gw = rtb_Product_d - 6.28318548F;
-    } else {
-      rtb_Switch_gw = 6.28318548F + rtb_Product_d;
-    }
-
-    // End of Switch: '<S25>/Switch1'
-  } else {
-    rtb_Switch_gw = rtb_Product_d;
-  }
-
-  // End of Switch: '<S25>/Switch'
-
-  // Gain: '<S15>/Gain3'
-  rtb_Gain3_a = 49.311615F * rtb_Switch_gw;
-
-  // Trigonometry: '<S5>/Trigonometric Function2' incorporates:
-  //   Inport: '<Root>/theta_rad'
-
-  rtb_TrigonometricFunction2 = (real32_T)cos(QS_InnerRateLoop_U.theta_rad);
-
-  // Trigonometry: '<S5>/Trigonometric Function5' incorporates:
-  //   Inport: '<Root>/theta_rad'
-
-  rtb_TrigonometricFunction5 = (real32_T)sin(QS_InnerRateLoop_U.theta_rad);
-
-  // Trigonometry: '<S5>/Trigonometric Function4' incorporates:
-  //   Inport: '<Root>/phi_rad'
-
-  rtb_TrigonometricFunction4 = (real32_T)sin(QS_InnerRateLoop_U.phi_rad);
-
-  // Trigonometry: '<S5>/Trigonometric Function1' incorporates:
-  //   Inport: '<Root>/phi_rad'
-
-  rtb_TrigonometricFunction1 = (real32_T)cos(QS_InnerRateLoop_U.phi_rad);
-
-  // Sum: '<S3>/Sum' incorporates:
-  //   DiscreteIntegrator: '<S12>/Discrete-Time Integrator'
-  //   DiscreteIntegrator: '<S13>/Discrete-Time Integrator'
-  //   DiscreteIntegrator: '<S14>/Discrete-Time Integrator'
-  //   DiscreteIntegrator: '<S15>/Discrete-Time Integrator'
-  //   DiscreteIntegrator: '<S18>/Discrete-Time Integrator'
-  //   DiscreteIntegrator: '<S22>/Discrete-Time Integrator'
-  //   DiscreteIntegrator: '<S26>/Discrete-Time Integrator'
-  //   Gain: '<S12>/Gain1'
-  //   Gain: '<S13>/Gain1'
-  //   Gain: '<S13>/Gain3'
-  //   Gain: '<S14>/Gain1'
-  //   Gain: '<S15>/Gain2'
-  //   Gain: '<S18>/derivative cutoff frequency 1'
-  //   Gain: '<S22>/derivative cutoff frequency 1'
-  //   Gain: '<S26>/derivative cutoff frequency 1'
-  //   Inport: '<Root>/p_rps'
-  //   Inport: '<Root>/q_rps'
-  //   Inport: '<Root>/r_rps'
-  //   Sum: '<S12>/Sum1'
-  //   Sum: '<S12>/Sum2'
-  //   Sum: '<S13>/Sum1'
-  //   Sum: '<S14>/Sum1'
-  //   Sum: '<S14>/Sum2'
-  //   Sum: '<S15>/Sum3'
-  //   Sum: '<S15>/Sum5'
-  //   Sum: '<S18>/Sum1'
-  //   Sum: '<S22>/Sum1'
-  //   Sum: '<S26>/Sum1'
-
-  rtb_Gain_4[0] = rtb_Gain;
-  rtb_Gain_4[1] = (rtb_derivativecutofffrequency1 -
-                   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_b) *
-    100.0F;
-  rtb_Gain_4[2] = (rtb_derivativecutofffrequenc_ap -
-                   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cl) *
-    100.0F;
-  rtb_Gain_4[3] = (rtb_derivativecutofffrequenc_nd -
-                   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_l) *
-    100.0F;
-  tmp[0] = (8.35246086F * rtb_Sum2_cl +
-            QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_h4) * 1.5F;
-  tmp[1] = (rtb_derivativecutofffrequency1 - QS_InnerRateLoop_U.p_rps) *
-    12.4024372F + (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_gi +
-                   rtb_Gain_bw);
-  tmp[2] = (rtb_derivativecutofffrequenc_ap - QS_InnerRateLoop_U.q_rps) *
-    10.3416967F + (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ia +
-                   rtb_Gain_fc);
-  tmp[3] = (rtb_derivativecutofffrequenc_nd - QS_InnerRateLoop_U.r_rps) *
-    4.27515078F + (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_kt +
-                   rtb_Gain3_a);
-
-  // SignalConversion: '<S3>/TmpSignal ConversionAtCinv*AinvInport1' incorporates:
-  //   Inport: '<Root>/p_rps'
-  //   Inport: '<Root>/phi_rad'
-  //   Inport: '<Root>/psi_rad'
-  //   Inport: '<Root>/q_rps'
-  //   Inport: '<Root>/r_rps'
-  //   Inport: '<Root>/theta_rad'
-  //   Product: '<S5>/Divide'
-  //   Product: '<S5>/Divide1'
-  //   Product: '<S5>/Divide10'
-  //   Product: '<S5>/Divide11'
-  //   Product: '<S5>/Divide12'
-  //   Product: '<S5>/Divide13'
-  //   Product: '<S5>/Divide14'
-  //   Product: '<S5>/Divide15'
-  //   Product: '<S5>/Divide16'
-  //   Product: '<S5>/Divide2'
-  //   Product: '<S5>/Divide3'
-  //   Product: '<S5>/Divide4'
-  //   Product: '<S5>/Divide5'
-  //   Product: '<S5>/Divide6'
-  //   Product: '<S5>/Divide7'
-  //   Product: '<S5>/Divide8'
-  //   Product: '<S5>/Divide9'
-  //   Sum: '<S5>/Add1'
-  //   Sum: '<S5>/Add2'
-  //   Sum: '<S5>/Add3'
-  //   Sum: '<S5>/Add4'
-  //   Sum: '<S5>/Add5'
-  //   Sum: '<S5>/Add6'
-  //   Sum: '<S5>/Add7'
-
-  rtb_TrigonometricFunction2_0[0] = (rtb_TrigonometricFunction2 *
-    QS_InnerRateLoop_ConstB.TrigonometricFunction3 * rtb_Add5 +
-    rtb_TrigonometricFunction2 * QS_InnerRateLoop_ConstB.TrigonometricFunction6 *
-    rtb_Add6) + -rtb_TrigonometricFunction5 * rtb_Add7;
-  rtb_TrigonometricFunction2_0[1] = ((rtb_TrigonometricFunction4 *
-    rtb_TrigonometricFunction5 * QS_InnerRateLoop_ConstB.TrigonometricFunction3
-    - rtb_TrigonometricFunction1 *
-    QS_InnerRateLoop_ConstB.TrigonometricFunction6) * rtb_Add5 +
-    (rtb_TrigonometricFunction4 * rtb_TrigonometricFunction5 *
-     QS_InnerRateLoop_ConstB.TrigonometricFunction6 + rtb_TrigonometricFunction1
-     * QS_InnerRateLoop_ConstB.TrigonometricFunction3) * rtb_Add6) +
-    rtb_TrigonometricFunction4 * rtb_TrigonometricFunction2 * rtb_Add7;
-  rtb_TrigonometricFunction2_0[2] = ((rtb_TrigonometricFunction1 *
-    rtb_TrigonometricFunction5 * QS_InnerRateLoop_ConstB.TrigonometricFunction3
-    + rtb_TrigonometricFunction4 *
-    QS_InnerRateLoop_ConstB.TrigonometricFunction6) * rtb_Add5 +
-    (rtb_TrigonometricFunction1 * rtb_TrigonometricFunction5 *
-     QS_InnerRateLoop_ConstB.TrigonometricFunction6 - rtb_TrigonometricFunction4
-     * QS_InnerRateLoop_ConstB.TrigonometricFunction3) * rtb_Add6) +
-    rtb_TrigonometricFunction1 * rtb_TrigonometricFunction2 * rtb_Add7;
-  rtb_TrigonometricFunction2_0[3] = QS_InnerRateLoop_U.p_rps;
-  rtb_TrigonometricFunction2_0[4] = QS_InnerRateLoop_U.q_rps;
-  rtb_TrigonometricFunction2_0[5] = QS_InnerRateLoop_U.r_rps;
-  rtb_TrigonometricFunction2_0[6] = QS_InnerRateLoop_U.phi_rad;
-  rtb_TrigonometricFunction2_0[7] = QS_InnerRateLoop_U.theta_rad;
-  rtb_TrigonometricFunction2_0[8] = QS_InnerRateLoop_U.psi_rad;
-
-  // Sum: '<S3>/Sum' incorporates:
-  //   Gain: '<S3>/(Binv)^-1'
-  //   Gain: '<S3>/Cinv*Ainv'
-
-  for (rtb_Switch_m = 0; rtb_Switch_m < 4; rtb_Switch_m++) {
-    rtb_Sum1_0 = 0.0F;
-    for (i = 0; i < 9; i++) {
-      rtb_Sum1_0 += QS_InnerRateLoop_ConstP.CinvAinv_Gain[(i << 2) +
-        rtb_Switch_m] * rtb_TrigonometricFunction2_0[i];
-    }
-
-    rtb_Gain_5[rtb_Switch_m] = (rtb_Gain_4[rtb_Switch_m] + tmp[rtb_Switch_m]) -
-      rtb_Sum1_0;
-  }
-
-  // Gain: '<S3>/(Binv)^-1'
-  for (rtb_Switch_m = 0; rtb_Switch_m < 4; rtb_Switch_m++) {
-    rtb_Sum1_0 = QS_InnerRateLoop_ConstP.Binv1_Gain[rtb_Switch_m + 12] *
-      rtb_Gain_5[3] + (QS_InnerRateLoop_ConstP.Binv1_Gain[rtb_Switch_m + 8] *
-                       rtb_Gain_5[2] +
-                       (QS_InnerRateLoop_ConstP.Binv1_Gain[rtb_Switch_m + 4] *
-                        rtb_Gain_5[1] +
-                        QS_InnerRateLoop_ConstP.Binv1_Gain[rtb_Switch_m] *
-                        rtb_Gain_5[0]));
-    rtb_Binv1[rtb_Switch_m] = rtb_Sum1_0;
-  }
-
-  // DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn'
-  DiscreteTransferFcn_tmp = rtb_Binv1[0] - -0.6842F *
-    QS_InnerRateLoop_DWork.DiscreteTransferFcn_states;
-
-  // DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn1'
-  DiscreteTransferFcn1_tmp = rtb_Binv1[1] - -0.6F *
-    QS_InnerRateLoop_DWork.DiscreteTransferFcn1_states;
-
-  // DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn2'
-  DiscreteTransferFcn2_tmp = rtb_Binv1[2] - -0.6F *
-    QS_InnerRateLoop_DWork.DiscreteTransferFcn2_states;
-
-  // DataTypeConversion: '<S10>/Data Type Conversion17' incorporates:
-  //   Constant: '<S10>/Constant10'
-  //   Inport: '<Root>/CH8_flag'
-  //   Inport: '<Root>/Trajectory Switch'
-  //   Logic: '<Root>/Logical Operator3'
-  //   Logic: '<Root>/Logical Operator4'
-  //   RelationalOperator: '<S10>/Relational Operator6'
-
-  rtb_DataTypeConversion17 = ((int32_T)((!QS_InnerRateLoop_U.TrajectorySwitch) &&
-                               (QS_InnerRateLoop_U.CH8_flag != 0.0F)) >= 1);
-
-  // Product: '<S50>/Product1' incorporates:
-  //   Gain: '<S50>/Gain2'
-  //   Sum: '<S50>/Sum'
-  //   UnitDelay: '<S50>/Unit Delay'
-
-  rtb_Product1 = (0.0025F * rtb_DataTypeConversion17 +
-                  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_a) *
-    rtb_DataTypeConversion17;
-
-  // Sum: '<S54>/Sum' incorporates:
-  //   Constant: '<S50>/Constant3'
-  //   Constant: '<S54>/Constant'
-  //   DataTypeConversion: '<S54>/Data Type Conversion'
-  //   DataTypeConversion: '<S54>/Data Type Conversion1'
-  //   DataTypeConversion: '<S54>/Data Type Conversion2'
-  //   DataTypeConversion: '<S54>/Data Type Conversion3'
-  //   DataTypeConversion: '<S54>/Data Type Conversion4'
-  //   DataTypeConversion: '<S54>/Data Type Conversion5'
-  //   RelationalOperator: '<S54>/Relational Operator'
-  //   RelationalOperator: '<S54>/Relational Operator1'
-  //   RelationalOperator: '<S54>/Relational Operator2'
-  //   RelationalOperator: '<S54>/Relational Operator3'
-  //   RelationalOperator: '<S54>/Relational Operator4'
-  //   RelationalOperator: '<S54>/Relational Operator5'
-
-  rtb_Sum_dv = (((((rtb_Product1 >= 0.0F) + (rtb_Product1 >= 5.0F)) +
-                  (rtb_Product1 >= QS_InnerRateLoop_ConstB.Sum1)) +
-                 (rtb_Product1 >= QS_InnerRateLoop_ConstB.Sum3)) + (rtb_Product1
-    >= QS_InnerRateLoop_ConstB.Sum2)) + (rtb_Product1 >=
-    QS_InnerRateLoop_ConstB.Sum4);
-
-  // MultiPortSwitch: '<S50>/Multiport Switch1' incorporates:
-  //   Constant: '<S50>/Constant10'
-  //   Constant: '<S50>/Constant14'
-  //   Constant: '<S50>/Constant15'
-  //   Constant: '<S50>/Constant16'
-  //   Constant: '<S50>/Constant3'
-  //   Constant: '<S50>/Constant6'
-  //   Constant: '<S50>/Constant8'
-  //   Gain: '<S50>/Gain'
-  //   Gain: '<S50>/Gain1'
-  //   Sum: '<S50>/Sum1'
-  //   Sum: '<S50>/Sum2'
-  //   Sum: '<S50>/Sum3'
-
-  switch (rtb_Sum_dv) {
-   case 1:
-    rtb_MultiportSwitch1 = 0.0F;
-    break;
-
-   case 2:
-    rtb_MultiportSwitch1 = (rtb_Product1 - 5.0F) * 0.2F;
-    break;
-
-   case 3:
-    rtb_MultiportSwitch1 = 1.0F;
-    break;
-
-   case 4:
-    rtb_MultiportSwitch1 = 1.0F;
-    break;
-
-   case 5:
-    rtb_MultiportSwitch1 = 1.0F - (((rtb_Product1 - 60.0F) + 5.0F) + 5.0F) *
-      0.2F;
-    break;
-
-   default:
-    rtb_MultiportSwitch1 = 0.0F;
-    break;
-  }
-
-  // End of MultiPortSwitch: '<S50>/Multiport Switch1'
-
-  // DiscreteIntegrator: '<S51>/Discrete-Time Integrator'
-  if ((rtb_DataTypeConversion17 > 0.0F) &&
-      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_dn = 0.0F;
-  }
-
-  // Product: '<S50>/Product4' incorporates:
-  //   DiscreteIntegrator: '<S51>/Discrete-Time Integrator'
-  //   Trigonometry: '<S51>/Trigonometric Function'
-
-  rtb_Sum1_0 = rtb_MultiportSwitch1 * (real32_T)sin
-    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_dn);
-
-  // Saturate: '<S50>/Saturation'
-  if (rtb_Sum1_0 > 1.0F) {
-    rtb_Saturation_m = 1.0F;
-  } else if (rtb_Sum1_0 < -1.0F) {
-    rtb_Saturation_m = -1.0F;
-  } else {
-    rtb_Saturation_m = rtb_Sum1_0;
-  }
-
-  // End of Saturate: '<S50>/Saturation'
-
-  // Switch: '<S10>/Switch1' incorporates:
-  //   Constant: '<S10>/Constant3'
-  //   Constant: '<S10>/Constant5'
-  //   Constant: '<S10>/Constant8'
-  //   Inport: '<Root>/rc_6'
-  //   Logic: '<S10>/Logical Operator1'
-  //   RelationalOperator: '<S10>/Relational Operator3'
-  //   RelationalOperator: '<S10>/Relational Operator4'
-
-  if ((QS_InnerRateLoop_U.rc_6 >= 500.0F) && (QS_InnerRateLoop_U.rc_6 < 750.0F))
-  {
-    rtb_Sum1_0 = rtb_Saturation_m;
-  } else {
-    rtb_Sum1_0 = 0.0F;
-  }
-
-  // End of Switch: '<S10>/Switch1'
-
-  // Product: '<S10>/Product2' incorporates:
-  //   Gain: '<S10>/Gain2'
-  //   Inport: '<Root>/sweep_multiplier'
-
-  rtb_Product2_l4 = 200.0F * rtb_Sum1_0 * QS_InnerRateLoop_U.sweep_multiplier;
-
-  // Switch: '<S10>/Switch' incorporates:
-  //   Constant: '<S10>/Constant'
-  //   Constant: '<S10>/Constant1'
-  //   Inport: '<Root>/rc_6'
-  //   RelationalOperator: '<S10>/Relational Operator'
-
-  if (QS_InnerRateLoop_U.rc_6 < 250.0F) {
-    rtb_Sum1_0 = rtb_Saturation_m;
-  } else {
-    rtb_Sum1_0 = 0.0F;
-  }
-
-  // End of Switch: '<S10>/Switch'
-
-  // Product: '<S10>/Product' incorporates:
-  //   Gain: '<S10>/Gain'
-  //   Inport: '<Root>/sweep_multiplier'
-
-  rtb_Product_jq = 450.0F * rtb_Sum1_0 * QS_InnerRateLoop_U.sweep_multiplier;
-
-  // Switch: '<S10>/Switch2' incorporates:
-  //   Constant: '<S10>/Constant2'
-  //   Constant: '<S10>/Constant4'
-  //   Constant: '<S10>/Constant7'
-  //   Inport: '<Root>/rc_6'
-  //   Logic: '<S10>/Logical Operator'
-  //   RelationalOperator: '<S10>/Relational Operator1'
-  //   RelationalOperator: '<S10>/Relational Operator2'
-
-  if ((QS_InnerRateLoop_U.rc_6 >= 250.0F) && (QS_InnerRateLoop_U.rc_6 < 500.0F))
-  {
-    rtb_Sum1_0 = rtb_Saturation_m;
-  } else {
-    rtb_Sum1_0 = 0.0F;
-  }
-
-  // End of Switch: '<S10>/Switch2'
-
-  // Product: '<S10>/Product1' incorporates:
-  //   Gain: '<S10>/Gain1'
-  //   Inport: '<Root>/sweep_multiplier'
-
-  rtb_Product1_p = 450.0F * rtb_Sum1_0 * QS_InnerRateLoop_U.sweep_multiplier;
 
   // Switch: '<S10>/Switch3' incorporates:
-  //   Constant: '<S10>/Constant6'
-  //   Constant: '<S10>/Constant9'
-  //   Inport: '<Root>/rc_6'
-  //   RelationalOperator: '<S10>/Relational Operator5'
+  //   Delay: '<S10>/Delay'
+  //   Delay: '<S10>/Delay1'
+  //   Inport: '<Root>/psi_rad'
 
-  if (QS_InnerRateLoop_U.rc_6 >= 750.0F) {
-    rtb_Sum1_0 = rtb_Saturation_m;
+  if (QS_InnerRateLoop_DWork.Delay1_DSTATE_j[0]) {
+    rtb_Sum4_b = QS_InnerRateLoop_DWork.Delay_DSTATE;
   } else {
-    rtb_Sum1_0 = 0.0F;
+    rtb_Sum4_b = QS_InnerRateLoop_U.psi_rad;
   }
 
   // End of Switch: '<S10>/Switch3'
 
-  // Product: '<S10>/Product3' incorporates:
-  //   Gain: '<S10>/Gain3'
-  //   Inport: '<Root>/sweep_multiplier'
+  // DiscreteIntegrator: '<S10>/Discrete-Time Integrator'
+  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOA_b != 0) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mz = rtb_Sum4_b;
+  }
 
-  rtb_Product3 = 450.0F * rtb_Sum1_0 * QS_InnerRateLoop_U.sweep_multiplier;
+  if ((rtb_LogicalOperator1_n &&
+       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_p <= 0)) ||
+      (rtb_RelationalOperator4_e &&
+       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_p == 1))) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mz = rtb_Sum4_b;
+  }
 
-  // Outport: '<Root>/mixer_throttle' incorporates:
-  //   DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn'
-  //   Sum: '<Root>/Sum1'
+  // Switch: '<S10>/Switch' incorporates:
+  //   DiscreteIntegrator: '<S10>/Discrete-Time Integrator'
 
-  QS_InnerRateLoop_Y.mixer_throttle = ((4.368F * DiscreteTransferFcn_tmp +
-    -4.053F * QS_InnerRateLoop_DWork.DiscreteTransferFcn_states) +
-    QS_InnerRateLoop_B.In1[0]) + rtb_Product2_l4;
+  if (rtb_LogicalOperator1_n) {
+    rtb_Sum4_b = rtb_uDLookupTable3;
+  } else {
+    rtb_Sum4_b = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mz;
+  }
 
-  // Outport: '<Root>/mixer_x' incorporates:
-  //   DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn1'
-  //   Sum: '<Root>/Sum1'
+  // End of Switch: '<S10>/Switch'
 
-  QS_InnerRateLoop_Y.mixer_x = ((6.425F * DiscreteTransferFcn1_tmp + -6.375F *
-    QS_InnerRateLoop_DWork.DiscreteTransferFcn1_states) +
-    QS_InnerRateLoop_B.In1[1]) + rtb_Product_jq;
-
-  // Outport: '<Root>/mixer_y' incorporates:
-  //   DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn2'
-  //   Sum: '<Root>/Sum1'
-
-  QS_InnerRateLoop_Y.mixer_y = ((6.425F * DiscreteTransferFcn2_tmp + -6.375F *
-    QS_InnerRateLoop_DWork.DiscreteTransferFcn2_states) +
-    QS_InnerRateLoop_B.In1[2]) + rtb_Product1_p;
-
-  // Outport: '<Root>/mixer_z' incorporates:
-  //   Sum: '<Root>/Sum1'
-
-  QS_InnerRateLoop_Y.mixer_z = (QS_InnerRateLoop_B.In1[3] + rtb_Binv1[3]) +
-    rtb_Product3;
-
-  // Outport: '<Root>/roll_sweep'
-  QS_InnerRateLoop_Y.roll_sweep = rtb_Product_jq;
-
-  // Outport: '<Root>/pitch_sweep'
-  QS_InnerRateLoop_Y.pitch_sweep = rtb_Product1_p;
-
-  // Outport: '<Root>/yaw_sweep'
-  QS_InnerRateLoop_Y.yaw_sweep = rtb_Product3;
-
-  // Outport: '<Root>/coll_sweep'
-  QS_InnerRateLoop_Y.coll_sweep = rtb_Product2_l4;
-
-  // Outport: '<Root>/TrajectoryON'
-  QS_InnerRateLoop_Y.TrajectoryON = rtb_LogicalOperator1_f;
-
-  // Outport: '<Root>/vehheadingcmd'
-  QS_InnerRateLoop_Y.vehheadingcmd = rtb_Sum4_i;
-
-  // DiscreteIntegrator: '<S16>/Discrete-Time Integrator' incorporates:
+  // DiscreteIntegrator: '<S47>/Discrete-Time Integrator' incorporates:
   //   Inport: '<Root>/engage'
 
   if (QS_InnerRateLoop_U.engage &&
-      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ez <= 0)) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 = 0.0F;
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bp <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = 0.0;
   }
 
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 >= 3.14136124F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 = 3.14136124F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 <= -3.14136124F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 = -3.14136124F;
-    }
-  }
+  // Gain: '<S47>/Gain' incorporates:
+  //   DiscreteIntegrator: '<S47>/Discrete-Time Integrator'
 
-  rtb_DiscreteTimeIntegrator_ab =
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1;
+  rtb_Gain = 400.0 * QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE;
 
-  // DiscreteIntegrator: '<S35>/Discrete-Time Integrator'
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_gi <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_gi == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e =
-      QS_InnerRateLoop_ConstB.Constant_i;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e >= 0.261780113F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e = 0.261780113F;
+  // Switch: '<S14>/Switch2' incorporates:
+  //   Constant: '<S14>/Constant1'
+
+  if (rtb_Gain >= 100.0) {
+    // Switch: '<S14>/Switch' incorporates:
+    //   Constant: '<S14>/Constant'
+    //   DiscreteIntegrator: '<S46>/Discrete-Time Integrator'
+    //   Gain: '<S46>/derivative cutoff frequency 1'
+    //   Sum: '<S46>/Sum1'
+
+    if (rtb_LogicalOperator2_e) {
+      rtb_Switch2_cz = 0.0F;
     } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e <=
-          -0.261780113F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e = -0.261780113F;
-      }
+      rtb_Switch2_cz = (rtb_Sum4_b -
+                        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mr) *
+        100.0F;
     }
+
+    // End of Switch: '<S14>/Switch'
+  } else {
+    rtb_Switch2_cz = 0.0F;
   }
 
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e >= 0.261780113F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e = 0.261780113F;
+  // End of Switch: '<S14>/Switch2'
+
+  // DiscreteIntegrator: '<S28>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_m <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_f = 0.0F;
+  }
+
+  // Lookup_n-D: '<S25>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // DiscreteIntegrator: '<S27>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_n <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_fs = 0.0F;
+  }
+
+  // Product: '<S25>/Product' incorporates:
+  //   DiscreteIntegrator: '<S27>/Discrete-Time Integrator'
+  //   Lookup_n-D: '<S25>/1-D Lookup Table2'
+  //   Sum: '<S12>/Sum2'
+
+  rtb_Product_ib = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_fs -
+                    rtb_uDLookupTable_cs) * intrp1d_fu32fl_pw(bpIdx,
+    rtb_Saturation5_k, QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_o);
+
+  // Sum: '<S12>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S28>/Discrete-Time Integrator'
+
+  rtb_Sum1_c0 = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_f +
+    rtb_Product_ib;
+
+  // Lookup_n-D: '<S12>/1-D Lookup Table'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable_cs = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData_k);
+
+  // Lookup_n-D: '<S12>/1-D Lookup Table1'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable1 = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData_g);
+
+  // DiscreteIntegrator: '<S29>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_by <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c4 = 0.0F;
+  }
+
+  rtb_DiscreteTimeIntegrator_hs =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c4;
+
+  // DiscreteIntegrator: '<S21>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_e <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_o2 = 0.0F;
+  }
+
+  // Lookup_n-D: '<S16>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // Product: '<S16>/Product' incorporates:
+  //   DiscreteIntegrator: '<S20>/Discrete-Time Integrator1'
+  //   Inport: '<Root>/phi_rad'
+  //   Lookup_n-D: '<S16>/1-D Lookup Table2'
+  //   Sum: '<S11>/Sum'
+
+  rtb_Product_jr = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_o -
+                    QS_InnerRateLoop_U.phi_rad) * intrp1d_fu32fl_pw(bpIdx,
+    rtb_Saturation5_k, QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_a);
+
+  // Lookup_n-D: '<S15>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // Sum: '<S11>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S21>/Discrete-Time Integrator'
+  //   Gain: '<S18>/derivative cutoff frequency 1'
+  //   Inport: '<Root>/p_rps'
+  //   Lookup_n-D: '<S15>/1-D Lookup Table2'
+  //   Product: '<S15>/Product'
+  //   Sum: '<S11>/Sum2'
+
+  rtb_Sum1_fe = (rtb_derivativecutofffrequency_0 - QS_InnerRateLoop_U.p_rps) *
+    intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+                      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_fu) +
+    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_o2 + rtb_Product_jr);
+
+  // Lookup_n-D: '<S11>/1-D Lookup Table'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData_l);
+
+  // Lookup_n-D: '<S11>/1-D Lookup Table1'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable1_p = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData_n);
+
+  // DiscreteIntegrator: '<S22>/Discrete-Time Integrator'
+  rtb_DiscreteTimeIntegrator_cv =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_bw;
+
+  // DiscreteIntegrator: '<S37>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_d <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_j = 0.0F;
+  }
+
+  // Lookup_n-D: '<S32>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // Product: '<S32>/Product' incorporates:
+  //   DiscreteIntegrator: '<S36>/Discrete-Time Integrator1'
+  //   Inport: '<Root>/theta_rad'
+  //   Lookup_n-D: '<S32>/1-D Lookup Table2'
+  //   Sum: '<S13>/Sum'
+
+  rtb_Product_n = (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_m -
+                   QS_InnerRateLoop_U.theta_rad) * intrp1d_fu32fl_pw(bpIdx,
+    rtb_Saturation5_k, QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_ex);
+
+  // Lookup_n-D: '<S31>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // Sum: '<S13>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S37>/Discrete-Time Integrator'
+  //   Gain: '<S34>/derivative cutoff frequency 1'
+  //   Inport: '<Root>/q_rps'
+  //   Lookup_n-D: '<S31>/1-D Lookup Table2'
+  //   Product: '<S31>/Product'
+  //   Sum: '<S13>/Sum2'
+
+  rtb_uDLookupTable2_bw = (rtb_derivativecutofffrequency_b -
+    QS_InnerRateLoop_U.q_rps) * intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_c) +
+    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_j + rtb_Product_n);
+
+  // Lookup_n-D: '<S13>/1-D Lookup Table'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_Saturation_k = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData_m);
+
+  // Lookup_n-D: '<S13>/1-D Lookup Table1'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable1_l = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData_d);
+
+  // DiscreteIntegrator: '<S38>/Discrete-Time Integrator'
+  rtb_DiscreteTimeIntegrator_nt =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_di;
+
+  // DiscreteIntegrator: '<S48>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_j <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_l = 0.0F;
+  }
+
+  // Lookup_n-D: '<S42>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // Switch: '<S14>/Switch1' incorporates:
+  //   Constant: '<S14>/Constant'
+
+  if (rtb_Gain >= 100.0) {
+    // Sum: '<S14>/Sum1' incorporates:
+    //   Inport: '<Root>/psi_rad'
+
+    rtb_Sum1_gw = rtb_Sum4_b - QS_InnerRateLoop_U.psi_rad;
+
+    // Switch: '<S50>/Switch' incorporates:
+    //   Constant: '<S50>/Constant1'
+    //   Constant: '<S50>/Constant2'
+    //   Gain: '<S50>/Gain1'
+    //   Switch: '<S50>/Switch1'
+
+    if (rtb_Sum1_gw >= 0.0F) {
+      rtb_Abs = rtb_Sum1_gw;
+      iU = 1;
+    } else {
+      rtb_Abs = -rtb_Sum1_gw;
+      iU = -1;
+    }
+
+    // End of Switch: '<S50>/Switch'
+
+    // Product: '<S50>/Product' incorporates:
+    //   Constant: '<S50>/Constant'
+    //   Gain: '<S50>/Gain'
+    //   Product: '<S50>/Divide'
+    //   Rounding: '<S50>/Rounding Function'
+    //   Sum: '<S50>/Subtract'
+
+    rtb_Sum1_gw = (rtb_Abs - static_cast<real32_T>(floor((real_T)(rtb_Abs *
+      0.159154937F))) * 6.28318548F) * static_cast<real32_T>(iU);
+
+    // Switch: '<S41>/Switch' incorporates:
+    //   Abs: '<S41>/Abs'
+
+    if (static_cast<real32_T>(fabs((real_T)rtb_Sum1_gw)) > 3.14159274F) {
+      // Switch: '<S41>/Switch1' incorporates:
+      //   Constant: '<S41>/Constant1'
+      //   Constant: '<S41>/Constant2'
+      //   Sum: '<S41>/Add'
+      //   Sum: '<S41>/Subtract'
+
+      if (rtb_Sum1_gw >= 0.0F) {
+        rtb_Sum1_gw -= 6.28318548F;
+      } else {
+        rtb_Sum1_gw += 6.28318548F;
+      }
+
+      // End of Switch: '<S41>/Switch1'
+    }
+
+    // End of Switch: '<S41>/Switch'
   } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e <= -0.261780113F)
+    rtb_Sum1_gw = 0.0F;
+  }
+
+  // End of Switch: '<S14>/Switch1'
+
+  // Product: '<S42>/Product' incorporates:
+  //   Lookup_n-D: '<S42>/1-D Lookup Table2'
+
+  rtb_Product_ear = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_au) * rtb_Sum1_gw;
+
+  // Lookup_n-D: '<S44>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // Sum: '<S14>/Sum5' incorporates:
+  //   DiscreteIntegrator: '<S48>/Discrete-Time Integrator'
+  //   Inport: '<Root>/r_rps'
+  //   Lookup_n-D: '<S44>/1-D Lookup Table2'
+  //   Product: '<S44>/Product'
+  //   Sum: '<S14>/Sum3'
+
+  rtb_Sum1_gw = (rtb_Switch2_cz - QS_InnerRateLoop_U.r_rps) * intrp1d_fu32fl_pw
+    (bpIdx, rtb_Saturation5_k,
+     QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_c0) +
+    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_l + rtb_Product_ear);
+
+  // Lookup_n-D: '<S14>/1-D Lookup Table'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_Abs = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData_h);
+
+  // Lookup_n-D: '<S14>/1-D Lookup Table1'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable_k = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData_f);
+
+  // DiscreteIntegrator: '<S49>/Discrete-Time Integrator'
+  rtb_DiscreteTimeIntegrator_ia =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_hv;
+
+  // Sum: '<S3>/Sum'
+  rtb_Product_hg[0] = rtb_Product_of;
+
+  // Gain: '<S19>/derivative cutoff frequency 1' incorporates:
+  //   DiscreteIntegrator: '<S19>/Discrete-Time Integrator'
+  //   Gain: '<S18>/derivative cutoff frequency 1'
+  //   Gain: '<S19>/derivative cutoff frequency '
+  //   Sum: '<S19>/Sum1'
+
+  rtb_Product_b_tmp = (rtb_derivativecutofffrequency_0 -
+                       QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_hq) *
+    100.0F;
+
+  // Sum: '<S3>/Sum' incorporates:
+  //   Gain: '<S19>/derivative cutoff frequency 1'
+
+  rtb_Product_hg[1] = rtb_Product_b_tmp;
+
+  // Sum: '<S13>/Sum3' incorporates:
+  //   DiscreteIntegrator: '<S35>/Discrete-Time Integrator'
+  //   Gain: '<S34>/derivative cutoff frequency 1'
+  //   Gain: '<S35>/derivative cutoff frequency '
+  //   Gain: '<S35>/derivative cutoff frequency 1'
+  //   Sum: '<S35>/Sum1'
+
+  rtb_Product_b_tmp_0 = (rtb_derivativecutofffrequency_b -
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mk) * 100.0F;
+
+  // Sum: '<S3>/Sum' incorporates:
+  //   Gain: '<S35>/derivative cutoff frequency 1'
+  //   Sum: '<S13>/Sum3'
+
+  rtb_Product_hg[2] = rtb_Product_b_tmp_0;
+
+  // Gain: '<S45>/derivative cutoff frequency 1' incorporates:
+  //   DiscreteIntegrator: '<S45>/Discrete-Time Integrator'
+  //   Gain: '<S45>/derivative cutoff frequency '
+  //   Sum: '<S45>/Sum1'
+
+  rtb_Product_b_tmp_1 = (rtb_Switch2_cz -
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d) * 100.0F;
+
+  // Sum: '<S3>/Sum' incorporates:
+  //   DiscreteIntegrator: '<S22>/Discrete-Time Integrator'
+  //   DiscreteIntegrator: '<S29>/Discrete-Time Integrator'
+  //   DiscreteIntegrator: '<S38>/Discrete-Time Integrator'
+  //   DiscreteIntegrator: '<S49>/Discrete-Time Integrator'
+  //   Gain: '<S45>/derivative cutoff frequency 1'
+  //   Product: '<S22>/Product1'
+  //   Product: '<S29>/Product1'
+  //   Product: '<S38>/Product1'
+  //   Product: '<S49>/Product1'
+  //   Product: '<S52>/Product'
+  //   Sum: '<S22>/Sum1'
+  //   Sum: '<S29>/Sum1'
+  //   Sum: '<S38>/Sum1'
+  //   Sum: '<S49>/Sum1'
+
+  rtb_Product_hg[3] = rtb_Product_b_tmp_1;
+  rtb_Sum1_f[0] = rtb_Sum1_c0 * rtb_uDLookupTable_cs / rtb_uDLookupTable1 +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c4;
+  rtb_Sum1_f[1] = rtb_Sum1_fe * rtb_uDLookupTable / rtb_uDLookupTable1_p +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_bw;
+  rtb_Sum1_f[2] = rtb_uDLookupTable2_bw * rtb_Saturation_k /
+    rtb_uDLookupTable1_l +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_di;
+  rtb_Sum1_f[3] = rtb_Sum1_gw * rtb_Abs / rtb_uDLookupTable_k +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_hv;
+  for (iU = 0; iU < 4; iU++) {
+    tmp = 0.0F;
+    tmp_0 = 0;
+    for (i = 0; i < 9; i++) {
+      tmp += rtb_uDLookupTable2[tmp_0 + iU] * rtb_TmpSignalConversionAtProduc[i];
+      tmp_0 += 4;
+    }
+
+    rtb_Product_b[iU] = (rtb_Product_hg[iU] + rtb_Sum1_f[iU]) - tmp;
+  }
+
+  // Product: '<S51>/Product'
+  for (iU = 0; iU < 4; iU++) {
+    rtb_Product_hg[iU] = 0.0F;
+    rtb_Product_hg[iU] += rtb_uDLookupTable2_k5[iU] * rtb_Product_b[0];
+    rtb_Product_hg[iU] += rtb_uDLookupTable2_k5[iU + 4] * rtb_Product_b[1];
+    rtb_Product_hg[iU] += rtb_uDLookupTable2_k5[iU + 8] * rtb_Product_b[2];
+    rtb_Product_hg[iU] += rtb_uDLookupTable2_k5[iU + 12] * rtb_Product_b[3];
+  }
+
+  // End of Product: '<S51>/Product'
+
+  // Outputs for Enabled SubSystem: '<Root>/Enabled Subsystem Grab and Freeze Value Upon Engagement' incorporates:
+  //   EnablePort: '<S4>/Enable'
+
+  // Logic: '<Root>/Logical Operator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (!QS_InnerRateLoop_U.engage) {
+    // Saturate: '<Root>/Saturation' incorporates:
+    //   Inport: '<Root>/mixer_in_throttle'
+    //   Inport: '<S4>/In1'
+
+    if (QS_InnerRateLoop_U.mixer_in_throttle > 2.0F) {
+      QS_InnerRateLoop_B.In1[0] = 2.0F;
+    } else if (QS_InnerRateLoop_U.mixer_in_throttle < -1.0F) {
+      QS_InnerRateLoop_B.In1[0] = -1.0F;
+    } else {
+      QS_InnerRateLoop_B.In1[0] = QS_InnerRateLoop_U.mixer_in_throttle;
+    }
+
+    // End of Saturate: '<Root>/Saturation'
+
+    // Saturate: '<Root>/Saturation1' incorporates:
+    //   Inport: '<Root>/mixer_in_y'
+    //   Inport: '<S4>/In1'
+
+    if (QS_InnerRateLoop_U.mixer_in_y > 2.0F) {
+      QS_InnerRateLoop_B.In1[1] = 2.0F;
+    } else if (QS_InnerRateLoop_U.mixer_in_y < -2.0F) {
+      QS_InnerRateLoop_B.In1[1] = -2.0F;
+    } else {
+      QS_InnerRateLoop_B.In1[1] = QS_InnerRateLoop_U.mixer_in_y;
+    }
+
+    // End of Saturate: '<Root>/Saturation1'
+
+    // Saturate: '<Root>/Saturation2' incorporates:
+    //   Inport: '<Root>/mixer_in_x'
+    //   Inport: '<S4>/In1'
+
+    if (QS_InnerRateLoop_U.mixer_in_x > 2.0F) {
+      QS_InnerRateLoop_B.In1[2] = 2.0F;
+    } else if (QS_InnerRateLoop_U.mixer_in_x < -2.0F) {
+      QS_InnerRateLoop_B.In1[2] = -2.0F;
+    } else {
+      QS_InnerRateLoop_B.In1[2] = QS_InnerRateLoop_U.mixer_in_x;
+    }
+
+    // End of Saturate: '<Root>/Saturation2'
+
+    // Saturate: '<Root>/Saturation3' incorporates:
+    //   Inport: '<Root>/mixer_in_z'
+    //   Inport: '<S4>/In1'
+
+    if (QS_InnerRateLoop_U.mixer_in_z > 2.0F) {
+      QS_InnerRateLoop_B.In1[3] = 2.0F;
+    } else if (QS_InnerRateLoop_U.mixer_in_z < -2.0F) {
+      QS_InnerRateLoop_B.In1[3] = -2.0F;
+    } else {
+      QS_InnerRateLoop_B.In1[3] = QS_InnerRateLoop_U.mixer_in_z;
+    }
+
+    // End of Saturate: '<Root>/Saturation3'
+  }
+
+  // End of Logic: '<Root>/Logical Operator'
+  // End of Outputs for SubSystem: '<Root>/Enabled Subsystem Grab and Freeze Value Upon Engagement' 
+
+  // DiscreteIntegrator: '<S53>/Discrete-Time Integrator'
+  rtb_DiscreteTimeIntegrator_fi =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_co;
+
+  // Sum: '<S53>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S53>/Discrete-Time Integrator'
+  //   Gain: '<S53>/Gain'
+
+  rtb_DeadZone3 = 6.66666651F * rtb_Product_hg[0] +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_co;
+
+  // DiscreteIntegrator: '<S54>/Discrete-Time Integrator'
+  rtb_DiscreteTimeIntegrator_k1 =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_i;
+
+  // Sum: '<S54>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S54>/Discrete-Time Integrator'
+  //   Gain: '<S54>/Gain'
+
+  rtb_uDLookupTable_d = 6.66666651F * rtb_Product_hg[1] +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_i;
+
+  // DiscreteIntegrator: '<S55>/Discrete-Time Integrator'
+  rtb_DiscreteTimeIntegrator_h =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ch;
+
+  // Sum: '<S55>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S55>/Discrete-Time Integrator'
+  //   Gain: '<S55>/Gain'
+
+  rtb_Sum1_lq = 6.66666651F * rtb_Product_hg[2] +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ch;
+
+  // DiscreteIntegrator: '<S56>/Discrete-Time Integrator'
+  rtb_DiscreteTimeIntegrator_n =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_a5;
+
+  // Sum: '<S56>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S56>/Discrete-Time Integrator'
+  //   Gain: '<S56>/Gain'
+
+  rtb_Sum1_gg = 0.364F * rtb_Product_hg[3] +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_a5;
+
+  // Sum: '<Root>/Sum1'
+  rtb_Sum1_j_idx_0 = QS_InnerRateLoop_B.In1[0] + rtb_DeadZone3;
+  rtb_Sum1_j_idx_1 = QS_InnerRateLoop_B.In1[1] + rtb_uDLookupTable_d;
+  rtb_TrigonometricFunction6 = QS_InnerRateLoop_B.In1[2] + rtb_Sum1_lq;
+  rtb_Sum1_j_idx_3 = QS_InnerRateLoop_B.In1[3] + rtb_Sum1_gg;
+
+  // Saturate: '<Root>/Saturation4'
+  if (rtb_Sum1_j_idx_0 > 0.9F) {
+    rtb_Saturation5_k = 0.9F;
+  } else if (rtb_Sum1_j_idx_0 < 0.05F) {
+    rtb_Saturation5_k = 0.05F;
+  } else {
+    rtb_Saturation5_k = rtb_Sum1_j_idx_0;
+  }
+
+  // End of Saturate: '<Root>/Saturation4'
+
+  // Outport: '<Root>/mixer_throttle'
+  QS_InnerRateLoop_Y.mixer_throttle = rtb_Saturation5_k;
+
+  // Switch: '<S28>/Switch' incorporates:
+  //   Constant: '<S28>/Constant'
+  //   Lookup_n-D: '<S26>/1-D Lookup Table2'
+  //   Product: '<S26>/Product'
+  //   RelationalOperator: '<Root>/Relational Operator'
+
+  if (rtb_Sum1_j_idx_0 != rtb_Saturation5_k) {
+    rtb_Product_ib = 0.0F;
+  } else {
+    // Lookup_n-D: '<S26>/1-D Lookup Table2'
+    bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_Saturation5_k);
+    rtb_Product_ib *= intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+      QS_InnerRateLoop_ConstP.pooled7);
+  }
+
+  // End of Switch: '<S28>/Switch'
+
+  // Saturate: '<Root>/Saturation7'
+  if (rtb_Sum1_j_idx_1 > 1.0F) {
+    rtb_Saturation5_k = 1.0F;
+  } else if (rtb_Sum1_j_idx_1 < -1.0F) {
+    rtb_Saturation5_k = -1.0F;
+  } else {
+    rtb_Saturation5_k = rtb_Sum1_j_idx_1;
+  }
+
+  // End of Saturate: '<Root>/Saturation7'
+
+  // Outport: '<Root>/mixer_x'
+  QS_InnerRateLoop_Y.mixer_x = rtb_Saturation5_k;
+
+  // Switch: '<S21>/Switch' incorporates:
+  //   Constant: '<S21>/Constant'
+  //   Lookup_n-D: '<S17>/1-D Lookup Table2'
+  //   Product: '<S17>/Product'
+  //   RelationalOperator: '<Root>/Relational Operator1'
+
+  if (rtb_Sum1_j_idx_1 != rtb_Saturation5_k) {
+    rtb_Product_jr = 0.0F;
+  } else {
+    // Lookup_n-D: '<S17>/1-D Lookup Table2'
+    bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_Saturation5_k);
+    rtb_Product_jr *= intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+      QS_InnerRateLoop_ConstP.pooled5);
+  }
+
+  // End of Switch: '<S21>/Switch'
+
+  // Saturate: '<Root>/Saturation6'
+  if (rtb_TrigonometricFunction6 > 1.0F) {
+    rtb_Saturation5_k = 1.0F;
+  } else if (rtb_TrigonometricFunction6 < -1.0F) {
+    rtb_Saturation5_k = -1.0F;
+  } else {
+    rtb_Saturation5_k = rtb_TrigonometricFunction6;
+  }
+
+  // End of Saturate: '<Root>/Saturation6'
+
+  // Outport: '<Root>/mixer_y'
+  QS_InnerRateLoop_Y.mixer_y = rtb_Saturation5_k;
+
+  // Switch: '<S37>/Switch' incorporates:
+  //   Constant: '<S37>/Constant'
+  //   Lookup_n-D: '<S33>/1-D Lookup Table2'
+  //   Product: '<S33>/Product'
+  //   RelationalOperator: '<Root>/Relational Operator2'
+
+  if (rtb_TrigonometricFunction6 != rtb_Saturation5_k) {
+    rtb_Product_n = 0.0F;
+  } else {
+    // Lookup_n-D: '<S33>/1-D Lookup Table2'
+    bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_Saturation5_k);
+    rtb_Product_n *= intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData);
+  }
+
+  // End of Switch: '<S37>/Switch'
+
+  // Saturate: '<Root>/Saturation5'
+  if (rtb_Sum1_j_idx_3 > 1.0F) {
+    rtb_Saturation5_k = 1.0F;
+  } else if (rtb_Sum1_j_idx_3 < -1.0F) {
+    rtb_Saturation5_k = -1.0F;
+  } else {
+    rtb_Saturation5_k = rtb_Sum1_j_idx_3;
+  }
+
+  // End of Saturate: '<Root>/Saturation5'
+
+  // Outport: '<Root>/mixer_z'
+  QS_InnerRateLoop_Y.mixer_z = rtb_Saturation5_k;
+
+  // Switch: '<S48>/Switch' incorporates:
+  //   Constant: '<S48>/Constant'
+  //   Lookup_n-D: '<S43>/1-D Lookup Table2'
+  //   Product: '<S43>/Product'
+  //   RelationalOperator: '<Root>/Relational Operator3'
+
+  if (rtb_Saturation5_k != rtb_Sum1_j_idx_3) {
+    rtb_Sum1_j_idx_0 = 0.0F;
+  } else {
+    // Lookup_n-D: '<S43>/1-D Lookup Table2'
+    bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_Saturation5_k);
+    rtb_Sum1_j_idx_0 = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+      QS_InnerRateLoop_ConstP.pooled5) * rtb_Product_ear;
+  }
+
+  // End of Switch: '<S48>/Switch'
+
+  // Outport: '<Root>/yaw_sweep'
+  QS_InnerRateLoop_Y.yaw_sweep = rtb_Sum1_gg;
+
+  // Outport: '<Root>/pitch_sweep'
+  QS_InnerRateLoop_Y.pitch_sweep = rtb_Sum1_lq;
+
+  // Outport: '<Root>/roll_sweep'
+  QS_InnerRateLoop_Y.roll_sweep = rtb_uDLookupTable_d;
+
+  // Outport: '<Root>/coll_sweep'
+  QS_InnerRateLoop_Y.coll_sweep = rtb_DeadZone3;
+
+  // Product: '<S49>/Product' incorporates:
+  //   Product: '<S49>/Product2'
+  //   Sum: '<S49>/Sum'
+  //   Sum: '<S49>/Sum2'
+  //   UnitDelay: '<S49>/Unit Delay'
+
+  rtb_Sum1_lq = ((rtb_uDLookupTable_k - rtb_Abs) * rtb_Sum1_gw /
+                 rtb_uDLookupTable_k - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_o)
+    * rtb_Abs;
+
+  // Outport: '<Root>/test2'
+  QS_InnerRateLoop_Y.test2 = rtb_Product_ear;
+
+  // Product: '<S38>/Product2' incorporates:
+  //   Sum: '<S38>/Sum2'
+
+  rtb_Product_ear = (rtb_uDLookupTable1_l - rtb_Saturation_k) *
+    rtb_uDLookupTable2_bw / rtb_uDLookupTable1_l;
+
+  // Outport: '<Root>/vz_cmd' incorporates:
+  //   DiscreteIntegrator: '<S27>/Discrete-Time Integrator'
+
+  QS_InnerRateLoop_Y.vz_cmd =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_fs;
+
+  // Outport: '<Root>/test1'
+  QS_InnerRateLoop_Y.test1 = rtb_Switch2_cz;
+
+  // Switch: '<S47>/Switch' incorporates:
+  //   Constant: '<S47>/Constant'
+  //   Constant: '<S47>/Constant1'
+  //   Inport: '<Root>/engage'
+  //   RelationalOperator: '<S47>/Relational Operator'
+
+  if (rtb_Gain >= 100.0) {
+    rtb_Gain = 0.0;
+  } else {
+    rtb_Gain = QS_InnerRateLoop_U.engage;
+  }
+
+  // End of Switch: '<S47>/Switch'
+
+  // Outport: '<Root>/psi_cmd'
+  QS_InnerRateLoop_Y.psi_cmd = rtb_Sum4_b;
+
+  // Trigonometry: '<S59>/Trigonometric Function3'
+  rtb_DeadZone3 = static_cast<real32_T>(cos((real_T)rtb_uDLookupTable3));
+
+  // Trigonometry: '<S59>/Trigonometric Function6'
+  rtb_uDLookupTable_k = static_cast<real32_T>(sin((real_T)rtb_uDLookupTable3));
+
+  // Product: '<S59>/Divide4' incorporates:
+  //   Product: '<S59>/Divide9'
+
+  rtb_Saturation5_k = QS_InnerRateLoop_ConstB.TrigonometricFunction1_m *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction5_f;
+
+  // Product: '<S59>/Divide1' incorporates:
+  //   Product: '<S59>/Divide7'
+
+  rtb_Sum1_gw = QS_InnerRateLoop_ConstB.TrigonometricFunction4_km *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction5_f;
+
+  // Sum: '<S59>/Add5' incorporates:
+  //   Product: '<S59>/Divide'
+  //   Product: '<S59>/Divide1'
+  //   Product: '<S59>/Divide13'
+  //   Product: '<S59>/Divide14'
+  //   Product: '<S59>/Divide3'
+  //   Product: '<S59>/Divide4'
+  //   Product: '<S59>/Divide5'
+  //   Sum: '<S59>/Add1'
+  //   Sum: '<S59>/Add2'
+
+  rtb_Sum1_gg = ((rtb_Saturation5_k * rtb_DeadZone3 +
+                  QS_InnerRateLoop_ConstB.TrigonometricFunction4_km *
+                  rtb_uDLookupTable_k) * rtb_Add7_d + (rtb_Sum1_gw *
+    rtb_DeadZone3 - QS_InnerRateLoop_ConstB.TrigonometricFunction1_m *
+    rtb_uDLookupTable_k) * rtb_Add6_a) +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction2_ag * rtb_DeadZone3 *
+    rtb_Add5_ky;
+
+  // Outport: '<Root>/Vnorth_cmd'
+  QS_InnerRateLoop_Y.Vnorth_cmd = rtb_Sum1_gg;
+
+  // Sum: '<S59>/Add6' incorporates:
+  //   Product: '<S59>/Divide10'
+  //   Product: '<S59>/Divide15'
+  //   Product: '<S59>/Divide16'
+  //   Product: '<S59>/Divide6'
+  //   Product: '<S59>/Divide7'
+  //   Product: '<S59>/Divide8'
+  //   Product: '<S59>/Divide9'
+  //   Sum: '<S59>/Add3'
+  //   Sum: '<S59>/Add4'
+
+  rtb_Switch2_cz = ((rtb_Saturation5_k * rtb_uDLookupTable_k -
+                     QS_InnerRateLoop_ConstB.TrigonometricFunction4_km *
+                     rtb_DeadZone3) * rtb_Add7_d + (rtb_Sum1_gw *
+    rtb_uDLookupTable_k + QS_InnerRateLoop_ConstB.TrigonometricFunction1_m *
+    rtb_DeadZone3) * rtb_Add6_a) +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction2_ag * rtb_uDLookupTable_k *
+    rtb_Add5_ky;
+
+  // Outport: '<Root>/Veast_cmd'
+  QS_InnerRateLoop_Y.Veast_cmd = rtb_Switch2_cz;
+
+  // Sum: '<S59>/Add7' incorporates:
+  //   Product: '<S59>/Divide11'
+  //   Product: '<S59>/Divide12'
+  //   Product: '<S59>/Divide2'
+
+  rtb_Add7_d = (QS_InnerRateLoop_ConstB.TrigonometricFunction1_m *
+                QS_InnerRateLoop_ConstB.TrigonometricFunction2_ag * rtb_Add7_d +
+                QS_InnerRateLoop_ConstB.TrigonometricFunction4_km *
+                QS_InnerRateLoop_ConstB.TrigonometricFunction2_ag * rtb_Add6_a)
+    + -QS_InnerRateLoop_ConstB.TrigonometricFunction5_f * rtb_Add5_ky;
+
+  // Outport: '<Root>/Vdown_cmd'
+  QS_InnerRateLoop_Y.Vdown_cmd = rtb_Add7_d;
+
+  // Outport: '<Root>/vehheadingcmd'
+  QS_InnerRateLoop_Y.vehheadingcmd = rtb_Sum4_a;
+
+  // DiscreteIntegrator: '<S72>/Discrete-Time Integrator'
+  if (rtb_LogicalOperator1_n &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_h <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n = 0.0F;
+  }
+
+  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n >= 0.0174520072F) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n = 0.0174520072F;
+  } else {
+    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n <= -0.0174520072F)
     {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e = -0.261780113F;
+      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n = -0.0174520072F;
     }
   }
 
-  // Lookup_n-D: '<S35>/1-D Lookup Table5'
-  rtb_DLookupTable5 = look1_iflf_binlxpw(rtb_Sqrt, *(real32_T (*)[7])&
-    QS_InnerRateLoop_ConstP.pooled11[0], *(real32_T (*)[7])&
-    QS_InnerRateLoop_ConstP.pooled35[0], 6U);
+  // Lookup_n-D: '<S70>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
 
-  // Gain: '<S31>/m//s to ft//s1' incorporates:
-  //   Product: '<S49>/Divide1'
-  //   Product: '<S49>/Divide11'
-  //   Product: '<S49>/Divide13'
-  //   Product: '<S49>/Divide15'
-  //   Product: '<S49>/Divide3'
-  //   Product: '<S49>/Divide7'
-  //   Product: '<S49>/Divide8'
-  //   Sum: '<S49>/Add1'
-  //   Sum: '<S49>/Add3'
-  //   Sum: '<S49>/Add6'
+  // Product: '<S70>/Product' incorporates:
+  //   Lookup_n-D: '<S70>/1-D Lookup Table2'
+  //   Product: '<S60>/Divide'
+  //   Product: '<S60>/Divide2'
+  //   Product: '<S60>/Divide6'
+  //   Sum: '<S60>/Add5'
+  //   Sum: '<S62>/Sum'
+  //   Sum: '<S62>/Sum4'
 
-  rtb_mstofts1 = (((QS_InnerRateLoop_ConstB.TrigonometricFunction4_m2 *
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction5_d *
-                    rtb_TrigonometricFunction3_j -
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction1_b *
-                    rtb_TrigonometricFunction6_k) * rtb_Divide3_h +
-                   (QS_InnerRateLoop_ConstB.TrigonometricFunction4_m2 *
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction5_d *
-                    rtb_TrigonometricFunction6_k +
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction1_b *
-                    rtb_TrigonometricFunction3_j) * rtb_Divide2_c) +
-                  QS_InnerRateLoop_ConstB.TrigonometricFunction4_m2 *
-                  QS_InnerRateLoop_ConstB.TrigonometricFunction2_m *
-                  rtb_Divide4_l) * 3.28084F;
+  rtb_uDLookupTable1_l = ((((QS_InnerRateLoop_ConstB.TrigonometricFunction2_a *
+    rtb_Gain1 * rtb_Saturation_h +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction2_a * rtb_uDLookupTable_l_tmp *
+    rtb_Saturation1_p) + -QS_InnerRateLoop_ConstB.TrigonometricFunction5_j *
+    rtb_Saturation2_h) + rtb_Add5_ky) - rtb_Add5_e) * intrp1d_fu32fl_pw(bpIdx,
+    rtb_Saturation5_k, QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_kg);
 
-  // Gain: '<S40>/Gain1' incorporates:
-  //   Gain: '<S40>/Gain'
-  //   Product: '<S34>/Divide1'
-  //   Product: '<S34>/Divide11'
-  //   Product: '<S34>/Divide13'
-  //   Product: '<S34>/Divide15'
-  //   Product: '<S34>/Divide3'
-  //   Product: '<S34>/Divide7'
-  //   Product: '<S34>/Divide8'
-  //   Sum: '<S32>/Sum3'
-  //   Sum: '<S34>/Add1'
-  //   Sum: '<S34>/Add3'
-  //   Sum: '<S34>/Add6'
-  //   Sum: '<S40>/Sum'
-  //   Sum: '<S40>/Sum1'
-  //   UnitDelay: '<S40>/Unit Delay'
-  //   UnitDelay: '<S40>/Unit Delay1'
+  // Sum: '<S62>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S72>/Discrete-Time Integrator'
 
-  rtb_Gain1_n = ((((((QS_InnerRateLoop_ConstB.TrigonometricFunction4 *
-                      QS_InnerRateLoop_ConstB.TrigonometricFunction5 *
-                      rtb_TrigonometricFunction3 -
-                      QS_InnerRateLoop_ConstB.TrigonometricFunction1 *
-                      rtb_TrigonometricFunction6) * rtb_Saturation +
-                     (QS_InnerRateLoop_ConstB.TrigonometricFunction4 *
-                      QS_InnerRateLoop_ConstB.TrigonometricFunction5 *
-                      rtb_TrigonometricFunction6 +
-                      QS_InnerRateLoop_ConstB.TrigonometricFunction1 *
-                      rtb_TrigonometricFunction3) * rtb_Saturation1) +
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction4 *
-                    QS_InnerRateLoop_ConstB.TrigonometricFunction2_d *
-                    rtb_Saturation2) + 0.0F) -
-                  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_o) * 4.0F -
-                 QS_InnerRateLoop_DWork.UnitDelay_DSTATE_d) * 16.0F;
+  rtb_DeadZone3 = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n +
+    rtb_uDLookupTable1_l;
 
-  // DiscreteIntegrator: '<S40>/Discrete-Time Integrator1'
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTE_j != 0) {
-    DiscreteTimeIntegrator1_e =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b;
-  } else if ((rtb_LogicalOperator1_f &&
-              (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_b <= 0)) ||
-             ((!rtb_LogicalOperator1_f) &&
-              (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_b == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b =
-      QS_InnerRateLoop_ConstB.Constant_n;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b >= 25.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b = 25.0F;
-    } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b <= -25.0F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b = -25.0F;
+  // Lookup_n-D: '<S62>/1-D Lookup Table'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable_k = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData_d);
+
+  // Lookup_n-D: '<S62>/1-D Lookup Table1'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_Sum1_gw = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData_m);
+
+  // DiscreteIntegrator: '<S73>/Discrete-Time Integrator'
+  rtb_Add5_e = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g;
+
+  // Gain: '<S62>/Gain5' incorporates:
+  //   DiscreteIntegrator: '<S73>/Discrete-Time Integrator'
+  //   Product: '<S73>/Product1'
+  //   Sum: '<S73>/Sum1'
+
+  rtb_Saturation5_k = -(rtb_DeadZone3 * rtb_uDLookupTable_k / rtb_Sum1_gw +
+                        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g);
+
+  // Sum: '<S10>/Sum'
+  rtb_Abs = rtb_Saturation5_k;
+
+  // Saturate: '<S10>/Saturation4' incorporates:
+  //   Sum: '<S10>/Sum'
+
+  if (rtb_Saturation5_k > 0.610820234F) {
+    rtb_Sum1_j_idx_1 = 0.610820234F;
+  } else if (rtb_Saturation5_k < -0.610820234F) {
+    rtb_Sum1_j_idx_1 = -0.610820234F;
+  } else {
+    rtb_Sum1_j_idx_1 = rtb_Saturation5_k;
+  }
+
+  // End of Saturate: '<S10>/Saturation4'
+
+  // Switch: '<S89>/Switch' incorporates:
+  //   DeadZone: '<S10>/Dead Zone2'
+  //   Gain: '<S10>/thetacmd'
+  //   Inport: '<Root>/input_lon'
+
+  if (rtb_LogicalOperator1_n) {
+    // Switch: '<S10>/Switch2' incorporates:
+    //   Sum: '<S10>/Sum1'
+
+    if (rtb_LogicalOperator2_e) {
+      // Saturate: '<S10>/Saturation5'
+      if (rtb_Saturation5_k > 0.261780113F) {
+        rtb_Saturation5_k = 0.261780113F;
+      } else {
+        if (rtb_Saturation5_k < -0.261780113F) {
+          rtb_Saturation5_k = -0.261780113F;
+        }
       }
-    }
 
-    DiscreteTimeIntegrator1_e =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b;
-  } else {
-    DiscreteTimeIntegrator1_e = 0.00125F * rtb_Gain1_n +
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b;
-  }
-
-  if (DiscreteTimeIntegrator1_e >= 25.0F) {
-    DiscreteTimeIntegrator1_e = 25.0F;
-  } else {
-    if (DiscreteTimeIntegrator1_e <= -25.0F) {
-      DiscreteTimeIntegrator1_e = -25.0F;
-    }
-  }
-
-  // End of DiscreteIntegrator: '<S40>/Discrete-Time Integrator1'
-
-  // DiscreteIntegrator: '<S40>/Discrete-Time Integrator'
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_j != 0) {
-    DiscreteTimeIntegrator_h =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p;
-  } else if ((rtb_LogicalOperator1_f &&
-              (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_f <= 0)) ||
-             ((!rtb_LogicalOperator1_f) &&
-              (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_f == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p =
-      QS_InnerRateLoop_ConstB.Constant1_m;
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p >= 50.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p = 50.0F;
+      // End of Saturate: '<S10>/Saturation5'
     } else {
-      if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p <= -50.0F) {
-        QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p = -50.0F;
-      }
+      rtb_Saturation5_k = rtb_Sum1_j_idx_1;
     }
 
-    DiscreteTimeIntegrator_h =
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p;
+    // End of Switch: '<S10>/Switch2'
   } else {
-    DiscreteTimeIntegrator_h = 0.00125F * DiscreteTimeIntegrator1_e +
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p;
+    if (QS_InnerRateLoop_U.input_lon > 0.05F) {
+      // DeadZone: '<S10>/Dead Zone2' incorporates:
+      //   Inport: '<Root>/input_lon'
+
+      tmp = QS_InnerRateLoop_U.input_lon - 0.05F;
+    } else if (QS_InnerRateLoop_U.input_lon >= -0.05F) {
+      // DeadZone: '<S10>/Dead Zone2'
+      tmp = 0.0F;
+    } else {
+      // DeadZone: '<S10>/Dead Zone2' incorporates:
+      //   Inport: '<Root>/input_lon'
+
+      tmp = QS_InnerRateLoop_U.input_lon - -0.05F;
+    }
+
+    rtb_Saturation5_k = 0.785340309F * tmp;
   }
 
-  if (DiscreteTimeIntegrator_h >= 50.0F) {
-    DiscreteTimeIntegrator_h = 50.0F;
+  // End of Switch: '<S89>/Switch'
+
+  // Switch: '<S89>/Switch1' incorporates:
+  //   RelationalOperator: '<S89>/Relational Operator'
+  //   Sum: '<S89>/Sum1'
+  //   UnitDelay: '<S89>/Unit Delay'
+  //   UnitDelay: '<S89>/Unit Delay1'
+  //   UnitDelay: '<S89>/Unit Delay2'
+
+  if (QS_InnerRateLoop_DWork.UnitDelay_DSTATE_e2 == rtb_LogicalOperator1_n) {
+    rtb_uDLookupTable_d = QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_f;
   } else {
-    if (DiscreteTimeIntegrator_h <= -50.0F) {
-      DiscreteTimeIntegrator_h = -50.0F;
+    rtb_uDLookupTable_d = QS_InnerRateLoop_DWork.UnitDelay2_DSTATE_k -
+      rtb_Saturation5_k;
+  }
+
+  // End of Switch: '<S89>/Switch1'
+
+  // Saturate: '<S89>/Saturation'
+  if (rtb_uDLookupTable_d > 0.0025F) {
+    rtb_Sum4_a = 0.0025F;
+  } else if (rtb_uDLookupTable_d < -0.0025F) {
+    rtb_Sum4_a = -0.0025F;
+  } else {
+    rtb_Sum4_a = rtb_uDLookupTable_d;
+  }
+
+  // End of Saturate: '<S89>/Saturation'
+
+  // Sum: '<S89>/Sum'
+  rtb_Sum1_j_idx_3 = rtb_uDLookupTable_d - rtb_Sum4_a;
+
+  // Sum: '<S89>/Sum2'
+  rtb_Sum4_a = rtb_Saturation5_k + rtb_Sum1_j_idx_3;
+
+  // Lookup_n-D: '<S39>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+
+  // Lookup_n-D: '<S40>/1-D Lookup Table2'
+  bpIdx_0 = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_uDLookupTable2_bw);
+
+  // Product: '<S40>/Product' incorporates:
+  //   Lookup_n-D: '<S39>/1-D Lookup Table2'
+  //   Lookup_n-D: '<S40>/1-D Lookup Table2'
+  //   Product: '<S39>/Product'
+  //   Sum: '<S36>/Sum'
+  //   Sum: '<S36>/Sum1'
+  //   UnitDelay: '<S36>/Unit Delay'
+  //   UnitDelay: '<S36>/Unit Delay1'
+
+  rtb_Add5_ky = ((rtb_Sum4_a - QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_c) *
+                 intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_or) -
+                 QS_InnerRateLoop_DWork.UnitDelay_DSTATE_j) * intrp1d_fu32fl_pw
+    (bpIdx_0, rtb_uDLookupTable2_bw,
+     QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_gp);
+
+  // RelationalOperator: '<S10>/Relational Operator4'
+  rtb_RelationalOperator4_e = (rtb_Sum1_j_idx_1 != rtb_Abs);
+
+  // Switch: '<S72>/Switch' incorporates:
+  //   Constant: '<S72>/Constant'
+  //   Lookup_n-D: '<S71>/1-D Lookup Table2'
+  //   Product: '<S71>/Product'
+
+  if (rtb_RelationalOperator4_e) {
+    rtb_Sum1_j_idx_1 = 0.0F;
+  } else {
+    // Lookup_n-D: '<S71>/1-D Lookup Table2'
+    bpIdx = plook_u32ff_evenxg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_Saturation5_k);
+    rtb_Sum1_j_idx_1 = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_f) * rtb_uDLookupTable1_l;
+  }
+
+  // End of Switch: '<S72>/Switch'
+
+  // DiscreteIntegrator: '<S68>/Discrete-Time Integrator'
+  if (rtb_LogicalOperator1_n &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_dc <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf = 0.0F;
+  }
+
+  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf >= 0.0174520072F) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf = 0.0174520072F;
+  } else {
+    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf <= -0.0174520072F)
+    {
+      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf = -0.0174520072F;
     }
   }
 
-  // End of DiscreteIntegrator: '<S40>/Discrete-Time Integrator'
+  // Lookup_n-D: '<S66>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
 
-  // Switch: '<S40>/Switch' incorporates:
-  //   Constant: '<S40>/Constant2'
+  // Product: '<S60>/Divide1' incorporates:
+  //   Product: '<S60>/Divide7'
 
-  if (rtb_LogicalOperator1_f) {
-    rtb_Sum1_0 = DiscreteTimeIntegrator_h;
+  rtb_uDLookupTable1_l = QS_InnerRateLoop_ConstB.TrigonometricFunction4_k *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction5_j;
+
+  // Product: '<S66>/Product' incorporates:
+  //   Lookup_n-D: '<S66>/1-D Lookup Table2'
+  //   Product: '<S60>/Divide1'
+  //   Product: '<S60>/Divide11'
+  //   Product: '<S60>/Divide13'
+  //   Product: '<S60>/Divide15'
+  //   Product: '<S60>/Divide3'
+  //   Product: '<S60>/Divide7'
+  //   Product: '<S60>/Divide8'
+  //   Sum: '<S60>/Add1'
+  //   Sum: '<S60>/Add3'
+  //   Sum: '<S60>/Add6'
+  //   Sum: '<S61>/Sum'
+  //   Sum: '<S61>/Sum4'
+
+  rtb_TrigonometricFunction6 = (((((rtb_uDLookupTable1_l * rtb_Gain1 -
+    QS_InnerRateLoop_ConstB.TrigonometricFunction1_g * rtb_uDLookupTable_l_tmp) *
+    rtb_Saturation_h + (rtb_uDLookupTable1_l * rtb_uDLookupTable_l_tmp +
+                        QS_InnerRateLoop_ConstB.TrigonometricFunction1_g *
+                        rtb_Gain1) * rtb_Saturation1_p) +
+    QS_InnerRateLoop_ConstB.TrigonometricFunction4_k *
+    QS_InnerRateLoop_ConstB.TrigonometricFunction2_a * rtb_Saturation2_h) +
+    rtb_Add6_a) - rtb_Add6_i) * intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_n);
+
+  // Sum: '<S61>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S68>/Discrete-Time Integrator'
+
+  rtb_Abs = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf +
+    rtb_TrigonometricFunction6;
+
+  // Lookup_n-D: '<S61>/1-D Lookup Table'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable_d = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData_hs);
+
+  // Lookup_n-D: '<S61>/1-D Lookup Table1'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
+  rtb_uDLookupTable1_l = intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData_p);
+
+  // DiscreteIntegrator: '<S69>/Discrete-Time Integrator'
+  rtb_Add6_i = QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cc;
+
+  // Sum: '<S69>/Sum1' incorporates:
+  //   DiscreteIntegrator: '<S69>/Discrete-Time Integrator'
+  //   Product: '<S69>/Product1'
+
+  rtb_TrigonometricFunction3 = rtb_Abs * rtb_uDLookupTable_d /
+    rtb_uDLookupTable1_l +
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cc;
+
+  // Saturate: '<S10>/Saturation1' incorporates:
+  //   Sum: '<S10>/Sum3'
+
+  if (rtb_TrigonometricFunction3 > 0.610820234F) {
+    rtb_Add6_a = 0.610820234F;
+  } else if (rtb_TrigonometricFunction3 < -0.610820234F) {
+    rtb_Add6_a = -0.610820234F;
   } else {
-    rtb_Sum1_0 = 0.0F;
+    rtb_Add6_a = rtb_TrigonometricFunction3;
   }
 
-  // End of Switch: '<S40>/Switch'
+  // End of Saturate: '<S10>/Saturation1'
 
-  // Sum: '<S35>/Sum4'
-  rtb_Sum4_px = rtb_mstofts1 + rtb_Sum1_0;
+  // RelationalOperator: '<S10>/Relational Operator1' incorporates:
+  //   Sum: '<S10>/Sum3'
 
-  // Product: '<S35>/Product1' incorporates:
-  //   Gain: '<S35>/Gain'
-  //   Sum: '<S35>/Sum'
+  rtb_RelationalOperator_b1 = (rtb_Add6_a != rtb_TrigonometricFunction3);
 
-  rtb_Product1_i = (rtb_Sum4_px - rtb_Add6) * 0.0376329683F * rtb_DLookupTable5;
+  // Switch: '<S79>/Switch' incorporates:
+  //   Constant: '<S79>/Constant'
+  //   Logic: '<S64>/Logical Operator'
+  //   Lookup_n-D: '<S78>/1-D Lookup Table2'
+  //   Product: '<S78>/Product'
 
-  // DiscreteIntegrator: '<S42>/Discrete-Time Integrator'
-  if ((rtb_LogicalOperator1_f &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ab <= 0)) ||
-      ((!rtb_LogicalOperator1_f) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ab == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mi = 0.0F;
+  if (rtb_RelationalOperator4_e || rtb_RelationalOperator_b1) {
+    rtb_Product_ng = 0.0F;
+  } else {
+    // Lookup_n-D: '<S78>/1-D Lookup Table2'
+    bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_Saturation5_k);
+    rtb_Product_ng *= intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+      QS_InnerRateLoop_ConstP.pooled12);
   }
 
-  // Switch: '<S60>/Switch' incorporates:
-  //   DeadZone: '<S11>/Dead Zone1'
-  //   Gain: '<S11>/phicmd'
+  // End of Switch: '<S79>/Switch'
+
+  // Switch: '<S68>/Switch' incorporates:
+  //   Constant: '<S68>/Constant'
+  //   Lookup_n-D: '<S67>/1-D Lookup Table2'
+  //   Product: '<S67>/Product'
+
+  if (rtb_RelationalOperator_b1) {
+    rtb_TrigonometricFunction6 = 0.0F;
+  } else {
+    // Lookup_n-D: '<S67>/1-D Lookup Table2'
+    bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_Saturation5_k);
+    rtb_TrigonometricFunction6 *= intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+      QS_InnerRateLoop_ConstP.pooled7);
+  }
+
+  // End of Switch: '<S68>/Switch'
+
+  // Switch: '<S82>/Switch' incorporates:
+  //   Constant: '<S82>/Constant'
+  //   Logic: '<S65>/Logical Operator'
+  //   Lookup_n-D: '<S81>/1-D Lookup Table2'
+  //   Product: '<S81>/Product'
+
+  if (rtb_RelationalOperator4_e || rtb_RelationalOperator_b1) {
+    rtb_Product = 0.0F;
+  } else {
+    // Lookup_n-D: '<S81>/1-D Lookup Table2'
+    bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_Saturation5_k);
+    rtb_Product *= intrp1d_fu32fl_pw(bpIdx, rtb_Saturation5_k,
+      QS_InnerRateLoop_ConstP.pooled12);
+  }
+
+  // End of Switch: '<S82>/Switch'
+
+  // Switch: '<S90>/Switch' incorporates:
+  //   DeadZone: '<S10>/Dead Zone1'
+  //   Gain: '<S10>/phicmd'
   //   Inport: '<Root>/input_lat'
 
-  if (rtb_LogicalOperator1_f) {
-    // Lookup_n-D: '<S35>/1-D Lookup Table6'
-    rtb_DLookupTable6 = look1_iflf_binlxpw(rtb_Sqrt, *(real32_T (*)[7])&
-      QS_InnerRateLoop_ConstP.pooled11[0], *(real32_T (*)[7])&
-      QS_InnerRateLoop_ConstP.pooled10[0], 6U);
+  if (rtb_LogicalOperator1_n) {
+    // Switch: '<S10>/Switch1' incorporates:
+    //   Sum: '<S10>/Sum4'
 
-    // Gain: '<S42>/derivative cutoff frequency 1' incorporates:
-    //   DiscreteIntegrator: '<S42>/Discrete-Time Integrator'
-    //   Sum: '<S42>/Sum1'
+    if (rtb_LogicalOperator2_e) {
+      // Saturate: '<S10>/Saturation3'
+      if (rtb_TrigonometricFunction3 > 0.174520075F) {
+        rtb_Saturation5_k = 0.174520075F;
+      } else if (rtb_TrigonometricFunction3 < -0.174520075F) {
+        rtb_Saturation5_k = -0.174520075F;
+      } else {
+        rtb_Saturation5_k = rtb_TrigonometricFunction3;
+      }
 
-    rtb_derivativecutofffrequenc_m5 = (rtb_Sum4_px -
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mi) * 10.0F;
-
-    // Lookup_n-D: '<S35>/1-D Lookup Table4'
-    rtb_DLookupTable4 = look1_iflf_binlxpw(rtb_Sqrt, *(real32_T (*)[7])&
-      QS_InnerRateLoop_ConstP.pooled11[0], *(real32_T (*)[7])&
-      QS_InnerRateLoop_ConstP.pooled10[0], 6U);
-
-    // Sum: '<S35>/Sum2' incorporates:
-    //   DiscreteIntegrator: '<S35>/Discrete-Time Integrator'
-    //   DiscreteIntegrator: '<S41>/Discrete-Time Integrator'
-    //   Gain: '<S35>/Gain1'
-    //   Gain: '<S35>/Gain3'
-    //   Gain: '<S41>/derivative cutoff frequency 1'
-    //   Product: '<S35>/Product'
-    //   Product: '<S35>/Product2'
-    //   Sum: '<S35>/Sum1'
-    //   Sum: '<S35>/Sum3'
-    //   Sum: '<S41>/Sum1'
-
-    rtb_Sum1_0 = ((rtb_derivativecutofffrequenc_m5 - (rtb_Add6 -
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_kw) * 15.0F) *
-                  0.0837969482F * rtb_DLookupTable4 +
-                  (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e +
-                   rtb_Product1_i)) + 0.031F * rtb_derivativecutofffrequenc_m5 *
-      rtb_DLookupTable6;
-
-    // Saturate: '<S11>/Saturation1'
-    if (rtb_Sum1_0 > 0.523560226F) {
-      rtb_Switch_d = 0.523560226F;
-    } else if (rtb_Sum1_0 < -0.523560226F) {
-      rtb_Switch_d = -0.523560226F;
+      // End of Saturate: '<S10>/Saturation3'
     } else {
-      rtb_Switch_d = rtb_Sum1_0;
+      rtb_Saturation5_k = rtb_Add6_a;
     }
 
-    // End of Saturate: '<S11>/Saturation1'
+    // End of Switch: '<S10>/Switch1'
   } else {
-    if (QS_InnerRateLoop_U.input_lat > 135.0F) {
-      // DeadZone: '<S11>/Dead Zone1' incorporates:
+    if (QS_InnerRateLoop_U.input_lat > 0.05F) {
+      // DeadZone: '<S10>/Dead Zone1' incorporates:
       //   Inport: '<Root>/input_lat'
 
-      rtb_Sum1_0 = QS_InnerRateLoop_U.input_lat - 135.0F;
-    } else if (QS_InnerRateLoop_U.input_lat >= -135.0F) {
-      // DeadZone: '<S11>/Dead Zone1'
-      rtb_Sum1_0 = 0.0F;
+      tmp = QS_InnerRateLoop_U.input_lat - 0.05F;
+    } else if (QS_InnerRateLoop_U.input_lat >= -0.05F) {
+      // DeadZone: '<S10>/Dead Zone1'
+      tmp = 0.0F;
     } else {
-      // DeadZone: '<S11>/Dead Zone1' incorporates:
+      // DeadZone: '<S10>/Dead Zone1' incorporates:
       //   Inport: '<Root>/input_lat'
 
-      rtb_Sum1_0 = QS_InnerRateLoop_U.input_lat - -135.0F;
+      tmp = QS_InnerRateLoop_U.input_lat - -0.05F;
     }
 
-    rtb_Switch_d = 0.000116F * rtb_Sum1_0;
+    rtb_Saturation5_k = 0.785340309F * tmp;
   }
 
-  // End of Switch: '<S60>/Switch'
+  // End of Switch: '<S90>/Switch'
 
-  // Switch: '<S60>/Switch1' incorporates:
-  //   RelationalOperator: '<S60>/Relational Operator'
-  //   Sum: '<S60>/Sum1'
-  //   UnitDelay: '<S60>/Unit Delay'
-  //   UnitDelay: '<S60>/Unit Delay1'
-  //   UnitDelay: '<S60>/Unit Delay2'
+  // Switch: '<S90>/Switch1' incorporates:
+  //   RelationalOperator: '<S90>/Relational Operator'
+  //   Sum: '<S90>/Sum1'
+  //   UnitDelay: '<S90>/Unit Delay'
+  //   UnitDelay: '<S90>/Unit Delay1'
+  //   UnitDelay: '<S90>/Unit Delay2'
 
-  if (QS_InnerRateLoop_DWork.UnitDelay_DSTATE_f == rtb_LogicalOperator1_f) {
-    rtb_Switch1_kj = QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_g;
+  if (QS_InnerRateLoop_DWork.UnitDelay_DSTATE_j1 == rtb_LogicalOperator1_n) {
+    rtb_uDLookupTable2_bw = QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_fj;
   } else {
-    rtb_Switch1_kj = QS_InnerRateLoop_DWork.UnitDelay2_DSTATE_k5 - rtb_Switch_d;
+    rtb_uDLookupTable2_bw = QS_InnerRateLoop_DWork.UnitDelay2_DSTATE_a -
+      rtb_Saturation5_k;
   }
 
-  // End of Switch: '<S60>/Switch1'
+  // End of Switch: '<S90>/Switch1'
 
-  // Saturate: '<S60>/Saturation'
-  if (rtb_Switch1_kj > 0.0025F) {
-    rtb_Sum1_0 = 0.0025F;
-  } else if (rtb_Switch1_kj < -0.0025F) {
-    rtb_Sum1_0 = -0.0025F;
+  // Saturate: '<S90>/Saturation'
+  if (rtb_uDLookupTable2_bw > 0.0025F) {
+    rtb_Gain1 = 0.0025F;
+  } else if (rtb_uDLookupTable2_bw < -0.0025F) {
+    rtb_Gain1 = -0.0025F;
   } else {
-    rtb_Sum1_0 = rtb_Switch1_kj;
+    rtb_Gain1 = rtb_uDLookupTable2_bw;
   }
 
-  // Sum: '<S60>/Sum' incorporates:
-  //   Saturate: '<S60>/Saturation'
+  // End of Saturate: '<S90>/Saturation'
 
-  rtb_Sum_ds = rtb_Switch1_kj - rtb_Sum1_0;
+  // Sum: '<S90>/Sum'
+  rtb_Gain1 = rtb_uDLookupTable2_bw - rtb_Gain1;
 
-  // Sum: '<S60>/Sum2'
-  rtb_Sum2_l = rtb_Switch_d + rtb_Sum_ds;
+  // Sum: '<S90>/Sum2'
+  rtb_TrigonometricFunction3 = rtb_Saturation5_k + rtb_Gain1;
 
-  // Trigonometry: '<S33>/Trigonometric Function3'
-  rtb_TrigonometricFunction3_c = (real32_T)cos(rtb_deg2rad2);
+  // Lookup_n-D: '<S23>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evenxg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
 
-  // Trigonometry: '<S33>/Trigonometric Function6'
-  rtb_TrigonometricFunction6_fg = (real32_T)sin(rtb_deg2rad2);
+  // Sum: '<S20>/Sum' incorporates:
+  //   Lookup_n-D: '<S23>/1-D Lookup Table2'
+  //   Product: '<S23>/Product'
+  //   Sum: '<S20>/Sum1'
+  //   UnitDelay: '<S20>/Unit Delay'
+  //   UnitDelay: '<S20>/Unit Delay1'
 
-  // Sum: '<S33>/Add5' incorporates:
-  //   Product: '<S33>/Divide'
-  //   Product: '<S33>/Divide1'
-  //   Product: '<S33>/Divide13'
-  //   Product: '<S33>/Divide14'
-  //   Product: '<S33>/Divide3'
-  //   Product: '<S33>/Divide4'
-  //   Product: '<S33>/Divide5'
-  //   Sum: '<S33>/Add1'
-  //   Sum: '<S33>/Add2'
+  rtb_Add6_a = (rtb_TrigonometricFunction3 -
+                QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_a) * intrp1d_fu32fl_pw
+    (bpIdx, rtb_Saturation5_k,
+     QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_ob) -
+    QS_InnerRateLoop_DWork.UnitDelay_DSTATE_g;
 
-  rtb_Add5_j = ((QS_InnerRateLoop_ConstB.TrigonometricFunction1_e *
-                 QS_InnerRateLoop_ConstB.TrigonometricFunction5_k *
-                 rtb_TrigonometricFunction3_c +
-                 QS_InnerRateLoop_ConstB.TrigonometricFunction4_h *
-                 rtb_TrigonometricFunction6_fg) * rtb_mstofts2 +
-                (QS_InnerRateLoop_ConstB.TrigonometricFunction4_h *
-                 QS_InnerRateLoop_ConstB.TrigonometricFunction5_k *
-                 rtb_TrigonometricFunction3_c -
-                 QS_InnerRateLoop_ConstB.TrigonometricFunction1_e *
-                 rtb_TrigonometricFunction6_fg) * rtb_mstofts1) +
-    QS_InnerRateLoop_ConstB.TrigonometricFunction2_k *
-    rtb_TrigonometricFunction3_c * rtb_mstofts;
+  // Lookup_n-D: '<S24>/1-D Lookup Table2'
+  bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+    &rtb_Saturation5_k);
 
-  // Sum: '<S33>/Add6' incorporates:
-  //   Product: '<S33>/Divide10'
-  //   Product: '<S33>/Divide15'
-  //   Product: '<S33>/Divide16'
-  //   Product: '<S33>/Divide6'
-  //   Product: '<S33>/Divide7'
-  //   Product: '<S33>/Divide8'
-  //   Product: '<S33>/Divide9'
-  //   Sum: '<S33>/Add3'
-  //   Sum: '<S33>/Add4'
+  // Outport: '<Root>/theta_cmd' incorporates:
+  //   DiscreteIntegrator: '<S36>/Discrete-Time Integrator1'
 
-  rtb_Add6_h = ((QS_InnerRateLoop_ConstB.TrigonometricFunction1_e *
-                 QS_InnerRateLoop_ConstB.TrigonometricFunction5_k *
-                 rtb_TrigonometricFunction6_fg -
-                 QS_InnerRateLoop_ConstB.TrigonometricFunction4_h *
-                 rtb_TrigonometricFunction3_c) * rtb_mstofts2 +
-                (QS_InnerRateLoop_ConstB.TrigonometricFunction4_h *
-                 QS_InnerRateLoop_ConstB.TrigonometricFunction5_k *
-                 rtb_TrigonometricFunction6_fg +
-                 QS_InnerRateLoop_ConstB.TrigonometricFunction1_e *
-                 rtb_TrigonometricFunction3_c) * rtb_mstofts1) +
-    QS_InnerRateLoop_ConstB.TrigonometricFunction2_k *
-    rtb_TrigonometricFunction6_fg * rtb_mstofts;
+  QS_InnerRateLoop_Y.theta_cmd =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_m;
 
-  // Sum: '<S33>/Add7' incorporates:
-  //   Product: '<S33>/Divide11'
-  //   Product: '<S33>/Divide12'
-  //   Product: '<S33>/Divide2'
+  // Outport: '<Root>/phi_cmd' incorporates:
+  //   DiscreteIntegrator: '<S20>/Discrete-Time Integrator1'
 
-  rtb_Add7_g = (QS_InnerRateLoop_ConstB.TrigonometricFunction1_e *
-                QS_InnerRateLoop_ConstB.TrigonometricFunction2_k * rtb_mstofts2
-                + QS_InnerRateLoop_ConstB.TrigonometricFunction4_h *
-                QS_InnerRateLoop_ConstB.TrigonometricFunction2_k * rtb_mstofts1)
-    + -QS_InnerRateLoop_ConstB.TrigonometricFunction5_k * rtb_mstofts;
+  QS_InnerRateLoop_Y.phi_cmd =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_o;
 
-  // MultiPortSwitch: '<S50>/Multiport Switch2' incorporates:
-  //   Constant: '<S52>/Constant'
-  //   Constant: '<S53>/Constant1'
-  //   Constant: '<S53>/Constant17'
-  //   Constant: '<S53>/Constant2'
-  //   Constant: '<S55>/Constant14'
-  //   Constant: '<S55>/Constant7'
-  //   Constant: '<S55>/Constant9'
-  //   Constant: '<S56>/Constant10'
-  //   Constant: '<S56>/Constant12'
-  //   Constant: '<S56>/Constant13'
-  //   DataTypeConversion: '<S53>/Data Type Conversion'
-  //   DataTypeConversion: '<S53>/Data Type Conversion1'
-  //   DataTypeConversion: '<S53>/Data Type Conversion2'
-  //   Gain: '<S55>/1//tot'
-  //   Gain: '<S55>/C1'
-  //   Gain: '<S55>/C2'
-  //   Gain: '<S56>/1//tot1'
-  //   Gain: '<S56>/C3'
-  //   Gain: '<S56>/C4'
-  //   Math: '<S55>/Math Function'
-  //   Math: '<S56>/Math Function1'
-  //   Product: '<S55>/Product'
-  //   Product: '<S56>/Product1'
-  //   RelationalOperator: '<S53>/Relational Operator'
-  //   RelationalOperator: '<S53>/Relational Operator1'
-  //   RelationalOperator: '<S53>/Relational Operator2'
-  //   Sum: '<S53>/Sum'
-  //   Sum: '<S55>/Sum1'
-  //   Sum: '<S55>/Sum3'
-  //   Sum: '<S55>/Sum8'
-  //   Sum: '<S56>/Sum4'
-  //   Sum: '<S56>/Sum6'
-  //   Sum: '<S56>/Sum7'
-  //
-  //  About '<S55>/Math Function':
-  //   Operator: exp
-  //
-  //  About '<S56>/Math Function1':
-  //   Operator: exp
+  // Switch: '<S76>/Switch' incorporates:
+  //   Constant: '<S76>/Constant'
+  //   Lookup_n-D: '<S74>/1-D Lookup Table2'
+  //   Product: '<S74>/Product'
+  //   RelationalOperator: '<S10>/Relational Operator2'
 
-  switch (((rtb_Sum_dv > 0) + (rtb_Sum_dv > 1)) + (rtb_Sum_dv > 3)) {
-   case 1:
-    rtb_MultiportSwitch2 = 0.0F;
-    break;
-
-   case 2:
-    rtb_MultiportSwitch2 = ((real32_T)exp((rtb_Product1 - 5.0F) * 4.0F *
-      0.0166666675F) - 1.0F) * 0.0187F * QS_InnerRateLoop_ConstB.Sum2_b + 1.0F;
-    break;
-
-   default:
-    rtb_MultiportSwitch2 = ((real32_T)exp((rtb_Product1 - 17.56637F) * 4.0F *
-      0.0267139468F) - 1.0F) * 0.0187F * QS_InnerRateLoop_ConstB.Sum5 + 1.0F;
-    break;
+  if (rtb_Saturation2_o != rtb_Sum2_pj) {
+    rtb_Saturation8 = 0.0F;
+  } else {
+    // Lookup_n-D: '<S74>/1-D Lookup Table2'
+    bpIdx_0 = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
+      &rtb_uDLookupTable2_bw);
+    rtb_Saturation8 = intrp1d_fu32fl_pw(bpIdx_0, rtb_uDLookupTable2_bw,
+      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_e) * rtb_Product_ee;
   }
 
-  // End of MultiPortSwitch: '<S50>/Multiport Switch2'
+  // End of Switch: '<S76>/Switch'
 
-  // DiscreteIntegrator: '<S58>/Discrete-Time Integrator' incorporates:
+  // RelationalOperator: '<S9>/Relational Operator' incorporates:
+  //   Constant: '<S9>/Constant3'
+
+  rtb_RelationalOperator_b1 = (rtb_Gain2 >= 18.0F);
+
+  // Outport: '<Root>/ScoreDisplay' incorporates:
+  //   Logic: '<S9>/Logical Operator1'
+  //   RelationalOperator: '<S9>/Relational Operator2'
+
+  QS_InnerRateLoop_Y.ScoreDisplay = (rtb_RelationalOperator_b1 && (rtb_Gain2 <=
+    QS_InnerRateLoop_ConstB.Sum2));
+
+  // Outport: '<Root>/ScoreOn' incorporates:
+  //   Logic: '<S9>/Logical Operator'
+  //   RelationalOperator: '<S9>/Relational Operator1'
+
+  QS_InnerRateLoop_Y.ScoreOn = (rtb_RelationalOperator_b1 && (rtb_Gain2 <=
+    QS_InnerRateLoop_ConstB.Sum1));
+
+  // Outport: '<Root>/Vdown_corr'
+  QS_InnerRateLoop_Y.Vdown_corr = rtb_Saturation2_h;
+
+  // Outport: '<Root>/Veast_corr'
+  QS_InnerRateLoop_Y.Veast_corr = rtb_Saturation1_p;
+
+  // Outport: '<Root>/Vnorth_corr'
+  QS_InnerRateLoop_Y.Vnorth_corr = rtb_Saturation_h;
+
+  // Outport: '<Root>/TrajectoryON'
+  QS_InnerRateLoop_Y.TrajectoryON = rtb_LogicalOperator1_n;
+
+  // DiscreteIntegrator: '<S20>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_f <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_dn = 0.0F;
+  }
+
+  // DiscreteIntegrator: '<S36>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  if (QS_InnerRateLoop_U.engage &&
+      (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_f0 <= 0)) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_nq = 0.0F;
+  }
+
+  // DeadZone: '<S10>/Dead Zone3' incorporates:
+  //   Inport: '<Root>/input_ped'
+
+  if (QS_InnerRateLoop_U.input_ped > 0.05F) {
+    tmp = QS_InnerRateLoop_U.input_ped - 0.05F;
+  } else if (QS_InnerRateLoop_U.input_ped >= -0.05F) {
+    tmp = 0.0F;
+  } else {
+    tmp = QS_InnerRateLoop_U.input_ped - -0.05F;
+  }
+
+  // End of DeadZone: '<S10>/Dead Zone3'
+
+  // Sum: '<S88>/Sum' incorporates:
+  //   Gain: '<S10>/rcmd'
+  //   UnitDelay: '<S88>/Unit Delay'
+
+  rtb_Saturation1_p = 3.14136124F * tmp -
+    QS_InnerRateLoop_DWork.UnitDelay_DSTATE_k;
+
+  // DiscreteIntegrator: '<S88>/Discrete-Time Integrator' incorporates:
   //   Inport: '<Root>/engage'
 
   if ((QS_InnerRateLoop_U.engage &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_k <= 0)) ||
+       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bv <= 0)) ||
       ((!QS_InnerRateLoop_U.engage) &&
-       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_k == 1))) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_er = 0.0F;
+       (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bv == 1))) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_gy = 0.0F;
   }
 
-  rtb_DiscreteTimeIntegrator_ph =
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_er;
-
-  // Outport: '<Root>/phi_cmd' incorporates:
-  //   DiscreteIntegrator: '<S16>/Discrete-Time Integrator1'
-
-  QS_InnerRateLoop_Y.phi_cmd =
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k;
-
-  // Outport: '<Root>/vz_cmd' incorporates:
-  //   DiscreteIntegrator: '<S19>/Discrete-Time Integrator'
-
-  QS_InnerRateLoop_Y.vz_cmd =
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_iz;
-
-  // Outport: '<Root>/psi_cmd'
-  QS_InnerRateLoop_Y.psi_cmd = rtb_Switch_e;
-
-  // Outport: '<Root>/Vnorth_cmd'
-  QS_InnerRateLoop_Y.Vnorth_cmd = rtb_Add5_j;
-
-  // Outport: '<Root>/Veast_cmd'
-  QS_InnerRateLoop_Y.Veast_cmd = rtb_Add6_h;
-
-  // Outport: '<Root>/Vdown_cmd'
-  QS_InnerRateLoop_Y.Vdown_cmd = rtb_Add7_g;
-
-  // Outport: '<Root>/Vnorth_corr'
-  QS_InnerRateLoop_Y.Vnorth_corr = rtb_Saturation;
-
-  // Outport: '<Root>/Veast_corr'
-  QS_InnerRateLoop_Y.Veast_corr = rtb_Saturation1;
-
-  // Outport: '<Root>/Vdown_corr'
-  QS_InnerRateLoop_Y.Vdown_corr = rtb_Saturation2;
-
-  // Update for Delay: '<S46>/Delay1' incorporates:
+  // Update for Delay: '<S83>/Delay1' incorporates:
   //   Inport: '<Root>/CH8_flag'
 
   QS_InnerRateLoop_DWork.Delay1_DSTATE = QS_InnerRateLoop_U.CH8_flag;
 
-  // Switch: '<S46>/Switch'
-  if (rtb_LogicalOperator2) {
-    // Update for Delay: '<S46>/Delay2'
+  // Switch: '<S83>/Switch'
+  if (rtb_LogicalOperator2_g) {
+    // Update for Delay: '<S83>/Delay2'
     QS_InnerRateLoop_DWork.Delay2_DSTATE = rtb_Sum2;
   } else {
-    // Update for Delay: '<S46>/Delay2' incorporates:
-    //   Constant: '<S46>/Constant1'
+    // Update for Delay: '<S83>/Delay2' incorporates:
+    //   Constant: '<S83>/Constant1'
 
     QS_InnerRateLoop_DWork.Delay2_DSTATE = 0.0;
   }
 
-  // End of Switch: '<S46>/Switch'
+  // End of Switch: '<S83>/Switch'
 
-  // Update for DiscreteIntegrator: '<S39>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S39>/Integral Gain'
+  // Update for DiscreteIntegrator: '<S82>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_a += 0.0025F *
+    rtb_Product;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRese = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE += 0.0F *
-    rtb_ProportionalGain * 0.0025F;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE >= 5.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = 5.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE <= -5.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = -5.0F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRese = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRese = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S39>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S31>/Discrete-Time Integrator'
+  // Update for DiscreteIntegrator: '<S57>/Discrete-Time Integrator'
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOADI = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n += 0.0025F * rtb_Add5_j;
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_h = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_h = 0;
-  }
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_m += 0.0025F *
+    rtb_Sum1_gg;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
 
-  // End of Update for DiscreteIntegrator: '<S31>/Discrete-Time Integrator'
+  // Update for DiscreteIntegrator: '<S79>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_h += 0.0025F *
+    rtb_Product_ng;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_o = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
 
-  // Update for DiscreteIntegrator: '<S38>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S38>/Integral Gain'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g += 0.0F *
-    rtb_ProportionalGain_o * 0.0025F;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g >= 5.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g = 5.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g <= -5.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g = -5.0F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_e = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_e = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S38>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S31>/Discrete-Time Integrator1'
+  // Update for DiscreteIntegrator: '<S57>/Discrete-Time Integrator1'
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_IC_LOAD = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTATE += 0.0025F * rtb_Add6_h;
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevRes = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevRes = 0;
-  }
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTATE += 0.0025F *
+    rtb_Switch2_cz;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevRes = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
 
-  // End of Update for DiscreteIntegrator: '<S31>/Discrete-Time Integrator1'
+  // Update for DiscreteIntegrator: '<S76>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c += 0.0025F *
+    rtb_Saturation8;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_b = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
 
-  // Update for DiscreteIntegrator: '<S37>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S37>/Integral Gain'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c += 0.25F * rtb_Sum_m *
-    0.0025F;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c >= 10.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = 10.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c <= -10.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = -10.0F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_h3 = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_h3 = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S37>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S31>/Discrete-Time Integrator2'
+  // Update for DiscreteIntegrator: '<S57>/Discrete-Time Integrator2'
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_IC_LOAD = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_DSTATE += 0.0025F * rtb_Add7_g;
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_PrevRes = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_PrevRes = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S31>/Discrete-Time Integrator2'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_DSTATE += 0.0025F * rtb_Add7_d;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_PrevRes = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
 
   // Update for UnitDelay: '<S9>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE = rtb_Product2_d;
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE = rtb_Product2;
 
-  // Update for UnitDelay: '<S61>/Unit Delay1'
-  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE = rtb_Sum_e;
+  // Update for UnitDelay: '<S91>/Unit Delay1'
+  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE = rtb_DeadZone;
 
-  // Update for UnitDelay: '<S61>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_mj = rtb_LogicalOperator1_f;
+  // Update for UnitDelay: '<S91>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_ax = rtb_LogicalOperator1_n;
 
-  // Update for UnitDelay: '<S61>/Unit Delay2'
-  QS_InnerRateLoop_DWork.UnitDelay2_DSTATE = rtb_Sum2_d;
+  // Update for UnitDelay: '<S91>/Unit Delay2'
+  QS_InnerRateLoop_DWork.UnitDelay2_DSTATE = rtb_Switch_ep;
 
-  // Update for UnitDelay: '<S19>/Unit Delay' incorporates:
-  //   DiscreteIntegrator: '<S19>/Discrete-Time Integrator'
+  // Update for UnitDelay: '<S27>/Unit Delay' incorporates:
+  //   DiscreteIntegrator: '<S27>/Discrete-Time Integrator'
 
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_e =
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_iz;
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_a =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_fs;
 
-  // Update for DiscreteIntegrator: '<S18>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S18>/Discrete-Time Integrator'
-  //   Gain: '<S18>/derivative cutoff frequency '
-  //   Sum: '<S18>/Sum'
+  // Update for DiscreteIntegrator: '<S19>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_hq += rtb_Product_b_tmp *
+    0.0025F;
 
+  // Update for DiscreteIntegrator: '<S18>/Discrete-Time Integrator'
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_b +=
-    (rtb_derivativecutofffrequency1 -
-     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_b) * 100.0F * 0.0025F;
-
-  // Update for DiscreteIntegrator: '<S17>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S16>/Discrete-Time Integrator1'
-  //   DiscreteIntegrator: '<S17>/Discrete-Time Integrator'
-  //   Gain: '<S17>/derivative cutoff frequency '
-  //   Sum: '<S17>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_m +=
-    (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k -
-     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_m) * 100.0F * 0.0025F;
-
-  // Update for DiscreteIntegrator: '<S16>/Discrete-Time Integrator1' incorporates:
-  //   DiscreteIntegrator: '<S16>/Discrete-Time Integrator'
-  //   Inport: '<Root>/engage'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k += 0.0025F *
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k >= 1.57068062F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k = 1.57068062F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k <= -1.57068062F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_k = -1.57068062F;
-    }
-  }
-
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_i = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_i = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S16>/Discrete-Time Integrator1'
-
-  // Update for DiscreteIntegrator: '<S22>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S22>/Discrete-Time Integrator'
-  //   Gain: '<S22>/derivative cutoff frequency '
-  //   Sum: '<S22>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cl +=
-    (rtb_derivativecutofffrequenc_ap -
-     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cl) * 100.0F * 0.0025F;
-
-  // Update for DiscreteIntegrator: '<S21>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S21>/Discrete-Time Integrator'
-  //   Gain: '<S21>/derivative cutoff frequency '
-  //   Sum: '<S21>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_k +=
-    (QS_InnerRateLoop_Y.theta_cmd -
-     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_k) * 100.0F * 0.0025F;
-
-  // Update for DiscreteIntegrator: '<S36>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S36>/Gain2'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d += 2.0F *
-    rtb_Product2_n * 0.0025F;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d >= 0.261780113F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d = 0.261780113F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d <= -0.261780113F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d = -0.261780113F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_g = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_g = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S36>/Discrete-Time Integrator'
-
-  // Update for UnitDelay: '<S43>/Unit Delay1'
-  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_b = DiscreteTimeIntegrator;
-
-  // Update for UnitDelay: '<S43>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_ei = DiscreteTimeIntegrator1;
-
-  // Update for DiscreteIntegrator: '<S43>/Discrete-Time Integrator1'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTEM_ = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a = 0.00125F *
-    rtb_Gain1_h + DiscreteTimeIntegrator1;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a >= 25.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a = 25.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a <= -25.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a = -25.0F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_g = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_g = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S43>/Discrete-Time Integrator1'
-
-  // Update for DiscreteIntegrator: '<S43>/Discrete-Time Integrator'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_E = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go = 0.00125F *
-    DiscreteTimeIntegrator1 + DiscreteTimeIntegrator;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go >= 50.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go = 50.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go <= -50.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go = -50.0F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_i = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_i = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S43>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S45>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S45>/Discrete-Time Integrator'
-  //   Gain: '<S45>/derivative cutoff frequency '
-  //   Sum: '<S45>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_h += (rtb_Sum4_k -
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_h) * 10.0F * 0.0025F;
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_hj = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_hj = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S45>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S44>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S44>/Discrete-Time Integrator'
-  //   Gain: '<S44>/derivative cutoff frequency '
-  //   Sum: '<S44>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_i += (rtb_Add5 -
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_i) * 15.0F * 0.0025F;
-
-  // Update for UnitDelay: '<S59>/Unit Delay1'
-  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_m = rtb_Sum_as;
-
-  // Update for UnitDelay: '<S59>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_ap = rtb_LogicalOperator1_f;
-
-  // Update for UnitDelay: '<S59>/Unit Delay2'
-  QS_InnerRateLoop_DWork.UnitDelay2_DSTATE_k = rtb_Sum2_b;
-
-  // Update for UnitDelay: '<S20>/Unit Delay1'
-  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_h = QS_InnerRateLoop_Y.theta_cmd;
-
-  // Update for UnitDelay: '<S20>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_i = DiscreteTimeIntegrator1_j;
+    rtb_derivativecutofffrequency_0 * 0.0025F;
 
   // Update for DiscreteIntegrator: '<S20>/Discrete-Time Integrator1' incorporates:
+  //   DiscreteIntegrator: '<S20>/Discrete-Time Integrator'
   //   Inport: '<Root>/engage'
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTE_n = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l = 0.00125F *
-    rtb_Gain1_c + DiscreteTimeIntegrator1_j;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l >= 3.14136124F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l = 3.14136124F;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_o += 0.0025F *
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_dn;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_g = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S35>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mk += rtb_Product_b_tmp_0 *
+    0.0025F;
+
+  // Update for DiscreteIntegrator: '<S34>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_o +=
+    rtb_derivativecutofffrequency_b * 0.0025F;
+
+  // Update for DiscreteIntegrator: '<S36>/Discrete-Time Integrator1' incorporates:
+  //   DiscreteIntegrator: '<S36>/Discrete-Time Integrator'
+  //   Inport: '<Root>/engage'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_m += 0.0025F *
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_nq;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_j = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S45>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d += rtb_Product_b_tmp_1 *
+    0.0025F;
+
+  // Update for DiscreteIntegrator: '<S46>/Discrete-Time Integrator' incorporates:
+  //   Gain: '<S46>/derivative cutoff frequency '
+  //   Sum: '<S46>/Sum'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mr += (rtb_Sum4_b -
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mr) * 100.0F * 0.0025F;
+
+  // Update for Delay: '<S10>/Delay'
+  QS_InnerRateLoop_DWork.icLoad = 0U;
+  QS_InnerRateLoop_DWork.Delay_DSTATE = rtb_uDLookupTable3;
+
+  // Update for Delay: '<S10>/Delay1'
+  QS_InnerRateLoop_DWork.Delay1_DSTATE_j[0] =
+    QS_InnerRateLoop_DWork.Delay1_DSTATE_j[1];
+  QS_InnerRateLoop_DWork.Delay1_DSTATE_j[1] = rtb_LogicalOperator1_n;
+
+  // Update for DiscreteIntegrator: '<S10>/Discrete-Time Integrator' incorporates:
+  //   DiscreteIntegrator: '<S88>/Discrete-Time Integrator'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOA_b = 0U;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mz += 0.0025F *
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_gy;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_p = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
+
+  // Update for DiscreteIntegrator: '<S47>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE += 0.0025 * rtb_Gain;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bp = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S28>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_f += 0.0025F *
+    rtb_Product_ib;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_m = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S27>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_fs += 0.0025F *
+    rtb_Product_of;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_n = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S29>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+  //   Product: '<S29>/Product'
+  //   Product: '<S29>/Product2'
+  //   Sum: '<S29>/Sum'
+  //   Sum: '<S29>/Sum2'
+  //   UnitDelay: '<S29>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c4 += ((rtb_uDLookupTable1
+    - rtb_uDLookupTable_cs) * rtb_Sum1_c0 / rtb_uDLookupTable1 -
+    QS_InnerRateLoop_DWork.UnitDelay_DSTATE_h) * rtb_uDLookupTable_cs * 0.0025F;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_by = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S21>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_o2 += 0.0025F *
+    rtb_Product_jr;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_e = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S22>/Discrete-Time Integrator' incorporates:
+  //   Product: '<S22>/Product'
+  //   Product: '<S22>/Product2'
+  //   Sum: '<S22>/Sum'
+  //   Sum: '<S22>/Sum2'
+  //   UnitDelay: '<S22>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_bw +=
+    ((rtb_uDLookupTable1_p - rtb_uDLookupTable) * rtb_Sum1_fe /
+     rtb_uDLookupTable1_p - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_b) *
+    rtb_uDLookupTable * 0.0025F;
+
+  // Update for DiscreteIntegrator: '<S37>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_j += 0.0025F *
+    rtb_Product_n;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_d = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S38>/Discrete-Time Integrator' incorporates:
+  //   Product: '<S38>/Product'
+  //   Sum: '<S38>/Sum'
+  //   UnitDelay: '<S38>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_di += (rtb_Product_ear -
+    QS_InnerRateLoop_DWork.UnitDelay_DSTATE_eo) * rtb_Saturation_k * 0.0025F;
+
+  // Update for DiscreteIntegrator: '<S48>/Discrete-Time Integrator' incorporates:
+  //   Inport: '<Root>/engage'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_l += 0.0025F *
+    rtb_Sum1_j_idx_0;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_j = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
+
+  // Update for DiscreteIntegrator: '<S49>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_hv += 0.0025F *
+    rtb_Sum1_lq;
+
+  // Update for DiscreteIntegrator: '<S53>/Discrete-Time Integrator' incorporates:
+  //   Gain: '<S53>/Gain1'
+  //   Gain: '<S53>/Gain2'
+  //   Sum: '<S53>/Sum'
+  //   UnitDelay: '<S53>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_co += (-5.66666651F *
+    rtb_Product_hg[0] - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_f) * 100.0F *
+    0.0025F;
+
+  // Update for DiscreteIntegrator: '<S54>/Discrete-Time Integrator' incorporates:
+  //   Gain: '<S54>/Gain1'
+  //   Gain: '<S54>/Gain2'
+  //   Sum: '<S54>/Sum'
+  //   UnitDelay: '<S54>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_i += (-5.66666651F *
+    rtb_Product_hg[1] - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_av) * 100.0F *
+    0.0025F;
+
+  // Update for DiscreteIntegrator: '<S55>/Discrete-Time Integrator' incorporates:
+  //   Gain: '<S55>/Gain1'
+  //   Gain: '<S55>/Gain2'
+  //   Sum: '<S55>/Sum'
+  //   UnitDelay: '<S55>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ch += (-5.66666651F *
+    rtb_Product_hg[2] - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_d) * 100.0F *
+    0.0025F;
+
+  // Update for DiscreteIntegrator: '<S56>/Discrete-Time Integrator' incorporates:
+  //   Gain: '<S56>/Gain1'
+  //   Gain: '<S56>/Gain2'
+  //   Sum: '<S56>/Sum'
+  //   UnitDelay: '<S56>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_a5 += (0.636F *
+    rtb_Product_hg[3] - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_e) * 5.46F *
+    0.0025F;
+
+  // Update for UnitDelay: '<S53>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_f = rtb_DiscreteTimeIntegrator_fi;
+
+  // Update for UnitDelay: '<S54>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_av = rtb_DiscreteTimeIntegrator_k1;
+
+  // Update for UnitDelay: '<S55>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_d = rtb_DiscreteTimeIntegrator_h;
+
+  // Update for UnitDelay: '<S56>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_e = rtb_DiscreteTimeIntegrator_n;
+
+  // Update for UnitDelay: '<S49>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_o = rtb_DiscreteTimeIntegrator_ia;
+
+  // Update for UnitDelay: '<S38>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_eo = rtb_DiscreteTimeIntegrator_nt;
+
+  // Update for UnitDelay: '<S22>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_b = rtb_DiscreteTimeIntegrator_cv;
+
+  // Update for UnitDelay: '<S29>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_h = rtb_DiscreteTimeIntegrator_hs;
+
+  // Update for DiscreteIntegrator: '<S72>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n += 0.0025F *
+    rtb_Sum1_j_idx_1;
+  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n >= 0.0174520072F) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n = 0.0174520072F;
   } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l <= -3.14136124F)
+    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n <= -0.0174520072F)
     {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_l = -3.14136124F;
+      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_n = -0.0174520072F;
     }
   }
 
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_n = 1;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_h = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
+
+  // End of Update for DiscreteIntegrator: '<S72>/Discrete-Time Integrator'
+
+  // Update for DiscreteIntegrator: '<S73>/Discrete-Time Integrator' incorporates:
+  //   Product: '<S73>/Product'
+  //   Product: '<S73>/Product2'
+  //   Sum: '<S73>/Sum'
+  //   Sum: '<S73>/Sum2'
+  //   UnitDelay: '<S73>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g += ((rtb_Sum1_gw -
+    rtb_uDLookupTable_k) * rtb_DeadZone3 / rtb_Sum1_gw -
+    QS_InnerRateLoop_DWork.UnitDelay_DSTATE_oc) * rtb_uDLookupTable_k * 0.0025F;
+
+  // Update for UnitDelay: '<S89>/Unit Delay2'
+  QS_InnerRateLoop_DWork.UnitDelay2_DSTATE_k = rtb_Sum4_a;
+
+  // Update for UnitDelay: '<S89>/Unit Delay1'
+  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_f = rtb_Sum1_j_idx_3;
+
+  // Update for UnitDelay: '<S89>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_e2 = rtb_LogicalOperator1_n;
+
+  // Update for UnitDelay: '<S36>/Unit Delay1'
+  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_c = rtb_Sum3_f;
+
+  // Update for UnitDelay: '<S36>/Unit Delay' incorporates:
+  //   DiscreteIntegrator: '<S36>/Discrete-Time Integrator'
+
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_j =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_nq;
+
+  // Update for DiscreteIntegrator: '<S68>/Discrete-Time Integrator'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf += 0.0025F *
+    rtb_TrigonometricFunction6;
+  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf >= 0.0174520072F) {
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf = 0.0174520072F;
   } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_n = 0;
+    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf <= -0.0174520072F)
+    {
+      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cf = -0.0174520072F;
+    }
   }
 
-  // End of Update for DiscreteIntegrator: '<S20>/Discrete-Time Integrator1'
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_dc = static_cast<int8_T>
+    (rtb_LogicalOperator1_n);
+
+  // End of Update for DiscreteIntegrator: '<S68>/Discrete-Time Integrator'
+
+  // Update for DiscreteIntegrator: '<S69>/Discrete-Time Integrator' incorporates:
+  //   Product: '<S69>/Product'
+  //   Product: '<S69>/Product2'
+  //   Sum: '<S69>/Sum'
+  //   Sum: '<S69>/Sum2'
+  //   UnitDelay: '<S69>/Unit Delay'
+
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_cc +=
+    ((rtb_uDLookupTable1_l - rtb_uDLookupTable_d) * rtb_Abs /
+     rtb_uDLookupTable1_l - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_gi) *
+    rtb_uDLookupTable_d * 0.0025F;
+
+  // Update for UnitDelay: '<S90>/Unit Delay2'
+  QS_InnerRateLoop_DWork.UnitDelay2_DSTATE_a = rtb_TrigonometricFunction3;
+
+  // Update for UnitDelay: '<S90>/Unit Delay1'
+  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_fj = rtb_Gain1;
+
+  // Update for UnitDelay: '<S90>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_j1 = rtb_LogicalOperator1_n;
+
+  // Update for UnitDelay: '<S20>/Unit Delay1'
+  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_a = rtb_DiscreteTimeIntegrator1;
+
+  // Update for UnitDelay: '<S20>/Unit Delay' incorporates:
+  //   DiscreteIntegrator: '<S20>/Discrete-Time Integrator'
+
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_g =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_dn;
+
+  // Update for UnitDelay: '<S69>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_gi = rtb_Add6_i;
+
+  // Update for UnitDelay: '<S73>/Unit Delay'
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_oc = rtb_Add5_e;
 
   // Update for DiscreteIntegrator: '<S20>/Discrete-Time Integrator' incorporates:
   //   Inport: '<Root>/engage'
+  //   Lookup_n-D: '<S24>/1-D Lookup Table2'
+  //   Product: '<S24>/Product'
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_c = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba = 0.00125F *
-    DiscreteTimeIntegrator1_j + QS_InnerRateLoop_Y.theta_cmd;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba >= 1.57068062F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba = 1.57068062F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba <= -1.57068062F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ba = -1.57068062F;
-    }
-  }
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_dn += intrp1d_fu32fl_pw
+    (bpIdx, rtb_Saturation5_k,
+     QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_l) * rtb_Add6_a * 0.0025F;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_f = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
 
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_l = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_l = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S20>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S26>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S26>/Discrete-Time Integrator'
-  //   Gain: '<S26>/derivative cutoff frequency '
-  //   Sum: '<S26>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_l +=
-    (rtb_derivativecutofffrequenc_nd -
-     QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_l) * 100.0F * 0.0025F;
-
-  // Update for DiscreteIntegrator: '<S27>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S27>/Discrete-Time Integrator'
-  //   Gain: '<S27>/derivative cutoff frequency '
-  //   Sum: '<S27>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mn += (rtb_Switch_e -
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mn) * 100.0F * 0.0025F;
-
-  // Update for UnitDelay: '<S11>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_l = rtb_deg2rad2;
-
-  // Update for DiscreteIntegrator: '<S11>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S58>/Discrete-Time Integrator'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOA_f = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_a += 0.0025F *
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_er;
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_b = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_b = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S11>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S13>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S13>/Gain2'
+  // Update for DiscreteIntegrator: '<S36>/Discrete-Time Integrator' incorporates:
   //   Inport: '<Root>/engage'
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_h4 += 12.5286913F *
-    rtb_Sum2_cl * 0.0025F;
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_o = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_o = 0;
-  }
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_nq += 0.0025F *
+    rtb_Add5_ky;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_f0 = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
 
-  // End of Update for DiscreteIntegrator: '<S13>/Discrete-Time Integrator'
+  // Update for UnitDelay: '<S88>/Unit Delay' incorporates:
+  //   DiscreteIntegrator: '<S88>/Discrete-Time Integrator'
 
-  // Update for DiscreteIntegrator: '<S19>/Discrete-Time Integrator' incorporates:
+  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_k =
+    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_gy;
+
+  // Update for DiscreteIntegrator: '<S88>/Discrete-Time Integrator' incorporates:
+  //   Gain: '<S88>/Gain'
   //   Inport: '<Root>/engage'
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_iz += 0.0025F * rtb_Gain;
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_p = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_p = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S19>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S12>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S12>/Gain2'
-  //   Inport: '<Root>/engage'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_gi += 2.0F * rtb_Gain_bw *
-    0.0025F;
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bj = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bj = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S12>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S14>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S14>/Gain2'
-  //   Inport: '<Root>/engage'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_ia += 2.0F * rtb_Gain_fc *
-    0.0025F;
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_c = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_c = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S14>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S15>/Discrete-Time Integrator' incorporates:
-  //   Inport: '<Root>/engage'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_kt += 0.0025F *
-    rtb_Gain3_a;
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_m = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_m = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S15>/Discrete-Time Integrator'
-
-  // Update for DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn'
-  QS_InnerRateLoop_DWork.DiscreteTransferFcn_states = DiscreteTransferFcn_tmp;
-
-  // Update for DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn1'
-  QS_InnerRateLoop_DWork.DiscreteTransferFcn1_states = DiscreteTransferFcn1_tmp;
-
-  // Update for DiscreteTransferFcn: '<S3>/Discrete Transfer Fcn2'
-  QS_InnerRateLoop_DWork.DiscreteTransferFcn2_states = DiscreteTransferFcn2_tmp;
-
-  // Update for UnitDelay: '<S50>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_a = rtb_Product1;
-
-  // Update for DiscreteIntegrator: '<S51>/Discrete-Time Integrator'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_dn += 0.0025F *
-    rtb_MultiportSwitch2;
-  if (rtb_DataTypeConversion17 > 0.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a = 1;
-  } else if (rtb_DataTypeConversion17 < 0.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a = -1;
-  } else if (rtb_DataTypeConversion17 == 0.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a = 0;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a = 2;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S51>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S16>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S16>/Gain'
-  //   Gain: '<S16>/Gain1'
-  //   Inport: '<Root>/engage'
-  //   Sum: '<S16>/Sum'
-  //   Sum: '<S16>/Sum1'
-  //   UnitDelay: '<S16>/Unit Delay'
-  //   UnitDelay: '<S16>/Unit Delay1'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 += ((rtb_Sum2_l -
-    QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_bm) * 8.0F -
-    QS_InnerRateLoop_DWork.UnitDelay_DSTATE_g) * 32.0F * 0.0025F;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 >= 3.14136124F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 = 3.14136124F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 <= -3.14136124F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_c1 = -3.14136124F;
-    }
-  }
-
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ez = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ez = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S16>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S35>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S35>/Gain2'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e += 2.0F *
-    rtb_Product1_i * 0.0025F;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e >= 0.261780113F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e = 0.261780113F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e <= -0.261780113F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e = -0.261780113F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_gi = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_gi = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S35>/Discrete-Time Integrator'
-
-  // Update for UnitDelay: '<S40>/Unit Delay1'
-  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_o = DiscreteTimeIntegrator_h;
-
-  // Update for UnitDelay: '<S40>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_d = DiscreteTimeIntegrator1_e;
-
-  // Update for DiscreteIntegrator: '<S40>/Discrete-Time Integrator1'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTE_j = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b = 0.00125F *
-    rtb_Gain1_n + DiscreteTimeIntegrator1_e;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b >= 25.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b = 25.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b <= -25.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b = -25.0F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_b = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_b = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S40>/Discrete-Time Integrator1'
-
-  // Update for DiscreteIntegrator: '<S40>/Discrete-Time Integrator'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_j = 0U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p = 0.00125F *
-    DiscreteTimeIntegrator1_e + DiscreteTimeIntegrator_h;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p >= 50.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p = 50.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p <= -50.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p = -50.0F;
-    }
-  }
-
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_f = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_f = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S40>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S42>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S42>/Discrete-Time Integrator'
-  //   Gain: '<S42>/derivative cutoff frequency '
-  //   Sum: '<S42>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mi += (rtb_Sum4_px -
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_mi) * 10.0F * 0.0025F;
-  if (rtb_LogicalOperator1_f) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ab = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ab = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S42>/Discrete-Time Integrator'
-
-  // Update for DiscreteIntegrator: '<S41>/Discrete-Time Integrator' incorporates:
-  //   DiscreteIntegrator: '<S41>/Discrete-Time Integrator'
-  //   Gain: '<S41>/derivative cutoff frequency '
-  //   Sum: '<S41>/Sum'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_kw += (rtb_Add6 -
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_kw) * 15.0F * 0.0025F;
-
-  // Update for UnitDelay: '<S60>/Unit Delay1'
-  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_g = rtb_Sum_ds;
-
-  // Update for UnitDelay: '<S60>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_f = rtb_LogicalOperator1_f;
-
-  // Update for UnitDelay: '<S60>/Unit Delay2'
-  QS_InnerRateLoop_DWork.UnitDelay2_DSTATE_k5 = rtb_Sum2_l;
-
-  // Update for UnitDelay: '<S16>/Unit Delay1'
-  QS_InnerRateLoop_DWork.UnitDelay1_DSTATE_bm = rtb_DiscreteTimeIntegrator1_m;
-
-  // Update for UnitDelay: '<S16>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_g = rtb_DiscreteTimeIntegrator_ab;
-
-  // DeadZone: '<S11>/Dead Zone3' incorporates:
-  //   Inport: '<Root>/input_ped'
-
-  if (QS_InnerRateLoop_U.input_ped > 135.0F) {
-    rtb_Sum1_0 = QS_InnerRateLoop_U.input_ped - 135.0F;
-  } else if (QS_InnerRateLoop_U.input_ped >= -135.0F) {
-    rtb_Sum1_0 = 0.0F;
-  } else {
-    rtb_Sum1_0 = QS_InnerRateLoop_U.input_ped - -135.0F;
-  }
-
-  // End of DeadZone: '<S11>/Dead Zone3'
-
-  // Update for DiscreteIntegrator: '<S58>/Discrete-Time Integrator' incorporates:
-  //   Gain: '<S11>/rcmd'
-  //   Gain: '<S58>/Gain'
-  //   Inport: '<Root>/engage'
-  //   Sum: '<S58>/Sum'
-  //   UnitDelay: '<S58>/Unit Delay'
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_er += (0.000698F *
-    rtb_Sum1_0 - QS_InnerRateLoop_DWork.UnitDelay_DSTATE_m) * 10.0F * 0.0025F;
-  if (QS_InnerRateLoop_U.engage) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_k = 1;
-  } else {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_k = 0;
-  }
-
-  // End of Update for DiscreteIntegrator: '<S58>/Discrete-Time Integrator'
-
-  // Update for UnitDelay: '<S58>/Unit Delay'
-  QS_InnerRateLoop_DWork.UnitDelay_DSTATE_m = rtb_DiscreteTimeIntegrator_ph;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_gy += 10.0F *
+    rtb_Saturation1_p * 0.0025F;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bv = static_cast<int8_T>
+    (QS_InnerRateLoop_U.engage);
 }
 
 // Model initialize function
@@ -3157,227 +2998,90 @@ void untitledModelClass::initialize()
                 sizeof(D_Work_QS_InnerRateLoop_T));
 
   // external inputs
-  (void) memset((void *)&QS_InnerRateLoop_U, 0,
-                sizeof(ExternalInputs_QS_InnerRateLo_T));
+  (void)memset(&QS_InnerRateLoop_U, 0, sizeof(ExternalInputs_QS_InnerRateLo_T));
 
   // external outputs
   (void) memset((void *)&QS_InnerRateLoop_Y, 0,
                 sizeof(ExternalOutputs_QS_InnerRateL_T));
 
-  // InitializeConditions for DiscreteIntegrator: '<S39>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE =
-    QS_InnerRateLoop_ConstB.Constant;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE >= 5.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = 5.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE <= -5.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE = -5.0F;
-    }
-  }
-
+  // InitializeConditions for DiscreteIntegrator: '<S82>/Discrete-Time Integrator' 
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRese = 2;
 
-  // End of InitializeConditions for DiscreteIntegrator: '<S39>/Discrete-Time Integrator' 
-
-  // InitializeConditions for DiscreteIntegrator: '<S31>/Discrete-Time Integrator' 
+  // InitializeConditions for DiscreteIntegrator: '<S57>/Discrete-Time Integrator' 
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOADI = 1U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_h = 2;
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S38>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g =
-    QS_InnerRateLoop_ConstB.Constant_o;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g >= 5.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g = 5.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g <= -5.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_g = -5.0F;
-    }
-  }
+  // InitializeConditions for DiscreteIntegrator: '<S79>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_o = 2;
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_e = 2;
-
-  // End of InitializeConditions for DiscreteIntegrator: '<S38>/Discrete-Time Integrator' 
-
-  // InitializeConditions for DiscreteIntegrator: '<S31>/Discrete-Time Integrator1' 
+  // InitializeConditions for DiscreteIntegrator: '<S57>/Discrete-Time Integrator1' 
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_IC_LOAD = 1U;
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevRes = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S37>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c =
-    QS_InnerRateLoop_ConstB.Constant_p;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c >= 10.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = 10.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c <= -10.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_c = -10.0F;
-    }
-  }
+  // InitializeConditions for DiscreteIntegrator: '<S76>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_b = 2;
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_h3 = 2;
-
-  // End of InitializeConditions for DiscreteIntegrator: '<S37>/Discrete-Time Integrator' 
-
-  // InitializeConditions for DiscreteIntegrator: '<S31>/Discrete-Time Integrator2' 
+  // InitializeConditions for DiscreteIntegrator: '<S57>/Discrete-Time Integrator2' 
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_IC_LOAD = 1U;
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator2_PrevRes = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S16>/Discrete-Time Integrator1' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_i = 2;
-
-  // InitializeConditions for DiscreteIntegrator: '<S36>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d =
-    QS_InnerRateLoop_ConstB.Constant_g;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d >= 0.261780113F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d = 0.261780113F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d <= -0.261780113F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_d = -0.261780113F;
-    }
-  }
-
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_g = 2;
-
-  // End of InitializeConditions for DiscreteIntegrator: '<S36>/Discrete-Time Integrator' 
-
-  // InitializeConditions for DiscreteIntegrator: '<S43>/Discrete-Time Integrator1' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a =
-    QS_InnerRateLoop_ConstB.Constant_k;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a >= 25.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a = 25.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a <= -25.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_a = -25.0F;
-    }
-  }
-
+  // InitializeConditions for DiscreteIntegrator: '<S20>/Discrete-Time Integrator1' 
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_g = 2;
 
-  // End of InitializeConditions for DiscreteIntegrator: '<S43>/Discrete-Time Integrator1' 
+  // InitializeConditions for DiscreteIntegrator: '<S36>/Discrete-Time Integrator1' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_j = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S43>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go =
-    QS_InnerRateLoop_ConstB.Constant1;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go >= 50.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go = 50.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go <= -50.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTAT_go = -50.0F;
-    }
-  }
+  // InitializeConditions for RateLimiter: '<S9>/Rate Limiter'
+  QS_InnerRateLoop_DWork.PrevY = 0.0F;
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_i = 2;
+  // InitializeConditions for Delay: '<S10>/Delay'
+  QS_InnerRateLoop_DWork.icLoad = 1U;
 
-  // End of InitializeConditions for DiscreteIntegrator: '<S43>/Discrete-Time Integrator' 
-
-  // InitializeConditions for DiscreteIntegrator: '<S45>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_hj = 2;
-
-  // InitializeConditions for DiscreteIntegrator: '<S20>/Discrete-Time Integrator1' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_n = 2;
-
-  // InitializeConditions for DiscreteIntegrator: '<S20>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_l = 2;
-
-  // InitializeConditions for DiscreteIntegrator: '<S11>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOA_f = 1U;
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_b = 2;
-
-  // InitializeConditions for DiscreteIntegrator: '<S13>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_o = 2;
-
-  // InitializeConditions for DiscreteIntegrator: '<S19>/Discrete-Time Integrator' 
+  // InitializeConditions for DiscreteIntegrator: '<S10>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_IC_LOA_b = 1U;
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_p = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S12>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bj = 2;
+  // InitializeConditions for DiscreteIntegrator: '<S47>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bp = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S14>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_c = 2;
-
-  // InitializeConditions for DiscreteIntegrator: '<S15>/Discrete-Time Integrator' 
+  // InitializeConditions for DiscreteIntegrator: '<S28>/Discrete-Time Integrator' 
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_m = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S51>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_a = 2;
+  // InitializeConditions for DiscreteIntegrator: '<S27>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_n = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S16>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ez = 2;
+  // InitializeConditions for DiscreteIntegrator: '<S29>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_by = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S35>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e =
-    QS_InnerRateLoop_ConstB.Constant_i;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e >= 0.261780113F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e = 0.261780113F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e <= -0.261780113F)
-    {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_e = -0.261780113F;
-    }
-  }
+  // InitializeConditions for DiscreteIntegrator: '<S21>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_e = 2;
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_gi = 2;
+  // InitializeConditions for DiscreteIntegrator: '<S37>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_d = 2;
 
-  // End of InitializeConditions for DiscreteIntegrator: '<S35>/Discrete-Time Integrator' 
+  // InitializeConditions for DiscreteIntegrator: '<S48>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_j = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S40>/Discrete-Time Integrator1' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b =
-    QS_InnerRateLoop_ConstB.Constant_n;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b >= 25.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b = 25.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b <= -25.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_DSTAT_b = -25.0F;
-    }
-  }
+  // InitializeConditions for DiscreteIntegrator: '<S72>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_h = 2;
 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_PrevR_b = 2;
+  // InitializeConditions for DiscreteIntegrator: '<S68>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_dc = 2;
 
-  // End of InitializeConditions for DiscreteIntegrator: '<S40>/Discrete-Time Integrator1' 
-
-  // InitializeConditions for DiscreteIntegrator: '<S40>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p =
-    QS_InnerRateLoop_ConstB.Constant1_m;
-  if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p >= 50.0F) {
-    QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p = 50.0F;
-  } else {
-    if (QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p <= -50.0F) {
-      QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_DSTATE_p = -50.0F;
-    }
-  }
-
+  // InitializeConditions for DiscreteIntegrator: '<S20>/Discrete-Time Integrator' 
   QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_f = 2;
 
-  // End of InitializeConditions for DiscreteIntegrator: '<S40>/Discrete-Time Integrator' 
+  // InitializeConditions for DiscreteIntegrator: '<S36>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_f0 = 2;
 
-  // InitializeConditions for DiscreteIntegrator: '<S42>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_ab = 2;
-
-  // InitializeConditions for DiscreteIntegrator: '<S58>/Discrete-Time Integrator' 
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevRe_k = 2;
-
-  // Enable for DiscreteIntegrator: '<S43>/Discrete-Time Integrator1'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTEM_ = 1U;
-
-  // Enable for DiscreteIntegrator: '<S43>/Discrete-Time Integrator'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_E = 1U;
-
-  // Enable for DiscreteIntegrator: '<S20>/Discrete-Time Integrator1'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTE_n = 1U;
-
-  // Enable for DiscreteIntegrator: '<S20>/Discrete-Time Integrator'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_c = 1U;
-
-  // Enable for DiscreteIntegrator: '<S40>/Discrete-Time Integrator1'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator1_SYSTE_j = 1U;
-
-  // Enable for DiscreteIntegrator: '<S40>/Discrete-Time Integrator'
-  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_SYSTEM_j = 1U;
+  // InitializeConditions for DiscreteIntegrator: '<S88>/Discrete-Time Integrator' 
+  QS_InnerRateLoop_DWork.DiscreteTimeIntegrator_PrevR_bv = 2;
 }
 
 // Constructor
 untitledModelClass::untitledModelClass()
 {
+  // Currently there is no constructor body generated.
 }
 
 // Destructor

@@ -216,13 +216,14 @@ public:
         k_param_takeoff_trigger_dz,
         k_param_gcs3,
         k_param_gcs_pid_mask,    // 126
-
+        k_param_alpha,
         //
         // 135 : reserved for Solo until features merged with master
         //
         k_param_rtl_speed_cms = 135,
         k_param_fs_batt_curr_rtl,
         k_param_rtl_cone_slope, // 137
+
 
         //
         // 140: Sensor parameters
@@ -387,6 +388,7 @@ public:
     AP_Int16        throttle_behavior;
     AP_Int16        takeoff_trigger_dz;
     AP_Float        pilot_takeoff_alt;
+    AP_Float		alpha;
 
     AP_Int16        rtl_altitude;
     AP_Int16        rtl_speed_cms;

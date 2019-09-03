@@ -1,22 +1,29 @@
 //
+// Sponsored License - for use in support of a program or activity
+// sponsored by MathWorks.  Not for government, commercial or other
+// non-sponsored organizational use.
+//
 // File: QS_InnerRateLoop.h
 //
 // Code generated for Simulink model 'QS_InnerRateLoop'.
 //
-// Model version                  : 1.287
-// Simulink Coder version         : 8.6 (R2014a) 27-Dec-2013
-// C/C++ source code generated on : Thu Jun 08 14:44:18 2017
+// Model version                  : 1.488
+// Simulink Coder version         : 9.1 (R2019a) 23-Nov-2018
+// C/C++ source code generated on : Wed Jul 31 11:16:21 2019
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex
-// Code generation objectives: Unspecified
+// Code generation objectives:
+//    1. Execution efficiency
+//    2. RAM efficiency
+//    3. ROM efficiency
 // Validation result: Not run
 //
 #ifndef RTW_HEADER_QS_InnerRateLoop_h_
 #define RTW_HEADER_QS_InnerRateLoop_h_
 #include <math.h>
-#include <stddef.h>
 #include <string.h>
+#include <stddef.h>
 #ifndef QS_InnerRateLoop_COMMON_INCLUDES_
 # define QS_InnerRateLoop_COMMON_INCLUDES_
 #include "rtwtypes.h"
@@ -33,231 +40,409 @@
 # define rtmSetErrorStatus(rtm, val)   ((rtm)->errorStatus = (val))
 #endif
 
-// Block signals (auto storage)
+// Block signals (default storage)
 typedef struct {
-  real32_T col;                        // '<S57>/col'
-  real32_T lon;                        // '<S48>/lon'
-  real32_T lat;                        // '<S48>/lat'
-  real32_T col_f;                      // '<S48>/col'
-  real32_T ped;                        // '<S48>/ped'
+  real32_T col;                        // '<S87>/col'
+  real32_T lon;                        // '<S85>/lon'
+  real32_T lat;                        // '<S85>/lat'
+  real32_T col_h;                      // '<S85>/col'
+  real32_T ped;                        // '<S85>/ped'
   real32_T In1[4];                     // '<S4>/In1'
   real32_T Gain;                       // '<S2>/Gain'
 } BlockIO_QS_InnerRateLoop_T;
 
-// Block states (auto storage) for system '<Root>'
+// Block states (default storage) for system '<Root>'
 typedef struct {
-  real_T Delay2_DSTATE;                // '<S46>/Delay2'
-  real32_T Delay1_DSTATE;              // '<S46>/Delay1'
-  real32_T DiscreteTimeIntegrator_DSTATE;// '<S39>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_n;// '<S31>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_g;// '<S38>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator1_DSTATE;// '<S31>/Discrete-Time Integrator1'
-  real32_T DiscreteTimeIntegrator_DSTATE_c;// '<S37>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator2_DSTATE;// '<S31>/Discrete-Time Integrator2'
+  real_T Delay2_DSTATE;                // '<S83>/Delay2'
+  real_T DiscreteTimeIntegrator_DSTATE;// '<S47>/Discrete-Time Integrator'
+  real32_T Delay1_DSTATE;              // '<S83>/Delay1'
+  real32_T DiscreteTimeIntegrator_DSTATE_a;// '<S82>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTATE_m;// '<S57>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTATE_h;// '<S79>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator1_DSTATE;// '<S57>/Discrete-Time Integrator1'
+  real32_T DiscreteTimeIntegrator_DSTATE_c;// '<S76>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator2_DSTATE;// '<S57>/Discrete-Time Integrator2'
   real32_T UnitDelay_DSTATE;           // '<S9>/Unit Delay'
-  real32_T UnitDelay1_DSTATE;          // '<S61>/Unit Delay1'
-  real32_T UnitDelay2_DSTATE;          // '<S61>/Unit Delay2'
-  real32_T UnitDelay_DSTATE_e;         // '<S19>/Unit Delay'
+  real32_T UnitDelay1_DSTATE;          // '<S91>/Unit Delay1'
+  real32_T UnitDelay2_DSTATE;          // '<S91>/Unit Delay2'
+  real32_T UnitDelay_DSTATE_a;         // '<S27>/Unit Delay'
+  real32_T DiscreteTimeIntegrator_DSTAT_hq;// '<S19>/Discrete-Time Integrator'
   real32_T DiscreteTimeIntegrator_DSTATE_b;// '<S18>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_m;// '<S17>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator1_DSTAT_k;// '<S16>/Discrete-Time Integrator1'
-  real32_T DiscreteTimeIntegrator_DSTAT_cl;// '<S22>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_k;// '<S21>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_d;// '<S36>/Discrete-Time Integrator'
-  real32_T UnitDelay1_DSTATE_b;        // '<S43>/Unit Delay1'
-  real32_T UnitDelay_DSTATE_ei;        // '<S43>/Unit Delay'
-  real32_T DiscreteTimeIntegrator1_DSTAT_a;// '<S43>/Discrete-Time Integrator1'
-  real32_T DiscreteTimeIntegrator_DSTAT_go;// '<S43>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_h;// '<S45>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_i;// '<S44>/Discrete-Time Integrator'
-  real32_T UnitDelay1_DSTATE_m;        // '<S59>/Unit Delay1'
-  real32_T UnitDelay2_DSTATE_k;        // '<S59>/Unit Delay2'
-  real32_T UnitDelay1_DSTATE_h;        // '<S20>/Unit Delay1'
-  real32_T UnitDelay_DSTATE_i;         // '<S20>/Unit Delay'
-  real32_T DiscreteTimeIntegrator1_DSTAT_l;// '<S20>/Discrete-Time Integrator1'
-  real32_T DiscreteTimeIntegrator_DSTAT_ba;// '<S20>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_l;// '<S26>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_mn;// '<S27>/Discrete-Time Integrator'
-  real32_T UnitDelay_DSTATE_l;         // '<S11>/Unit Delay'
-  real32_T DiscreteTimeIntegrator_DSTATE_a;// '<S11>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_h4;// '<S13>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_iz;// '<S19>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_gi;// '<S12>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_ia;// '<S14>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_kt;// '<S15>/Discrete-Time Integrator'
-  real32_T DiscreteTransferFcn_states; // '<S3>/Discrete Transfer Fcn'
-  real32_T DiscreteTransferFcn1_states;// '<S3>/Discrete Transfer Fcn1'
-  real32_T DiscreteTransferFcn2_states;// '<S3>/Discrete Transfer Fcn2'
-  real32_T UnitDelay_DSTATE_a;         // '<S50>/Unit Delay'
-  real32_T DiscreteTimeIntegrator_DSTAT_dn;// '<S51>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_c1;// '<S16>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTATE_e;// '<S35>/Discrete-Time Integrator'
-  real32_T UnitDelay1_DSTATE_o;        // '<S40>/Unit Delay1'
-  real32_T UnitDelay_DSTATE_d;         // '<S40>/Unit Delay'
-  real32_T DiscreteTimeIntegrator1_DSTAT_b;// '<S40>/Discrete-Time Integrator1'
-  real32_T DiscreteTimeIntegrator_DSTATE_p;// '<S40>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_mi;// '<S42>/Discrete-Time Integrator'
-  real32_T DiscreteTimeIntegrator_DSTAT_kw;// '<S41>/Discrete-Time Integrator'
-  real32_T UnitDelay1_DSTATE_g;        // '<S60>/Unit Delay1'
-  real32_T UnitDelay2_DSTATE_k5;       // '<S60>/Unit Delay2'
-  real32_T UnitDelay1_DSTATE_bm;       // '<S16>/Unit Delay1'
-  real32_T UnitDelay_DSTATE_g;         // '<S16>/Unit Delay'
-  real32_T DiscreteTimeIntegrator_DSTAT_er;// '<S58>/Discrete-Time Integrator'
-  real32_T UnitDelay_DSTATE_m;         // '<S58>/Unit Delay'
-  uint32_T m_bpIndex;                  // '<S9>/1-D Lookup Table3'
-  uint32_T m_bpIndex_k;                // '<S9>/1-D Lookup Table1'
-  uint32_T m_bpIndex_p;                // '<S9>/1-D Lookup Table'
-  uint32_T m_bpIndex_k4;               // '<S9>/1-D Lookup Table2'
-  boolean_T UnitDelay_DSTATE_mj;       // '<S61>/Unit Delay'
-  boolean_T UnitDelay_DSTATE_ap;       // '<S59>/Unit Delay'
-  boolean_T UnitDelay_DSTATE_f;        // '<S60>/Unit Delay'
-  int8_T DiscreteTimeIntegrator_PrevRese;// '<S39>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_h;// '<S31>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_e;// '<S38>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator1_PrevRes;// '<S31>/Discrete-Time Integrator1'
-  int8_T DiscreteTimeIntegrator_PrevR_h3;// '<S37>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator2_PrevRes;// '<S31>/Discrete-Time Integrator2'
-  int8_T DiscreteTimeIntegrator1_PrevR_i;// '<S16>/Discrete-Time Integrator1'
-  int8_T DiscreteTimeIntegrator_PrevRe_g;// '<S36>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator1_PrevR_g;// '<S43>/Discrete-Time Integrator1'
-  int8_T DiscreteTimeIntegrator_PrevRe_i;// '<S43>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevR_hj;// '<S45>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator1_PrevR_n;// '<S20>/Discrete-Time Integrator1'
-  int8_T DiscreteTimeIntegrator_PrevRe_l;// '<S20>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_b;// '<S11>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_o;// '<S13>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_p;// '<S19>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevR_bj;// '<S12>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_c;// '<S14>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_m;// '<S15>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_a;// '<S51>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevR_ez;// '<S16>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevR_gi;// '<S35>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator1_PrevR_b;// '<S40>/Discrete-Time Integrator1'
-  int8_T DiscreteTimeIntegrator_PrevRe_f;// '<S40>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevR_ab;// '<S42>/Discrete-Time Integrator'
-  int8_T DiscreteTimeIntegrator_PrevRe_k;// '<S58>/Discrete-Time Integrator'
-  uint8_T DiscreteTimeIntegrator_IC_LOADI;// '<S31>/Discrete-Time Integrator'
-  uint8_T DiscreteTimeIntegrator1_IC_LOAD;// '<S31>/Discrete-Time Integrator1'
-  uint8_T DiscreteTimeIntegrator2_IC_LOAD;// '<S31>/Discrete-Time Integrator2'
-  uint8_T DiscreteTimeIntegrator1_SYSTEM_;// '<S43>/Discrete-Time Integrator1'
-  uint8_T DiscreteTimeIntegrator_SYSTEM_E;// '<S43>/Discrete-Time Integrator'
-  uint8_T DiscreteTimeIntegrator1_SYSTE_n;// '<S20>/Discrete-Time Integrator1'
-  uint8_T DiscreteTimeIntegrator_SYSTEM_c;// '<S20>/Discrete-Time Integrator'
-  uint8_T DiscreteTimeIntegrator_IC_LOA_f;// '<S11>/Discrete-Time Integrator'
-  uint8_T DiscreteTimeIntegrator1_SYSTE_j;// '<S40>/Discrete-Time Integrator1'
-  uint8_T DiscreteTimeIntegrator_SYSTEM_j;// '<S40>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator1_DSTAT_o;// '<S20>/Discrete-Time Integrator1'
+  real32_T DiscreteTimeIntegrator_DSTAT_mk;// '<S35>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTATE_o;// '<S34>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator1_DSTAT_m;// '<S36>/Discrete-Time Integrator1'
+  real32_T DiscreteTimeIntegrator_DSTATE_d;// '<S45>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_mr;// '<S46>/Discrete-Time Integrator'
+  real32_T Delay_DSTATE;               // '<S10>/Delay'
+  real32_T DiscreteTimeIntegrator_DSTAT_mz;// '<S10>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTATE_f;// '<S28>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_fs;// '<S27>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_c4;// '<S29>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_o2;// '<S21>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_bw;// '<S22>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTATE_j;// '<S37>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_di;// '<S38>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTATE_l;// '<S48>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_hv;// '<S49>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_co;// '<S53>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTATE_i;// '<S54>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_ch;// '<S55>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_a5;// '<S56>/Discrete-Time Integrator'
+  real32_T UnitDelay_DSTATE_f;         // '<S53>/Unit Delay'
+  real32_T UnitDelay_DSTATE_av;        // '<S54>/Unit Delay'
+  real32_T UnitDelay_DSTATE_d;         // '<S55>/Unit Delay'
+  real32_T UnitDelay_DSTATE_e;         // '<S56>/Unit Delay'
+  real32_T UnitDelay_DSTATE_o;         // '<S49>/Unit Delay'
+  real32_T UnitDelay_DSTATE_eo;        // '<S38>/Unit Delay'
+  real32_T UnitDelay_DSTATE_b;         // '<S22>/Unit Delay'
+  real32_T UnitDelay_DSTATE_h;         // '<S29>/Unit Delay'
+  real32_T DiscreteTimeIntegrator_DSTATE_n;// '<S72>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTATE_g;// '<S73>/Discrete-Time Integrator'
+  real32_T UnitDelay2_DSTATE_k;        // '<S89>/Unit Delay2'
+  real32_T UnitDelay1_DSTATE_f;        // '<S89>/Unit Delay1'
+  real32_T UnitDelay1_DSTATE_c;        // '<S36>/Unit Delay1'
+  real32_T UnitDelay_DSTATE_j;         // '<S36>/Unit Delay'
+  real32_T DiscreteTimeIntegrator_DSTAT_cf;// '<S68>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_cc;// '<S69>/Discrete-Time Integrator'
+  real32_T UnitDelay2_DSTATE_a;        // '<S90>/Unit Delay2'
+  real32_T UnitDelay1_DSTATE_fj;       // '<S90>/Unit Delay1'
+  real32_T UnitDelay1_DSTATE_a;        // '<S20>/Unit Delay1'
+  real32_T UnitDelay_DSTATE_g;         // '<S20>/Unit Delay'
+  real32_T UnitDelay_DSTATE_gi;        // '<S69>/Unit Delay'
+  real32_T UnitDelay_DSTATE_oc;        // '<S73>/Unit Delay'
+  real32_T DiscreteTimeIntegrator_DSTAT_dn;// '<S20>/Discrete-Time Integrator'
+  real32_T DiscreteTimeIntegrator_DSTAT_nq;// '<S36>/Discrete-Time Integrator'
+  real32_T UnitDelay_DSTATE_k;         // '<S88>/Unit Delay'
+  real32_T DiscreteTimeIntegrator_DSTAT_gy;// '<S88>/Discrete-Time Integrator'
+  real32_T PrevY;                      // '<S9>/Rate Limiter'
+  boolean_T UnitDelay_DSTATE_ax;       // '<S91>/Unit Delay'
+  boolean_T Delay1_DSTATE_j[2];        // '<S10>/Delay1'
+  boolean_T UnitDelay_DSTATE_e2;       // '<S89>/Unit Delay'
+  boolean_T UnitDelay_DSTATE_j1;       // '<S90>/Unit Delay'
+  int8_T DiscreteTimeIntegrator_PrevRese;// '<S82>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_a;// '<S57>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_o;// '<S79>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator1_PrevRes;// '<S57>/Discrete-Time Integrator1'
+  int8_T DiscreteTimeIntegrator_PrevRe_b;// '<S76>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator2_PrevRes;// '<S57>/Discrete-Time Integrator2'
+  int8_T DiscreteTimeIntegrator1_PrevR_g;// '<S20>/Discrete-Time Integrator1'
+  int8_T DiscreteTimeIntegrator1_PrevR_j;// '<S36>/Discrete-Time Integrator1'
+  int8_T DiscreteTimeIntegrator_PrevRe_p;// '<S10>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevR_bp;// '<S47>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_m;// '<S28>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_n;// '<S27>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevR_by;// '<S29>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_e;// '<S21>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_d;// '<S37>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_j;// '<S48>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_h;// '<S72>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevR_dc;// '<S68>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevRe_f;// '<S20>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevR_f0;// '<S36>/Discrete-Time Integrator'
+  int8_T DiscreteTimeIntegrator_PrevR_bv;// '<S88>/Discrete-Time Integrator'
+  uint8_T DiscreteTimeIntegrator_IC_LOADI;// '<S57>/Discrete-Time Integrator'
+  uint8_T DiscreteTimeIntegrator1_IC_LOAD;// '<S57>/Discrete-Time Integrator1'
+  uint8_T DiscreteTimeIntegrator2_IC_LOAD;// '<S57>/Discrete-Time Integrator2'
+  uint8_T icLoad;                      // '<S10>/Delay'
+  uint8_T DiscreteTimeIntegrator_IC_LOA_b;// '<S10>/Discrete-Time Integrator'
 } D_Work_QS_InnerRateLoop_T;
 
-// Invariant block signals (auto storage)
+// Invariant block signals (default storage)
 typedef const struct tag_ConstBlockIO_QS_InnerRate_T {
-  real32_T TrigonometricFunction1;     // '<S34>/Trigonometric Function1'
-  real32_T TrigonometricFunction5;     // '<S34>/Trigonometric Function5'
-  real32_T TrigonometricFunction4;     // '<S34>/Trigonometric Function4'
-  real32_T Constant;                   // '<S39>/Constant'
   real32_T TrigonometricFunction2;     // '<S6>/Trigonometric Function2'
-  real32_T TrigonometricFunction5_m;   // '<S6>/Trigonometric Function5'
-  real32_T TrigonometricFunction4_m;   // '<S6>/Trigonometric Function4'
-  real32_T TrigonometricFunction1_o;   // '<S6>/Trigonometric Function1'
-  real32_T Constant_o;                 // '<S38>/Constant'
-  real32_T TrigonometricFunction2_d;   // '<S34>/Trigonometric Function2'
-  real32_T Constant_p;                 // '<S37>/Constant'
-  real32_T TrigonometricFunction1_b;   // '<S49>/Trigonometric Function1'
-  real32_T TrigonometricFunction5_d;   // '<S49>/Trigonometric Function5'
-  real32_T TrigonometricFunction4_m2;  // '<S49>/Trigonometric Function4'
-  real32_T TrigonometricFunction2_m;   // '<S49>/Trigonometric Function2'
-  real32_T Constant_g;                 // '<S36>/Constant'
-  real32_T Constant_k;                 // '<S43>/Constant'
-  real32_T Constant1;                  // '<S43>/Constant1'
+  real32_T TrigonometricFunction5;     // '<S6>/Trigonometric Function5'
+  real32_T TrigonometricFunction4;     // '<S6>/Trigonometric Function4'
+  real32_T TrigonometricFunction1;     // '<S6>/Trigonometric Function1'
   real32_T TrigonometricFunction3;     // '<S5>/Trigonometric Function3'
   real32_T TrigonometricFunction6;     // '<S5>/Trigonometric Function6'
-  real32_T Sum1;                       // '<S54>/Sum1'
-  real32_T Sum3;                       // '<S54>/Sum3'
-  real32_T Sum2;                       // '<S54>/Sum2'
-  real32_T Sum4;                       // '<S54>/Sum4'
-  real32_T Constant_i;                 // '<S35>/Constant'
-  real32_T Constant_n;                 // '<S40>/Constant'
-  real32_T Constant1_m;                // '<S40>/Constant1'
-  real32_T TrigonometricFunction4_h;   // '<S33>/Trigonometric Function4'
-  real32_T TrigonometricFunction5_k;   // '<S33>/Trigonometric Function5'
-  real32_T TrigonometricFunction1_e;   // '<S33>/Trigonometric Function1'
-  real32_T TrigonometricFunction2_k;   // '<S33>/Trigonometric Function2'
-  real32_T Sum2_b;                     // '<S55>/Sum2'
-  real32_T Sum5;                       // '<S56>/Sum5'
+  real32_T TrigonometricFunction1_g;   // '<S60>/Trigonometric Function1'
+  real32_T TrigonometricFunction5_j;   // '<S60>/Trigonometric Function5'
+  real32_T TrigonometricFunction4_k;   // '<S60>/Trigonometric Function4'
+  real32_T TrigonometricFunction2_a;   // '<S60>/Trigonometric Function2'
+  real32_T TrigonometricFunction1_k;   // '<S86>/Trigonometric Function1'
+  real32_T TrigonometricFunction5_o;   // '<S86>/Trigonometric Function5'
+  real32_T TrigonometricFunction4_n;   // '<S86>/Trigonometric Function4'
+  real32_T TrigonometricFunction2_l;   // '<S86>/Trigonometric Function2'
+  real32_T TrigonometricFunction4_km;  // '<S59>/Trigonometric Function4'
+  real32_T TrigonometricFunction5_f;   // '<S59>/Trigonometric Function5'
+  real32_T TrigonometricFunction1_m;   // '<S59>/Trigonometric Function1'
+  real32_T TrigonometricFunction2_ag;  // '<S59>/Trigonometric Function2'
+  real32_T Sum2;                       // '<S9>/Sum2'
+  real32_T Sum1;                       // '<S9>/Sum1'
 } ConstBlockIO_QS_InnerRateLoop_T;
 
-// Constant parameters (auto storage)
+// Constant parameters (default storage)
 typedef struct {
-  // Pooled Parameter (Expression: [0 0.1 1 1 1 0.1 0])
+  // Pooled Parameter (Mixed Expressions)
   //  Referenced by:
-  //    '<S35>/1-D Lookup Table4'
-  //    '<S35>/1-D Lookup Table6'
-  //    '<S36>/1-D Lookup Table1'
-  //    '<S36>/1-D Lookup Table3'
+  //    '<S17>/1-D Lookup Table2'
+  //    '<S43>/1-D Lookup Table2'
 
-  real32_T pooled10[7];
+  real32_T pooled5[5];
 
-  // Pooled Parameter (Expression: [-50 -30 -5 0 5 30 50])
+  // Pooled Parameter (Expression: bpV)
   //  Referenced by:
-  //    '<S35>/1-D Lookup Table4'
-  //    '<S35>/1-D Lookup Table5'
-  //    '<S35>/1-D Lookup Table6'
-  //    '<S36>/1-D Lookup Table1'
-  //    '<S36>/1-D Lookup Table2'
-  //    '<S36>/1-D Lookup Table3'
-  //    '<S38>/1-D Lookup Table1'
-  //    '<S39>/1-D Lookup Table1'
+  //    '<S11>/1-D Lookup Table'
+  //    '<S11>/1-D Lookup Table1'
+  //    '<S12>/1-D Lookup Table'
+  //    '<S12>/1-D Lookup Table1'
+  //    '<S13>/1-D Lookup Table'
+  //    '<S13>/1-D Lookup Table1'
+  //    '<S14>/1-D Lookup Table'
+  //    '<S14>/1-D Lookup Table1'
+  //    '<S51>/1-D Lookup Table2'
+  //    '<S52>/1-D Lookup Table2'
+  //    '<S15>/1-D Lookup Table2'
+  //    '<S16>/1-D Lookup Table2'
+  //    '<S17>/1-D Lookup Table2'
+  //    '<S25>/1-D Lookup Table2'
+  //    '<S26>/1-D Lookup Table2'
+  //    '<S31>/1-D Lookup Table2'
+  //    '<S32>/1-D Lookup Table2'
+  //    '<S33>/1-D Lookup Table2'
+  //    '<S42>/1-D Lookup Table2'
+  //    '<S43>/1-D Lookup Table2'
+  //    '<S44>/1-D Lookup Table2'
+  //    '<S61>/1-D Lookup Table'
+  //    '<S61>/1-D Lookup Table1'
+  //    '<S62>/1-D Lookup Table'
+  //    '<S62>/1-D Lookup Table1'
+  //    '<S23>/1-D Lookup Table2'
+  //    '<S24>/1-D Lookup Table2'
+  //    '<S30>/1-D Lookup Table2'
+  //    '<S39>/1-D Lookup Table2'
+  //    '<S40>/1-D Lookup Table2'
+  //    '<S66>/1-D Lookup Table2'
+  //    '<S67>/1-D Lookup Table2'
+  //    '<S70>/1-D Lookup Table2'
+  //    '<S71>/1-D Lookup Table2'
+  //    '<S74>/1-D Lookup Table2'
+  //    '<S75>/1-D Lookup Table2'
+  //    '<S77>/1-D Lookup Table2'
+  //    '<S78>/1-D Lookup Table2'
+  //    '<S80>/1-D Lookup Table2'
+  //    '<S81>/1-D Lookup Table2'
 
-  real32_T pooled11[7];
-
-  // Pooled Parameter (Expression: [0.1 0.3 .9 1.5 .9 0.3 0.1])
-  //  Referenced by:
-  //    '<S38>/1-D Lookup Table1'
-  //    '<S39>/1-D Lookup Table1'
-
-  real32_T pooled24[7];
-
-  // Expression: vhdg5
-  //  Referenced by: '<S9>/1-D Lookup Table3'
-
-  real32_T DLookupTable3_table[101];
-
-  // Pooled Parameter (Expression: bp)
-  //  Referenced by:
-  //    '<S9>/1-D Lookup Table'
-  //    '<S9>/1-D Lookup Table1'
-  //    '<S9>/1-D Lookup Table2'
-  //    '<S9>/1-D Lookup Table3'
-
-  real32_T pooled25[101];
+  real32_T pooled6[5];
 
   // Pooled Parameter (Mixed Expressions)
   //  Referenced by:
-  //    '<S9>/1-D Lookup Table'
-  //    '<S9>/1-D Lookup Table1'
-  //    '<S9>/1-D Lookup Table2'
+  //    '<S26>/1-D Lookup Table2'
+  //    '<S67>/1-D Lookup Table2'
 
-  real32_T pooled27[101];
+  real32_T pooled7[5];
 
-  // Pooled Parameter (Expression: [.3 .3 1 1 1 .3 .3])
+  // Computed Parameter: uDLookupTable2_tableData
+  //  Referenced by: '<S33>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_f
+  //  Referenced by: '<S71>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_f[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_e
+  //  Referenced by: '<S74>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_e[5];
+
+  // Pooled Parameter (Expression: KlatlonI)
   //  Referenced by:
-  //    '<S35>/1-D Lookup Table5'
-  //    '<S36>/1-D Lookup Table2'
+  //    '<S78>/1-D Lookup Table2'
+  //    '<S81>/1-D Lookup Table2'
 
-  real32_T pooled35[7];
+  real32_T pooled12[5];
 
-  // Computed Parameter: CinvAinv_Gain
-  //  Referenced by: '<S3>/Cinv*Ainv'
+  // Pooled Parameter (Mixed Expressions)
+  //  Referenced by:
+  //    '<S52>/Constant'
+  //    '<S52>/1-D Lookup Table2'
 
-  real32_T CinvAinv_Gain[36];
+  real32_T pooled16[36];
 
-  // Computed Parameter: Binv1_Gain
-  //  Referenced by: '<S3>/(Binv)^-1'
+  // Computed Parameter: uDLookupTable2_tableData_g
+  //  Referenced by: '<S52>/1-D Lookup Table2'
 
-  real32_T Binv1_Gain[16];
+  real32_T uDLookupTable2_tableData_g[180];
+
+  // Pooled Parameter (Expression: [1:16])
+  //  Referenced by:
+  //    '<S51>/Constant'
+  //    '<S51>/1-D Lookup Table2'
+
+  real32_T pooled17[16];
+
+  // Computed Parameter: uDLookupTable2_tableData_b
+  //  Referenced by: '<S51>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_b[80];
+
+  // Pooled Parameter (Expression: Klatlon)
+  //  Referenced by:
+  //    '<S77>/1-D Lookup Table2'
+  //    '<S80>/1-D Lookup Table2'
+
+  real32_T pooled19[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_k
+  //  Referenced by: '<S75>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_k[5];
+
+  // Expression: PSIdata'
+  //  Referenced by: '<S9>/1-D Lookup Table3'
+
+  real32_T uDLookupTable3_tableData[138];
+
+  // Expression: VYdata'
+  //  Referenced by: '<S9>/1-D Lookup Table1'
+
+  real32_T uDLookupTable1_tableData[138];
+
+  // Expression: VXdata'
+  //  Referenced by: '<S9>/1-D Lookup Table'
+
+  real32_T uDLookupTable_tableData[138];
+
+  // Expression: VZdata'
+  //  Referenced by: '<S9>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_bf[138];
+
+  // Computed Parameter: uDLookupTable2_tableData_j
+  //  Referenced by: '<S30>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_j[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_o
+  //  Referenced by: '<S25>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_o[5];
+
+  // Computed Parameter: uDLookupTable_tableData_k
+  //  Referenced by: '<S12>/1-D Lookup Table'
+
+  real32_T uDLookupTable_tableData_k[5];
+
+  // Computed Parameter: uDLookupTable1_tableData_g
+  //  Referenced by: '<S12>/1-D Lookup Table1'
+
+  real32_T uDLookupTable1_tableData_g[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_a
+  //  Referenced by: '<S16>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_a[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_fu
+  //  Referenced by: '<S15>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_fu[5];
+
+  // Computed Parameter: uDLookupTable_tableData_l
+  //  Referenced by: '<S11>/1-D Lookup Table'
+
+  real32_T uDLookupTable_tableData_l[5];
+
+  // Computed Parameter: uDLookupTable1_tableData_n
+  //  Referenced by: '<S11>/1-D Lookup Table1'
+
+  real32_T uDLookupTable1_tableData_n[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_ex
+  //  Referenced by: '<S32>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_ex[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_c
+  //  Referenced by: '<S31>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_c[5];
+
+  // Computed Parameter: uDLookupTable_tableData_m
+  //  Referenced by: '<S13>/1-D Lookup Table'
+
+  real32_T uDLookupTable_tableData_m[5];
+
+  // Computed Parameter: uDLookupTable1_tableData_d
+  //  Referenced by: '<S13>/1-D Lookup Table1'
+
+  real32_T uDLookupTable1_tableData_d[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_au
+  //  Referenced by: '<S42>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_au[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_c0
+  //  Referenced by: '<S44>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_c0[5];
+
+  // Computed Parameter: uDLookupTable_tableData_h
+  //  Referenced by: '<S14>/1-D Lookup Table'
+
+  real32_T uDLookupTable_tableData_h[5];
+
+  // Computed Parameter: uDLookupTable1_tableData_f
+  //  Referenced by: '<S14>/1-D Lookup Table1'
+
+  real32_T uDLookupTable1_tableData_f[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_kg
+  //  Referenced by: '<S70>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_kg[5];
+
+  // Computed Parameter: uDLookupTable_tableData_d
+  //  Referenced by: '<S62>/1-D Lookup Table'
+
+  real32_T uDLookupTable_tableData_d[5];
+
+  // Computed Parameter: uDLookupTable1_tableData_m
+  //  Referenced by: '<S62>/1-D Lookup Table1'
+
+  real32_T uDLookupTable1_tableData_m[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_or
+  //  Referenced by: '<S39>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_or[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_gp
+  //  Referenced by: '<S40>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_gp[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_n
+  //  Referenced by: '<S66>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_n[5];
+
+  // Computed Parameter: uDLookupTable_tableData_hs
+  //  Referenced by: '<S61>/1-D Lookup Table'
+
+  real32_T uDLookupTable_tableData_hs[5];
+
+  // Computed Parameter: uDLookupTable1_tableData_p
+  //  Referenced by: '<S61>/1-D Lookup Table1'
+
+  real32_T uDLookupTable1_tableData_p[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_ob
+  //  Referenced by: '<S23>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_ob[5];
+
+  // Computed Parameter: uDLookupTable2_tableData_l
+  //  Referenced by: '<S24>/1-D Lookup Table2'
+
+  real32_T uDLookupTable2_tableData_l[5];
 } ConstParam_QS_InnerRateLoop_T;
 
-// External inputs (root inport signals with auto storage)
+// External inputs (root inport signals with default storage)
 typedef struct {
   boolean_T engage;                    // '<Root>/engage'
   real32_T input_lat;                  // '<Root>/input_lat'
@@ -292,7 +477,7 @@ typedef struct {
   real32_T Rp;                         // '<Root>/Rp'
 } ExternalInputs_QS_InnerRateLo_T;
 
-// External outputs (root outports fed by signals with auto storage)
+// External outputs (root outports fed by signals with default storage)
 typedef struct {
   real32_T mixer_throttle;             // '<Root>/mixer_throttle'
   real32_T mixer_x;                    // '<Root>/mixer_x'
@@ -313,7 +498,11 @@ typedef struct {
   real32_T Vnorth_corr;                // '<Root>/Vnorth_corr'
   real32_T Veast_corr;                 // '<Root>/Veast_corr'
   real32_T Vdown_corr;                 // '<Root>/Vdown_corr'
+  boolean_T ScoreDisplay;              // '<Root>/ScoreDisplay'
   real32_T vehheadingcmd;              // '<Root>/vehheadingcmd'
+  boolean_T ScoreOn;                   // '<Root>/ScoreOn'
+  real32_T test1;                      // '<Root>/test1'
+  real32_T test2;                      // '<Root>/test2'
 } ExternalOutputs_QS_InnerRateL_T;
 
 // Real-time Model Data Structure
@@ -321,20 +510,9 @@ struct tag_RTM_QS_InnerRateLoop_T {
   const char_T * volatile errorStatus;
 };
 
-#ifdef __cplusplus
-
-extern "C" {
-
-#endif
-
-#ifdef __cplusplus
-
-}
-#endif
-
 extern const ConstBlockIO_QS_InnerRateLoop_T QS_InnerRateLoop_ConstB;// constant block i/o 
 
-// Constant parameters (auto storage)
+// Constant parameters (default storage)
 extern const ConstParam_QS_InnerRateLoop_T QS_InnerRateLoop_ConstP;
 
 // Class declaration for model QS_InnerRateLoop
@@ -346,8 +524,6 @@ class untitledModelClass {
 
   // External outputs
   ExternalOutputs_QS_InnerRateL_T QS_InnerRateLoop_Y;
-
-  // Model entry point functions
 
   // model initialize function
   void initialize();
@@ -391,67 +567,97 @@ class untitledModelClass {
 //  Here is the system hierarchy for this model
 //
 //  '<Root>' : 'QS_InnerRateLoop'
-//  '<S1>'   : 'QS_InnerRateLoop/Attitude Control Loop'
+//  '<S1>'   : 'QS_InnerRateLoop/Attitude Control Loop1'
 //  '<S2>'   : 'QS_InnerRateLoop/Determine Heading at Start of Manuever  All trajectories relative to this heading'
-//  '<S3>'   : 'QS_InnerRateLoop/Dynamic Inverse'
+//  '<S3>'   : 'QS_InnerRateLoop/Dynamic Inverse1'
 //  '<S4>'   : 'QS_InnerRateLoop/Enabled Subsystem Grab and Freeze Value Upon Engagement'
 //  '<S5>'   : 'QS_InnerRateLoop/LocalVertical2Body '
 //  '<S6>'   : 'QS_InnerRateLoop/NED to Local Vertical'
-//  '<S7>'   : 'QS_InnerRateLoop/Outer Loop//Trajectory Control'
+//  '<S7>'   : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1'
 //  '<S8>'   : 'QS_InnerRateLoop/Subsystem'
 //  '<S9>'   : 'QS_InnerRateLoop/Subsystem1'
-//  '<S10>'  : 'QS_InnerRateLoop/Sweep Generator Broken Loop Sweeps'
-//  '<S11>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command'
-//  '<S12>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem'
-//  '<S13>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem1'
-//  '<S14>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem2'
-//  '<S15>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3'
-//  '<S16>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem/Generic second order lateral command model with limits'
-//  '<S17>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem/Psuedo Derivative 100*s//(s+100)'
-//  '<S18>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem/Psuedo Derivative 2 100*s//(s+100)'
-//  '<S19>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem1/Generic first order collective command model'
-//  '<S20>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem2/Generic second order longitudinal command model with limits'
-//  '<S21>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem2/Psuedo Derivative 100*s//(s+100)'
-//  '<S22>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem2/Psuedo Derivative 2 100*s//(s+100)'
-//  '<S23>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3/-pi <= psi <= pi1'
-//  '<S24>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3/-pi <= psi <= pi2'
-//  '<S25>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3/-pi <= psi <= pi4'
-//  '<S26>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3/Psuedo Derivative 100*s//(s+100)'
-//  '<S27>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3/Psuedo Derivative 100*s//(s+100)1'
-//  '<S28>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3/-pi <= psi <= pi1/0 <= psi <= 2*pi'
-//  '<S29>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3/-pi <= psi <= pi2/0 <= psi <= 2*pi'
-//  '<S30>'  : 'QS_InnerRateLoop/Attitude Control Loop/Subsystem3/-pi <= psi <= pi4/0 <= psi <= 2*pi'
-//  '<S31>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Command Transforms '
-//  '<S32>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control'
-//  '<S33>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Command Transforms /LocalVertical 2 Inertial'
-//  '<S34>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Inertial2LocalVertical'
-//  '<S35>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Lat Velocity Controller'
-//  '<S36>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Lon Velocity Controller'
-//  '<S37>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/PI controller Down'
-//  '<S38>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/PI controller East'
-//  '<S39>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/PI controller North'
-//  '<S40>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Lat Velocity Controller/Generic second order longitudinal command model with limits'
-//  '<S41>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Lat Velocity Controller/Psuedo Derivative 10*s//(s+10)'
-//  '<S42>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Lat Velocity Controller/Psuedo Derivative 100*s//(s+100)'
-//  '<S43>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Lon Velocity Controller/Generic second order longitudinal command model with limits'
-//  '<S44>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Lon Velocity Controller/Psuedo Derivative 10*s//(s+10)'
-//  '<S45>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control/Position and Velocity Control/Lon Velocity Controller/Psuedo Derivative 100*s//(s+100)'
-//  '<S46>'  : 'QS_InnerRateLoop/Subsystem/Determine if Traj Switch Has  Been Cycled since last trajectory'
-//  '<S47>'  : 'QS_InnerRateLoop/Subsystem/Determine if still in position when switch was flipped to ON'
-//  '<S48>'  : 'QS_InnerRateLoop/Subsystem/Enabled Subsystem1'
-//  '<S49>'  : 'QS_InnerRateLoop/Subsystem1/NED to Local Vertical'
-//  '<S50>'  : 'QS_InnerRateLoop/Sweep Generator Broken Loop Sweeps/chirp generator (Modified with reset capability)'
-//  '<S51>'  : 'QS_InnerRateLoop/Sweep Generator Broken Loop Sweeps/chirp generator (Modified with reset capability)/Create Sweep'
-//  '<S52>'  : 'QS_InnerRateLoop/Sweep Generator Broken Loop Sweeps/chirp generator (Modified with reset capability)/Create omega'
-//  '<S53>'  : 'QS_InnerRateLoop/Sweep Generator Broken Loop Sweeps/chirp generator (Modified with reset capability)/Determine Freq Count'
-//  '<S54>'  : 'QS_InnerRateLoop/Sweep Generator Broken Loop Sweeps/chirp generator (Modified with reset capability)/Event Counter'
-//  '<S55>'  : 'QS_InnerRateLoop/Sweep Generator Broken Loop Sweeps/chirp generator (Modified with reset capability)/Create omega/Subsystem1'
-//  '<S56>'  : 'QS_InnerRateLoop/Sweep Generator Broken Loop Sweeps/chirp generator (Modified with reset capability)/Create omega/Subsystem2'
-//  '<S57>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command/Enabled Subsystem1'
-//  '<S58>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command/Generic first order collective command model'
-//  '<S59>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command/TFSWIT Transient Free Switch'
-//  '<S60>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command/TFSWIT Transient Free Switch1'
-//  '<S61>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command/TFSWIT Transient Free Switch2'
+//  '<S10>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command1'
+//  '<S11>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem'
+//  '<S12>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem1'
+//  '<S13>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2'
+//  '<S14>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3'
+//  '<S15>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/Kp Gain Schedule'
+//  '<S16>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/Kphi Gain Schedule'
+//  '<S17>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/KphiI Gain Schedule'
+//  '<S18>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/Psuedo Derivative 100*s//(s+100)'
+//  '<S19>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/Psuedo Derivative 2 100*s//(s+100)'
+//  '<S20>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/Subsystem'
+//  '<S21>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/integrator no windup'
+//  '<S22>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/lead-lag1'
+//  '<S23>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/Subsystem/k1 Gain Schedule'
+//  '<S24>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem/Subsystem/k2 Gain Schedule1'
+//  '<S25>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem1/KvZ Gain Schedule'
+//  '<S26>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem1/KvZ Gain Schedule1'
+//  '<S27>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem1/Subsystem'
+//  '<S28>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem1/integrator no windup'
+//  '<S29>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem1/lead-lag1'
+//  '<S30>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem1/Subsystem/wcmd Gain Schedule'
+//  '<S31>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/Kq Gain Schedule'
+//  '<S32>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/Ktht Gain Schedule'
+//  '<S33>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/KthtI Gain Schedule'
+//  '<S34>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/Psuedo Derivative 100*s//(s+100)'
+//  '<S35>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/Psuedo Derivative 2 100*s//(s+100)'
+//  '<S36>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/Subsystem'
+//  '<S37>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/integrator no windup'
+//  '<S38>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/lead-lag1'
+//  '<S39>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/Subsystem/k1 Gain Schedule'
+//  '<S40>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem2/Subsystem/k2 Gain Schedule1'
+//  '<S41>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/-pi <= psi <= pi4'
+//  '<S42>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/Kpsi Gain Schedule'
+//  '<S43>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/KpsiI Gain Schedule'
+//  '<S44>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/Kr Gain Schedule'
+//  '<S45>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/Psuedo Derivative 100*s//(s+100)'
+//  '<S46>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/Psuedo Derivative 100*s//(s+100)1'
+//  '<S47>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/counter'
+//  '<S48>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/integrator no windup'
+//  '<S49>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/lead-lag1'
+//  '<S50>'  : 'QS_InnerRateLoop/Attitude Control Loop1/Subsystem3/-pi <= psi <= pi4/0 <= psi <= 2*pi'
+//  '<S51>'  : 'QS_InnerRateLoop/Dynamic Inverse1/(Cinv*Binv)^-1 Gain Schedule'
+//  '<S52>'  : 'QS_InnerRateLoop/Dynamic Inverse1/Cinv*Ainv Gain Schedule'
+//  '<S53>'  : 'QS_InnerRateLoop/Dynamic Inverse1/lead-lag'
+//  '<S54>'  : 'QS_InnerRateLoop/Dynamic Inverse1/lead-lag1'
+//  '<S55>'  : 'QS_InnerRateLoop/Dynamic Inverse1/lead-lag2'
+//  '<S56>'  : 'QS_InnerRateLoop/Dynamic Inverse1/lead-lag3'
+//  '<S57>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Command Transforms '
+//  '<S58>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control'
+//  '<S59>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Command Transforms /LocalVertical 2 Inertial'
+//  '<S60>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Inertial2LocalVertical'
+//  '<S61>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lat Velocity Controller1'
+//  '<S62>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lon Velocity Controller1'
+//  '<S63>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller Down1'
+//  '<S64>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller East1'
+//  '<S65>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller North1'
+//  '<S66>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lat Velocity Controller1/Kv Gain Schedule'
+//  '<S67>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lat Velocity Controller1/KvI Gain Schedule'
+//  '<S68>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lat Velocity Controller1/integrator no windup'
+//  '<S69>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lat Velocity Controller1/lead-lag1'
+//  '<S70>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lon Velocity Controller1/Ku Gain Schedule'
+//  '<S71>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lon Velocity Controller1/KuI Gain Schedule'
+//  '<S72>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lon Velocity Controller1/integrator no windup'
+//  '<S73>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/Lon Velocity Controller1/lead-lag1'
+//  '<S74>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller Down1/Kdown Gain Schedule'
+//  '<S75>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller Down1/Kldown Gain Schedule'
+//  '<S76>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller Down1/integrator no windup'
+//  '<S77>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller East1/Klatlon Gain Schedule'
+//  '<S78>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller East1/KlatlonI Gain Schedule'
+//  '<S79>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller East1/integrator no windup'
+//  '<S80>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller North1/Klatlon Gain Schedule'
+//  '<S81>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller North1/KlatlonI Gain Schedule'
+//  '<S82>'  : 'QS_InnerRateLoop/Outer Loop//Trajectory Control1/Position and Velocity Control/PI controller North1/integrator no windup'
+//  '<S83>'  : 'QS_InnerRateLoop/Subsystem/Determine if Traj Switch Has  Been Cycled since last trajectory'
+//  '<S84>'  : 'QS_InnerRateLoop/Subsystem/Determine if still in position when switch was flipped to ON'
+//  '<S85>'  : 'QS_InnerRateLoop/Subsystem/Enabled Subsystem1'
+//  '<S86>'  : 'QS_InnerRateLoop/Subsystem1/NED to Local Vertical'
+//  '<S87>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command1/Enabled Subsystem1'
+//  '<S88>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command1/Generic first order collective command model'
+//  '<S89>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command1/TFSWIT Transient Free Switch'
+//  '<S90>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command1/TFSWIT Transient Free Switch1'
+//  '<S91>'  : 'QS_InnerRateLoop/Switch Between Pilot Command and Trajectory Command1/TFSWIT Transient Free Switch2'
 
 #endif                                 // RTW_HEADER_QS_InnerRateLoop_h_
 
