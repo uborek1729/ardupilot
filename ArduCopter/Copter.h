@@ -163,6 +163,7 @@ private:
     untitledModelClass QS_InnerRateLoop_Obj;//
     AP_AHRS&      QSahrs;
 
+
     // Global parameters are all contained within the 'g' class.
     Parameters g;
     ParametersG2 g2;

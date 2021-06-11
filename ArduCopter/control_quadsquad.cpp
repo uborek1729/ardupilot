@@ -58,7 +58,7 @@ void Copter::quadsquad_run()
  //    float alpha = 0;
  //    float epsilon = 0;
 
-   //  const Vector3f &accel = ins.get_accel();
+     const Vector3f &accel = ins.get_accel();
      const Vector3f &gyro = ins.get_gyro();
 
 
@@ -81,7 +81,7 @@ void Copter::quadsquad_run()
                                                (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle);
 
 
-       DataFlash_Class::instance()->Log_Write("QS2", "TimeUS,swpx,swpy,swpz,swpth,eng,phic,thtc,psic,vzc,tst,tstt" , "Qfffffffffff",
+       DataFlash_Class::instance()->Log_Write("QS2", "TimeUS,swpx,swpy,swpz,swpth,eng,phic,thtc,psic,vzc,CFz,CFvz" , "Qfffffffffff",
                                                AP_HAL::micros64(),
                                                (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.pitch_sweep,
                                                (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.roll_sweep,
@@ -92,8 +92,8 @@ void Copter::quadsquad_run()
                                                (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.theta_cmd,
                                                (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.psi_cmd,
                                                (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.vz_cmd,
-                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.test1,
-                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.test2);
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.CF_Alt,
+                                               (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.CF_Vz);
 
        DataFlash_Class::instance()->Log_Write("QS3", "TimeUS,pN,pE,pD,vN,vE,vD,tSW,tON,pNc,pEc,pDc,psc" , "Qffffffffffff",
                                                AP_HAL::micros64(),
@@ -160,8 +160,11 @@ void Copter::quadsquad_run()
 
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posNorthKF = curr_pos.x / float(100);  //convert cm to m
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posEastKF = curr_pos.y / float(100);  //convert cm to m
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posDownKF = curr_pos.z / float(-100);  //convert cm to m
-
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posDownKF =  curr_pos.z / float(-100);  //convert cm to m
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Baro_Alt_m = barometer.get_altitude();  //baro altitude in meters
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Ax_mpss =  accel.x; //m/s^2
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Ay_mpss =  accel.y; //m/s^2
+         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Az_mpss =  accel.z; //m/s^2
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_x = attitude_control->mixer_roll();
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_y = attitude_control->mixer_pitch();
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_z = attitude_control->mixer_yaw();
