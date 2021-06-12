@@ -67,6 +67,7 @@
 #include <AP_TempCalibration/AP_TempCalibration.h>
 #include <AC_AutoTune/AC_AutoTune.h>
 #include <AP_Common/AP_FWVersion.h>
+#include <QS_InnerRateLoop/QS_InnerRateLoop.h>
 
 // Configuration
 #include "defines.h"
@@ -236,6 +237,7 @@ public:
     friend class ModeThrow;
     friend class ModeZigZag;
     friend class ModeAutorotate;
+    friend class ModeQuadsquad;
 
     Copter(void);
 
@@ -993,6 +995,7 @@ private:
 #if MODE_AUTOROTATE_ENABLED == ENABLED
     ModeAutorotate mode_autorotate;
 #endif
+    ModeQuadsquad mode_quadsquad;
 
     // mode.cpp
     Mode *mode_from_mode_num(const Mode::Number mode);

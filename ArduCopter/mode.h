@@ -36,6 +36,7 @@ public:
         ZIGZAG    =    24,  // ZIGZAG mode is able to fly in a zigzag manner with predefined point A and point B
         SYSTEMID  =    25,  // System ID mode produces automated system identification signals in the controllers
         AUTOROTATE =   26,  // Autonomous autorotation
+        QUADSQUAD =    27,  // control mode for Ivler project
     };
 
     // constructor
@@ -133,6 +134,9 @@ protected:
     RC_Channel *&channel_throttle;
     RC_Channel *&channel_yaw;
     float &G_Dt;
+
+    untitledModelClass QS_InnerRateLoop_Obj;
+    AP_AHRS &QSahrs;
 
     // note that we support two entirely different automatic takeoffs:
 
@@ -1469,3 +1473,56 @@ private:
 
 };
 #endif
+
+class ModeQuadsquad : public Mode {
+
+public:
+    // inherit constructor
+//    using Mode::Mode;
+    ModeQuadsquad(void);
+
+    virtual void run() override;
+    bool init(bool ignore_checks) override;
+
+    bool requires_GPS() const override { return false; }
+    bool has_manual_throttle() const override { return true; }
+    bool allows_arming(bool from_gcs) const override { return true; };
+    bool is_autopilot() const override { return false; }
+
+    static const struct AP_Param::GroupInfo var_info[];
+
+protected:
+
+    const char *name() const override { return "QUADSQUAD"; }
+    const char *name4() const override { return "QSQD"; }
+
+private:
+
+    struct { //quadsquad specific ipnuts
+        int16_t ch1 ;
+        int16_t ch2 ;
+        int16_t ch3 ;
+        int16_t ch4 ;
+        int16_t ch5 ;
+        int16_t ch6 ;
+        int16_t ch7 ;
+        int16_t ch8 ;
+    } GSInputs;
+
+    bool engage; //quadsquad specific
+    float score; //quadsquad specific
+    float VeSqrSum; //quadsquad
+    float PeSqrSum; //quad squad
+    float pNcmd;
+    float pEcmd;
+    float pDcmd;
+    float vmax;
+    float pmax;
+    float trajectorycount;
+    int log_counter_qs;
+
+    AP_Float alpha;
+
+};
+
+
