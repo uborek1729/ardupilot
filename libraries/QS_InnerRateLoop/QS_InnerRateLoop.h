@@ -24,6 +24,7 @@
 #include <math.h>
 #include <string.h>
 #include <stddef.h>
+#include <AP_Math/AP_Math.h>
 #ifndef QS_InnerRateLoop_COMMON_INCLUDES_
 # define QS_InnerRateLoop_COMMON_INCLUDES_
 #include "rtwtypes.h"

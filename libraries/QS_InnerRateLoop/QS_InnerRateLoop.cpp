@@ -570,7 +570,7 @@ void untitledModelClass::step()
   //   Inport: '<S92>/lon'
   //   Inport: '<S92>/ped'
 
-  if (QS_InnerRateLoop_U.CH8_flag == 0.0F) {
+  if (is_zero(QS_InnerRateLoop_U.CH8_flag)) {
     QS_InnerRateLoop_B.lon = QS_InnerRateLoop_U.input_lon;
     QS_InnerRateLoop_B.lat = QS_InnerRateLoop_U.input_lat;
     QS_InnerRateLoop_B.col_h = QS_InnerRateLoop_U.input_col;
@@ -665,12 +665,12 @@ void untitledModelClass::step()
   //   Logic: '<S91>/Logical Operator'
   //   Logic: '<S91>/Logical Operator1'
 
-  rtb_LogicalOperator2_g = ((rtb_TrigonometricFunction3 == 0.0F) &&
-    (rtb_TrigonometricFunction6 == 0.0F) && (rtb_Saturation_h == 0.0F) &&
-    (rtb_Saturation1_p == 0.0F) && (QS_InnerRateLoop_U.CH8_flag != 0.0F));
+  rtb_LogicalOperator2_g = ((is_zero(rtb_TrigonometricFunction3)) &&
+    (is_zero(rtb_TrigonometricFunction6)) && (is_zero(rtb_Saturation_h)) &&
+    (is_zero(rtb_Saturation1_p)) && (!is_zero(QS_InnerRateLoop_U.CH8_flag)));
 
   // Logic: '<S10>/Logical Operator1'
-  rtb_LogicalOperator1_n = ((rtb_Sum2_h != 0.0) && rtb_LogicalOperator2_g);
+  rtb_LogicalOperator1_n = ((!is_zero(rtb_Sum2_h)) && rtb_LogicalOperator2_g);
 
   // DiscreteIntegrator: '<S89>/Discrete-Time Integrator'
   if (rtb_LogicalOperator1_n &&
@@ -1786,7 +1786,7 @@ void untitledModelClass::step()
   //   Product: '<S33>/Product'
   //   RelationalOperator: '<Root>/Relational Operator'
 
-  if (rtb_Sum1_j_idx_0 != rtb_Saturation5_k) {
+  if (!is_equal(rtb_Sum1_j_idx_0,rtb_Saturation5_k)) {
     rtb_Product_ib = 0.0F;
   } else {
     // Lookup_n-D: '<S33>/1-D Lookup Table2'
@@ -1818,7 +1818,7 @@ void untitledModelClass::step()
   //   Product: '<S24>/Product'
   //   RelationalOperator: '<Root>/Relational Operator1'
 
-  if (rtb_Sum1_j_idx_1 != rtb_Saturation5_k) {
+  if (!is_equal(rtb_Sum1_j_idx_1,rtb_Saturation5_k)) {
     rtb_Product_jr = 0.0F;
   } else {
     // Lookup_n-D: '<S24>/1-D Lookup Table2'
@@ -1850,7 +1850,7 @@ void untitledModelClass::step()
   //   Product: '<S40>/Product'
   //   RelationalOperator: '<Root>/Relational Operator2'
 
-  if (rtb_Sum1_j_idx_2 != rtb_Saturation5_k) {
+  if (!is_equal(rtb_Sum1_j_idx_2,rtb_Saturation5_k)) {
     rtb_Product_n = 0.0F;
   } else {
     // Lookup_n-D: '<S40>/1-D Lookup Table2'
@@ -1882,7 +1882,7 @@ void untitledModelClass::step()
   //   Product: '<S50>/Product'
   //   RelationalOperator: '<Root>/Relational Operator3'
 
-  if (rtb_Saturation5_k != rtb_Sum1_j_idx_3) {
+  if (!is_equal(rtb_Saturation5_k,rtb_Sum1_j_idx_3)) {
     rtb_Product_ear = 0.0F;
   } else {
     // Lookup_n-D: '<S50>/1-D Lookup Table2'
@@ -2205,7 +2205,7 @@ void untitledModelClass::step()
      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_gp);
 
   // RelationalOperator: '<S12>/Relational Operator4'
-  rtb_RelationalOperator4_e = (rtb_Sum1_j_idx_2 != rtb_Sum1_gw);
+  rtb_RelationalOperator4_e = (!is_equal(rtb_Sum1_j_idx_2,rtb_Sum1_gw));
 
   // Switch: '<S79>/Switch' incorporates:
   //   Constant: '<S79>/Constant'
@@ -2319,7 +2319,7 @@ void untitledModelClass::step()
   // RelationalOperator: '<S12>/Relational Operator1' incorporates:
   //   Sum: '<S12>/Sum3'
 
-  rtb_RelationalOperator_b1 = (rtb_Add6_a != rtb_TrigonometricFunction3);
+  rtb_RelationalOperator_b1 = (!is_equal(rtb_Add6_a,rtb_TrigonometricFunction3));
 
   // Switch: '<S86>/Switch' incorporates:
   //   Constant: '<S86>/Constant'
@@ -2500,7 +2500,7 @@ void untitledModelClass::step()
   //   Product: '<S81>/Product'
   //   RelationalOperator: '<S12>/Relational Operator2'
 
-  if (rtb_Saturation2_o != rtb_Sum2_k) {
+  if (!is_equal(rtb_Saturation2_o,rtb_Sum2_k)) {
     rtb_Saturation8 = 0.0F;
   } else {
     // Lookup_n-D: '<S81>/1-D Lookup Table2'
