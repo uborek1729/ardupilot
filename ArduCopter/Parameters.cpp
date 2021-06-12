@@ -961,7 +961,9 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     AP_SUBGROUPINFO(arot, "AROT_", 37, ParametersG2, AC_Autorotation),
 #endif
 
-
+    // @Group: QSQD_
+    // @Path: mode_quadsquad.cpp
+    AP_SUBGROUPINFO(mode_quadsquad_ptr, "QSQD_", 38, ParametersG2, ModeQuadsquad),
 
     AP_GROUPEND
 };

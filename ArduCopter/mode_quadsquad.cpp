@@ -7,7 +7,7 @@ const AP_Param::GroupInfo ModeQuadsquad::var_info[] = {
     // @Description: More aggressive maneuver as alpha gets bigger
     // @Range: 0 3
     // @User: Standard
-    AP_GROUPINFO("_ALPHA", 1, ModeQuadsquad, alpha, 0.5),
+    AP_GROUPINFO("ALPHA", 1, ModeQuadsquad, alpha, 0.5f),
 
     AP_GROUPEND
 };

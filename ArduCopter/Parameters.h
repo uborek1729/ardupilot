@@ -620,6 +620,9 @@ public:
     // Autonmous autorotation
     AC_Autorotation arot;
 #endif
+
+    // we need a pointer to the mode for the G2 table
+    void *mode_quadsquad_ptr;
 };
 
 extern const AP_Param::Info        var_info[];
