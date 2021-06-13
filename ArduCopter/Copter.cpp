@@ -235,8 +235,11 @@ void Copter::fast_loop()
     // update INS immediately to get current gyro data populated
     ins.update();
 
-    // run low level rate controllers that only require IMU data
-    attitude_control->rate_controller_run();
+    // Bypass attitude controller if quadsquad is current flight mode. quadsquad is self contained
+    if (control_mode != Mode::Number::QUADSQUAD) {
+        // run low level rate controllers that only require IMU data
+        attitude_control->rate_controller_run();
+    }
 
     // send outputs to the motors library immediately
     motors_output();
