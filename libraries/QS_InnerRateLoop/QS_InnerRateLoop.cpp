@@ -289,13 +289,13 @@ void untitledModelClass::step()
   //   Inport: '<Root>/psi_rad'
   //   Trigonometry: '<S67>/Trigonometric Function3'
 
-  rtb_Gain1 = static_cast<real32_T>(cos((real_T)QS_InnerRateLoop_U.psi_rad));
+  rtb_Gain1 = static_cast<real32_T>(cosf((real_T)QS_InnerRateLoop_U.psi_rad));
 
   // Trigonometry: '<S8>/Trigonometric Function6' incorporates:
   //   Inport: '<Root>/psi_rad'
   //   Trigonometry: '<S67>/Trigonometric Function6'
 
-  rtb_uDLookupTable_l_tmp = static_cast<real32_T>(sin((real_T)
+  rtb_uDLookupTable_l_tmp = static_cast<real32_T>(sinf((real_T)
     QS_InnerRateLoop_U.psi_rad));
 
   // Sum: '<S8>/Add5' incorporates:
@@ -357,7 +357,7 @@ void untitledModelClass::step()
   //  About '<Root>/Math Function4':
   //   Operator: magnitude^2
 
-  rtb_Saturation8 = static_cast<real32_T>(sqrt((real_T)(rtb_Add5_e * rtb_Add5_e
+  rtb_Saturation8 = static_cast<real32_T>(safe_sqrt((real_T)(rtb_Add5_e * rtb_Add5_e
     + rtb_Add6_i * rtb_Add6_i)));
 
   // Saturate: '<Root>/Saturation8'
@@ -407,7 +407,7 @@ void untitledModelClass::step()
   //   Inport: '<Root>/theta_rad'
   //   Trigonometry: '<S6>/Trigonometric Function2'
 
-  rtb_Saturation_fr_tmp = static_cast<real32_T>(cos((real_T)
+  rtb_Saturation_fr_tmp = static_cast<real32_T>(cosf((real_T)
     QS_InnerRateLoop_U.theta_rad));
 
   // Product: '<S8>/Divide4' incorporates:
@@ -443,21 +443,21 @@ void untitledModelClass::step()
   // Trigonometry: '<S7>/Trigonometric Function5' incorporates:
   //   Inport: '<Root>/theta_rad'
 
-  rtb_Saturation1_p = static_cast<real32_T>(sin((real_T)
+  rtb_Saturation1_p = static_cast<real32_T>(sinf((real_T)
     QS_InnerRateLoop_U.theta_rad));
 
   // Trigonometry: '<S7>/Trigonometric Function4' incorporates:
   //   Inport: '<Root>/phi_rad'
   //   Trigonometry: '<S6>/Trigonometric Function4'
 
-  rtb_TrigonometricFunction6_tmp = static_cast<real32_T>(sin((real_T)
+  rtb_TrigonometricFunction6_tmp = static_cast<real32_T>(sinf((real_T)
     QS_InnerRateLoop_U.phi_rad));
 
   // Trigonometry: '<S7>/Trigonometric Function1' incorporates:
   //   Inport: '<Root>/phi_rad'
   //   Trigonometry: '<S6>/Trigonometric Function1'
 
-  rtb_TrigonometricFunction3_tmp = static_cast<real32_T>(cos((real_T)
+  rtb_TrigonometricFunction3_tmp = static_cast<real32_T>(cosf((real_T)
     QS_InnerRateLoop_U.phi_rad));
 
   // SignalConversion: '<S59>/TmpSignal ConversionAtProductInport2' incorporates:
@@ -876,10 +876,10 @@ void untitledModelClass::step()
   rtb_Sum3_f = 0.0174532924F * rtb_uDLookupTable3;
 
   // Trigonometry: '<S93>/Trigonometric Function3'
-  rtb_derivativecutofffrequency_b = static_cast<real32_T>(cos((real_T)rtb_Sum3_f));
+  rtb_derivativecutofffrequency_b = static_cast<real32_T>(cosf((real_T)rtb_Sum3_f));
 
   // Trigonometry: '<S93>/Trigonometric Function6'
-  rtb_Sum3_f = static_cast<real32_T>(sin((real_T)rtb_Sum3_f));
+  rtb_Sum3_f = static_cast<real32_T>(sinf((real_T)rtb_Sum3_f));
 
   // Lookup_n-D: '<S11>/1-D Lookup Table1'
   bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.192F, 37U, &rtb_Saturation5_k);
@@ -1491,7 +1491,7 @@ void untitledModelClass::step()
     //   Rounding: '<S57>/Rounding Function'
     //   Sum: '<S57>/Subtract'
 
-    rtb_Product_cw = (rtb_Abs - static_cast<real32_T>(floor((real_T)(rtb_Abs *
+    rtb_Product_cw = (rtb_Abs - static_cast<real32_T>(floorf((real_T)(rtb_Abs *
       0.159154937F))) * 6.28318548F) * static_cast<real32_T>(iU);
 
     // Switch: '<S48>/Switch' incorporates:
@@ -1945,10 +1945,10 @@ void untitledModelClass::step()
   QS_InnerRateLoop_Y.psi_cmd = rtb_Sum4_b;
 
   // Trigonometry: '<S66>/Trigonometric Function3'
-  rtb_DeadZone3 = static_cast<real32_T>(cos((real_T)rtb_uDLookupTable3));
+  rtb_DeadZone3 = static_cast<real32_T>(cosf((real_T)rtb_uDLookupTable3));
 
   // Trigonometry: '<S66>/Trigonometric Function6'
-  rtb_Abs = static_cast<real32_T>(sin((real_T)rtb_uDLookupTable3));
+  rtb_Abs = static_cast<real32_T>(sinf((real_T)rtb_uDLookupTable3));
 
   // Product: '<S66>/Divide4' incorporates:
   //   Product: '<S66>/Divide9'
@@ -2560,7 +2560,7 @@ void untitledModelClass::step()
   rtb_Sum = (((rtb_TrigonometricFunction3_tmp * rtb_Saturation_fr_tmp *
                QS_InnerRateLoop_U.Az_mpss + rtb_TrigonometricFunction6_tmp *
                rtb_Saturation_fr_tmp * QS_InnerRateLoop_U.Ay_mpss) +
-              -static_cast<real32_T>(sin((real_T)QS_InnerRateLoop_U.theta_rad)) *
+              -static_cast<real32_T>(sinf((real_T)QS_InnerRateLoop_U.theta_rad)) *
               QS_InnerRateLoop_U.Ax_mpss) + 9.81) -
     QS_InnerRateLoop_DWork.UnitDelay_DSTATE_j2;
 
