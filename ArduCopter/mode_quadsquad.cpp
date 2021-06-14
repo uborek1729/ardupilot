@@ -167,9 +167,8 @@ void ModeQuadsquad::run()
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.mixer_in_throttle = attitude_control->get_throttle_in();
 
 
-//*****Commented out to get working*********
-//     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.CH8_flag = read_3pos_switch(CH_6);
- //    QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.rc_6 = read_3pos_switch(CH_6);
+     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.CH8_flag = traj_sw; // this was set to channel 6
+     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.rc_6 = traj_sw;  // this was set to channel 6
 
      //     Scale Sweep Size
      if(GSInputs.ch1 == 0){
@@ -186,8 +185,7 @@ void ModeQuadsquad::run()
 //
  //    Trajectory on or off
 
-//*****Commented out to get working*********
- //    QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = read_3pos_switch(CH_6);
+     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = traj_sw;
      /*
      if(GSInputs.ch2==0){
          QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = 0;

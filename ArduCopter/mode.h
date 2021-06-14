@@ -1488,6 +1488,7 @@ public:
     bool has_manual_throttle() const override { return true; }
     bool allows_arming(bool from_gcs) const override { return true; };
     bool is_autopilot() const override { return false; }
+    void set_traj_sw(uint8_t sw_status) { traj_sw = sw_status; }
 
     static const struct AP_Param::GroupInfo var_info[];
 
@@ -1520,6 +1521,7 @@ private:
     float pmax;
     float trajectorycount;
     int log_counter_qs;
+    uint8_t traj_sw;
 
     AP_Float alpha;
 

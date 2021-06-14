@@ -482,6 +482,16 @@ void RC_Channel_Copter::do_aux_function(const aux_func_t ch_option, const aux_sw
 #ifdef USERHOOK_AUXSWITCH
         case AUX_FUNC::USER_FUNC1:
             copter.userhook_auxSwitch1(ch_flag);
+            switch (ch_flag) {
+                case HIGH:
+                case MIDDLE:
+                    copter.mode_quadsquad.set_traj_sw(2);
+                    gcs().send_text(MAV_SEVERITY_INFO, "quadsquad trajectory started");
+                    break;
+                default:
+                    copter.mode_quadsquad.set_traj_sw(0);
+                    break;
+                }
             break;
 
         case AUX_FUNC::USER_FUNC2:
