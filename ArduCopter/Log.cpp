@@ -437,6 +437,73 @@ struct PACKED log_GuidedTarget {
     float vel_target_z;
 };
 
+/*
+struct PACKED log_QS {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    float p;
+    float q;
+    float r;
+    float phi;
+    float tht;
+    float psi;
+    float lat;
+    float lon;
+    float col;
+    float ped;
+    float mx;
+    float my;
+    float mz;
+    float mth;
+
+
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.p_rps;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.q_rps;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.r_rps;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.phi_rad;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.theta_rad;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_rad;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lat;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lon;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_col;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_ped;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_x;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_y;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_z;
+    float QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle;
+
+
+};
+ */
+
+// Write an rate packet
+/*
+void Copter::Log_Write_QS_Data(float p, float q, float r, float phi, float tht, float psi, float lat, float lon, float col, float ped, float mx, float my, float mz, float mth)
+{
+#if MODE_SYSTEMID_ENABLED == ENABLED
+    struct log_QS pkt_sidd = {
+        LOG_PACKET_HEADER_INIT(LOG_QS_MSG),
+        time_us         : AP_HAL::micros64(),
+        p   : p,
+        q   : q,
+        r   : r,
+        phi  : phi,
+        tht  : tht,
+        psi : psi,
+        lat : lat,
+        lon : lon,
+        col : col,
+        ped  : ped,
+        mx  : mx,
+        my  : my,
+        mz  : mz,
+        mth : mth
+    };
+    logger.WriteBlock(&pkt_sidd, sizeof(pkt_sidd));
+#endif
+}
+*/
+
 // Write a Guided mode target
 void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_target, const Vector3f& vel_target)
 {
@@ -489,7 +556,10 @@ const struct LogStructure Copter::log_structure[] = {
       "SIDS", "QBfffffff",  "TimeUS,Ax,Mag,FSt,FSp,TFin,TC,TR,TFout", "s--ssssss", "F--------" },
     { LOG_GUIDEDTARGET_MSG, sizeof(log_GuidedTarget),
       "GUID",  "QBffffff",    "TimeUS,Type,pX,pY,pZ,vX,vY,vZ", "s-mmmnnn", "F-000000" },
+//    { LOG_QS_MSG, sizeof(log_QS),
+//        "QS",  "QBffffffffffffff",    "TimeUS,Type,p,q,r,phi,tht,psi,lat,lon,col,ped,mx,my,mz,mthr", "sEEErrr--------", "F-00000000000000" },
 };
+
 
 void Copter::Log_Write_Vehicle_Startup_Messages()
 {

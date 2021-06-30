@@ -135,7 +135,7 @@ protected:
     RC_Channel *&channel_yaw;
     float &G_Dt;
 
-    untitledModelClass QS_InnerRateLoop_Obj;
+    QS_InnerRateLoopModelClass QS_InnerRateLoop_Obj;
     AP_AHRS &QSahrs;
 
     // note that we support two entirely different automatic takeoffs:
@@ -1499,7 +1499,7 @@ protected:
 
 private:
 
-    struct { //quadsquad specific ipnuts
+    struct { //quadsquad specific inputs
         int16_t ch1 ;
         int16_t ch2 ;
         int16_t ch3 ;
@@ -1510,16 +1510,16 @@ private:
         int16_t ch8 ;
     } GSInputs;
 
-    bool engage; //quadsquad specific
-    float score; //quadsquad specific
-    float VeSqrSum; //quadsquad
-    float PeSqrSum; //quad squad
-    float pNcmd;
-    float pEcmd;
-    float pDcmd;
-    float vmax;
-    float pmax;
-    float trajectorycount;
+      bool engage; //quadsquad specific
+  //  float score; //quadsquad specific
+  //  float VeSqrSum; //quadsquad
+  //  float PeSqrSum; //quad squad
+  //  float pNcmd;
+  //  float pEcmd;
+  //  float pDcmd;
+  //  float vmax;
+  //  float pmax;
+  //  float trajectorycount;
     int log_counter_qs;
     uint8_t traj_sw;
 
