@@ -135,7 +135,7 @@ protected:
     RC_Channel *&channel_yaw;
     float &G_Dt;
 
-    untitledModelClass QS_InnerRateLoop_Obj;
+    QS_InnerRateLoopModelClass QS_InnerRateLoop_Obj;
     AP_AHRS &QSahrs;
 
     // note that we support two entirely different automatic takeoffs:

@@ -230,6 +230,57 @@ void ModeQuadsquad::run()
      QS_InnerRateLoop_Obj.step();
 
      engage = 1;
+	 
+	 
+	 // Logging
+     if (log_counter_qs ++ % 10 == 0){
+            AP::logger().Write("QS", "TimeUS,p,q,r,ph,th,psi,lat,lon,col,pd,mx,my,mz,mth" , "Qffffffffffffff",
+                                                    AP_HAL::micros64(),
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.p_rps,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.q_rps,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.r_rps,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.phi_rad,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.theta_rad,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_rad,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lat,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lon,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_col,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_ped,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_x,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_y,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_z,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle);
+
+
+            AP::logger().Write("QS2", "TimeUS,swpx,swpy,swpz,swpth,eng,phic,thtc,psic,vzc,CFz,CFvz" , "Qfffffffffff",
+                                                    AP_HAL::micros64(),
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.pitch_sweep,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.roll_sweep,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.yaw_sweep,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.coll_sweep,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.engage,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.phi_cmd,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.theta_cmd,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.psi_cmd,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.vz_cmd,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.CF_Alt,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.CF_Vz);
+
+            AP::logger().Write("QS3", "TimeUS,pN,pE,pD,vN,vE,vD,tSW,tON,pNc,pEc,pDc,psc" , "Qffffffffffff",
+                                                    AP_HAL::micros64(),
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posNorthKF,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posEastKF,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posDownKF,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vN_fpsKF,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vE_fpsKF,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vD_fpsKF,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.TrajectoryON,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd,
+                                                    (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.vehheadingcmd);
+                                  }
 
     /* if (QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.ScoreOn==1){
      trajectorycount = trajectorycount+1;

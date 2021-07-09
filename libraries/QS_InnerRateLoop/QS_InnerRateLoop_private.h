@@ -1,27 +1,27 @@
-//
-// Sponsored License - for use in support of a program or activity
-// sponsored by MathWorks.  Not for government, commercial or other
-// non-sponsored organizational use.
-//
-// File: QS_InnerRateLoop_private.h
-//
-// Code generated for Simulink model 'QS_InnerRateLoop'.
-//
-// Model version                  : 1.526
-// Simulink Coder version         : 9.1 (R2019a) 23-Nov-2018
-// C/C++ source code generated on : Fri Nov 22 11:47:45 2019
-//
-// Target selection: ert.tlc
-// Embedded hardware selection: ARM Compatible->ARM Cortex
-// Code generation objectives:
-//    1. Execution efficiency
-//    2. RAM efficiency
-//    3. ROM efficiency
-// Validation result: Not run
-//
+/*
+ * QS_InnerRateLoop_private.h
+ *
+ * Student License - for use by students to meet course requirements and
+ * perform academic research at degree granting institutions only.  Not
+ * for government, commercial, or other organizational use.
+ *
+ * Code generation for model "QS_InnerRateLoop".
+ *
+ * Model version              : 1.539
+ * Simulink Coder version : 9.1 (R2019a) 23-Nov-2018
+ * C++ source code generated on : Thu Jul  8 22:32:02 2021
+ *
+ * Target selection: grt.tlc
+ * Note: GRT includes extra infrastructure and instrumentation for prototyping
+ * Embedded hardware selection: ARM Compatible->ARM Cortex
+ * Code generation objective: Execution efficiency
+ * Validation result: Not run
+ */
+
 #ifndef RTW_HEADER_QS_InnerRateLoop_private_h_
 #define RTW_HEADER_QS_InnerRateLoop_private_h_
 #include "rtwtypes.h"
+#include "multiword_types.h"
 
 extern uint32_T plook_u32ff_evencg(real32_T u, real32_T bp0, real32_T bpSpace,
   uint32_T maxIndex, real32_T *fraction);
@@ -38,10 +38,4 @@ extern uint32_T plook_u32ff_bincg(real32_T u, const real32_T bp[], uint32_T
 extern real32_T intrp2d_fu32fl_pw(const uint32_T bpIndex[], const real32_T frac[],
   const real32_T table[], const uint32_T stride);
 
-#endif                                // RTW_HEADER_QS_InnerRateLoop_private_h_
-
-//
-// File trailer for generated code.
-//
-// [EOF]
-//
+#endif                              /* RTW_HEADER_QS_InnerRateLoop_private_h_ */
