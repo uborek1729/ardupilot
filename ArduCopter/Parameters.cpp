@@ -1054,6 +1054,7 @@ ParametersG2::ParametersG2(void)
 #if MODE_AUTOROTATE_ENABLED == ENABLED
     ,arot(copter.inertial_nav)
 #endif
+, mode_quadsquad_ptr(&copter.mode_quadsquad)
 {
     AP_Param::setup_object_defaults(this, var_info);
 }

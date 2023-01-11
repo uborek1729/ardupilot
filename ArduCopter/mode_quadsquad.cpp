@@ -7,10 +7,11 @@ const AP_Param::GroupInfo ModeQuadsquad::var_info[] = {
     // @Description: More aggressive maneuver as alpha gets bigger
     // @Range: 0 3
     // @User: Standard
-    AP_GROUPINFO("ALPHA", 1, ModeQuadsquad, alpha, 0.5f),
+    AP_GROUPINFO("ALPHA", 1, ModeQuadsquad, alpha, 1.0f),
 
     AP_GROUPEND
 };
+
 
 ModeQuadsquad::ModeQuadsquad(void) : Mode()
 {
@@ -197,6 +198,7 @@ void ModeQuadsquad::run()
   //       trajGen.enabled(true);
      }
      */
+     alpha = 1.0; // hard coding alpha
      //Scale RV
          if(alpha <= 0 || alpha > 3 ){
              QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rv = 2;
@@ -321,8 +323,8 @@ void ModeQuadsquad::run()
 
 */
 
-     mix_x = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_x;
-     mix_y = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_y;
+     mix_x = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_x*.9;
+     mix_y = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_y*.9;
      mix_z = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_z;
      throttle = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle;
 

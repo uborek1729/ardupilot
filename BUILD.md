@@ -7,7 +7,7 @@ build Ardupilot, but you can also read more about the build system in the
 
 Waf should always be called from the ardupilot's root directory. Differently
 from the make-based build, with Waf there's a configure step to choose the
-board to be used (default is `sitl`).
+board to be used (default is `sitl`).bao
 
 ## Basic usage ##
 

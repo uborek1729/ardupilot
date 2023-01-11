@@ -9,7 +9,7 @@
  *
  * Model version              : 1.539
  * Simulink Coder version : 9.1 (R2019a) 23-Nov-2018
- * C++ source code generated on : Thu Jul  8 22:32:02 2021
+ * C++ source code generated on : Wed Feb  9 13:00:44 2022
  *
  * Target selection: grt.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -251,44 +251,41 @@ typedef struct {
    */
   real32_T pooled7[5];
 
-  /* Computed Parameter: uDLookupTable2_tableData
-   * Referenced by: '<S38>/1-D Lookup Table2'
+  /* Pooled Parameter (Mixed Expressions)
+   * Referenced by:
+   *   '<S38>/1-D Lookup Table2'
+   *   '<S79>/1-D Lookup Table2'
    */
-  real32_T uDLookupTable2_tableData[5];
+  real32_T pooled8[5];
 
-  /* Computed Parameter: uDLookupTable2_tableData_e
+  /* Computed Parameter: uDLookupTable2_tableData
    * Referenced by: '<S45>/1-D Lookup Table2'
    */
-  real32_T uDLookupTable2_tableData_e[5];
-
-  /* Computed Parameter: uDLookupTable2_tableData_o
-   * Referenced by: '<S79>/1-D Lookup Table2'
-   */
-  real32_T uDLookupTable2_tableData_o[5];
+  real32_T uDLookupTable2_tableData[5];
 
   /* Computed Parameter: uDLookupTable2_tableData_f
    * Referenced by: '<S83>/1-D Lookup Table2'
    */
   real32_T uDLookupTable2_tableData_f[5];
 
-  /* Computed Parameter: uDLookupTable2_tableData_ej
+  /* Computed Parameter: uDLookupTable2_tableData_e
    * Referenced by: '<S86>/1-D Lookup Table2'
    */
-  real32_T uDLookupTable2_tableData_ej[5];
+  real32_T uDLookupTable2_tableData_e[5];
 
   /* Pooled Parameter (Expression: KlatlonI)
    * Referenced by:
    *   '<S90>/1-D Lookup Table2'
    *   '<S93>/1-D Lookup Table2'
    */
-  real32_T pooled12[5];
+  real32_T pooled13[5];
 
   /* Pooled Parameter (Mixed Expressions)
    * Referenced by:
    *   '<S64>/Constant'
    *   '<S64>/1-D Lookup Table2'
    */
-  real32_T pooled16[36];
+  real32_T pooled17[36];
 
   /* Computed Parameter: uDLookupTable2_tableData_g
    * Referenced by: '<S64>/1-D Lookup Table2'
@@ -300,7 +297,7 @@ typedef struct {
    *   '<S63>/Constant'
    *   '<S63>/1-D Lookup Table2'
    */
-  real32_T pooled17[16];
+  real32_T pooled18[16];
 
   /* Computed Parameter: uDLookupTable2_tableData_b
    * Referenced by: '<S63>/1-D Lookup Table2'
@@ -312,7 +309,7 @@ typedef struct {
    *   '<S89>/1-D Lookup Table2'
    *   '<S92>/1-D Lookup Table2'
    */
-  real32_T pooled19[5];
+  real32_T pooled20[5];
 
   /* Computed Parameter: uDLookupTable2_tableData_k
    * Referenced by: '<S87>/1-D Lookup Table2'
@@ -321,36 +318,36 @@ typedef struct {
 
   /* Pooled Parameter (Mixed Expressions)
    * Referenced by:
-   *   '<S12>/1-D Lookup Table'
+   *   '<S12>/1-D Lookup Table1'
    *   '<S12>/1-D Lookup Table2'
    *   '<S12>/1-D Lookup Table3'
    */
-  real32_T pooled25[38];
+  real32_T pooled26[24];
 
-  /* Expression: VYdata'
-   * Referenced by: '<S12>/1-D Lookup Table1'
+  /* Expression: VXdata'
+   * Referenced by: '<S12>/1-D Lookup Table'
    */
-  real32_T uDLookupTable1_tableData[38];
+  real32_T uDLookupTable_tableData[24];
 
   /* Computed Parameter: uDLookupTable2_tableData_j
    * Referenced by: '<S42>/1-D Lookup Table2'
    */
   real32_T uDLookupTable2_tableData_j[5];
 
-  /* Computed Parameter: uDLookupTable2_tableData_ok
+  /* Computed Parameter: uDLookupTable2_tableData_o
    * Referenced by: '<S37>/1-D Lookup Table2'
    */
-  real32_T uDLookupTable2_tableData_ok[5];
+  real32_T uDLookupTable2_tableData_o[5];
 
-  /* Computed Parameter: uDLookupTable_tableData
+  /* Computed Parameter: uDLookupTable_tableData_k
    * Referenced by: '<S24>/1-D Lookup Table'
    */
-  real32_T uDLookupTable_tableData[5];
+  real32_T uDLookupTable_tableData_k[5];
 
-  /* Computed Parameter: uDLookupTable1_tableData_g
+  /* Computed Parameter: uDLookupTable1_tableData
    * Referenced by: '<S24>/1-D Lookup Table1'
    */
-  real32_T uDLookupTable1_tableData_g[5];
+  real32_T uDLookupTable1_tableData[5];
 
   /* Computed Parameter: uDLookupTable2_tableData_a
    * Referenced by: '<S28>/1-D Lookup Table2'

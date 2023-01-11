@@ -172,7 +172,7 @@ Mode *Copter::mode_from_mode_num(const Mode::Number mode)
             break;
 #endif
         case Mode::Number::QUADSQUAD:
-            ret = &mode_quadsquad;
+            ret = (Mode *)g2.mode_quadsquad_ptr;
             break;
 
         default:

@@ -9,7 +9,7 @@
  *
  * Model version              : 1.539
  * Simulink Coder version : 9.1 (R2019a) 23-Nov-2018
- * C++ source code generated on : Thu Jul  8 22:32:02 2021
+ * C++ source code generated on : Wed Feb  9 13:00:44 2022
  *
  * Target selection: grt.tlc
  * Note: GRT includes extra infrastructure and instrumentation for prototyping
@@ -383,8 +383,8 @@ void QS_InnerRateLoopModelClass::step()
     QS_InnerRateLoop_ConstP.pooled7, 4U, &rtb_Abs_i);
   fractions[0U] = rtb_Abs_i;
   for (iU = 0; iU < 36; iU++) {
-    bpIndices[1U] = plook_u32ff_bincg(QS_InnerRateLoop_ConstP.pooled16[iU],
-      QS_InnerRateLoop_ConstP.pooled16, 35U, &rtb_Abs_i);
+    bpIndices[1U] = plook_u32ff_bincg(QS_InnerRateLoop_ConstP.pooled17[iU],
+      QS_InnerRateLoop_ConstP.pooled17, 35U, &rtb_Abs_i);
     fractions[1U] = rtb_Abs_i;
     rtb_uDLookupTable2[iU] = intrp2d_fu32fl_pw(bpIndices, fractions,
       QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_g, 5U);
@@ -399,7 +399,7 @@ void QS_InnerRateLoopModelClass::step()
     &rtb_Abs_i);
   fractions_0[0U] = rtb_Abs_i;
   for (iU = 0; iU < 16; iU++) {
-    bpIndices_0[1U] = plook_u32ff_evencg(QS_InnerRateLoop_ConstP.pooled17[iU],
+    bpIndices_0[1U] = plook_u32ff_evencg(QS_InnerRateLoop_ConstP.pooled18[iU],
       1.0F, 1.0F, 15U, &rtb_Abs_i);
     fractions_0[1U] = rtb_Abs_i;
     rtb_uDLookupTable2_k5[iU] = intrp2d_fu32fl_pw(bpIndices_0, fractions_0,
@@ -734,7 +734,7 @@ void QS_InnerRateLoopModelClass::step()
    */
   rtb_Product = (QS_InnerRateLoop_DW.DiscreteTimeIntegrator_DSTATE_m -
                  QS_InnerRateLoop_U.posNorthKF) * intrp1d_fu32fl_pw(bpIdx,
-    rtb_Abs_i, QS_InnerRateLoop_ConstP.pooled19);
+    rtb_Abs_i, QS_InnerRateLoop_ConstP.pooled20);
 
   /* Sum: '<S77>/Sum1' incorporates:
    *  DiscreteIntegrator: '<S94>/Discrete-Time Integrator'
@@ -785,7 +785,7 @@ void QS_InnerRateLoopModelClass::step()
    */
   rtb_Product_ng = (QS_InnerRateLoop_DW.DiscreteTimeIntegrator1_DSTATE -
                     QS_InnerRateLoop_U.posEastKF) * intrp1d_fu32fl_pw(bpIdx,
-    rtb_Abs_i, QS_InnerRateLoop_ConstP.pooled19);
+    rtb_Abs_i, QS_InnerRateLoop_ConstP.pooled20);
 
   /* Sum: '<S76>/Sum1' incorporates:
    *  DiscreteIntegrator: '<S91>/Discrete-Time Integrator'
@@ -888,9 +888,9 @@ void QS_InnerRateLoopModelClass::step()
     QS_InnerRateLoop_U.Rp;
 
   /* Lookup_n-D: '<S12>/1-D Lookup Table3' */
-  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.2F, 37U, &rtb_Abs_i);
+  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.2F, 23U, &rtb_Abs_i);
   rtb_uDLookupTable3 = intrp1d_fu32fla_pw(bpIdx, rtb_Abs_i,
-    QS_InnerRateLoop_ConstP.pooled25, 37U);
+    QS_InnerRateLoop_ConstP.pooled26, 23U);
 
   /* Gain: '<S12>/Gain1' */
   rtb_Sum3_f = 0.0174532924F * rtb_uDLookupTable3;
@@ -902,35 +902,35 @@ void QS_InnerRateLoopModelClass::step()
   rtb_Sum3_f = static_cast<real32_T>(sin((real_T)rtb_Sum3_f));
 
   /* Lookup_n-D: '<S12>/1-D Lookup Table1' */
-  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.2F, 37U, &rtb_Abs_i);
+  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.2F, 23U, &rtb_Abs_i);
 
   /* Product: '<S12>/Divide3' incorporates:
    *  Inport: '<Root>/Rv'
    *  Lookup_n-D: '<S12>/1-D Lookup Table1'
    */
   rtb_Sum4_b = intrp1d_fu32fla_pw(bpIdx, rtb_Abs_i,
-    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData, 37U) /
-    QS_InnerRateLoop_U.Rv;
+    QS_InnerRateLoop_ConstP.pooled26, 23U) / QS_InnerRateLoop_U.Rv;
 
   /* Lookup_n-D: '<S12>/1-D Lookup Table' */
-  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.2F, 37U, &rtb_Abs_i);
+  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.2F, 23U, &rtb_Abs_i);
 
   /* Product: '<S12>/Divide2' incorporates:
    *  Inport: '<Root>/Rv'
    *  Lookup_n-D: '<S12>/1-D Lookup Table'
    */
   rtb_Add5_ky = intrp1d_fu32fla_pw(bpIdx, rtb_Abs_i,
-    QS_InnerRateLoop_ConstP.pooled25, 37U) / QS_InnerRateLoop_U.Rv;
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData, 23U) /
+    QS_InnerRateLoop_U.Rv;
 
   /* Lookup_n-D: '<S12>/1-D Lookup Table2' */
-  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.2F, 37U, &rtb_Abs_i);
+  bpIdx = plook_u32ff_evenca(rtb_Sum4_a, 0.0F, 0.2F, 23U, &rtb_Abs_i);
 
   /* Product: '<S12>/Divide4' incorporates:
    *  Inport: '<Root>/Rv'
    *  Lookup_n-D: '<S12>/1-D Lookup Table2'
    */
   rtb_Sum4_a = intrp1d_fu32fla_pw(bpIdx, rtb_Abs_i,
-    QS_InnerRateLoop_ConstP.pooled25, 37U) / QS_InnerRateLoop_U.Rv;
+    QS_InnerRateLoop_ConstP.pooled26, 23U) / QS_InnerRateLoop_U.Rv;
 
   /* Product: '<S103>/Divide4' incorporates:
    *  Product: '<S103>/Divide9'
@@ -1359,7 +1359,7 @@ void QS_InnerRateLoopModelClass::step()
    */
   rtb_Product_ib = (QS_InnerRateLoop_DW.DiscreteTimeIntegrator_DSTAT_fs -
                     rtb_uDLookupTable_cs) * intrp1d_fu32fl_pw(bpIdx, rtb_Abs_i,
-    QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_ok);
+    QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_o);
 
   /* Sum: '<S24>/Sum1' incorporates:
    *  DiscreteIntegrator: '<S40>/Discrete-Time Integrator'
@@ -1370,12 +1370,12 @@ void QS_InnerRateLoopModelClass::step()
   /* Lookup_n-D: '<S24>/1-D Lookup Table' */
   bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U, &rtb_Abs_i);
   rtb_uDLookupTable_cs = intrp1d_fu32fl_pw(bpIdx, rtb_Abs_i,
-    QS_InnerRateLoop_ConstP.uDLookupTable_tableData);
+    QS_InnerRateLoop_ConstP.uDLookupTable_tableData_k);
 
   /* Lookup_n-D: '<S24>/1-D Lookup Table1' */
   bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U, &rtb_Abs_i);
   rtb_uDLookupTable1 = intrp1d_fu32fl_pw(bpIdx, rtb_Abs_i,
-    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData_g);
+    QS_InnerRateLoop_ConstP.uDLookupTable1_tableData);
 
   /* DiscreteIntegrator: '<S41>/Discrete-Time Integrator' incorporates:
    *  Inport: '<Root>/engage'
@@ -1835,7 +1835,7 @@ void QS_InnerRateLoopModelClass::step()
     /* Lookup_n-D: '<S38>/1-D Lookup Table2' */
     bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U, &rtb_Abs_i);
     rtb_Product_ib *= intrp1d_fu32fl_pw(bpIdx, rtb_Abs_i,
-      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData);
+      QS_InnerRateLoop_ConstP.pooled8);
   }
 
   /* End of Switch: '<S40>/Switch' */
@@ -1911,7 +1911,7 @@ void QS_InnerRateLoopModelClass::step()
     /* Lookup_n-D: '<S45>/1-D Lookup Table2' */
     bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U, &rtb_Abs_i);
     rtb_Product_n *= intrp1d_fu32fl_pw(bpIdx, rtb_Abs_i,
-      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_e);
+      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData);
   }
 
   /* End of Switch: '<S49>/Switch' */
@@ -2396,7 +2396,7 @@ void QS_InnerRateLoopModelClass::step()
     /* Lookup_n-D: '<S90>/1-D Lookup Table2' */
     bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U, &rtb_Abs_i);
     rtb_Product_ng *= intrp1d_fu32fl_pw(bpIdx, rtb_Abs_i,
-      QS_InnerRateLoop_ConstP.pooled12);
+      QS_InnerRateLoop_ConstP.pooled13);
   }
 
   /* End of Switch: '<S91>/Switch' */
@@ -2412,7 +2412,7 @@ void QS_InnerRateLoopModelClass::step()
     /* Lookup_n-D: '<S79>/1-D Lookup Table2' */
     bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U, &rtb_Abs_i);
     rtb_TrigonometricFunction6 *= intrp1d_fu32fl_pw(bpIdx, rtb_Abs_i,
-      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_o);
+      QS_InnerRateLoop_ConstP.pooled8);
   }
 
   /* End of Switch: '<S80>/Switch' */
@@ -2429,7 +2429,7 @@ void QS_InnerRateLoopModelClass::step()
     /* Lookup_n-D: '<S93>/1-D Lookup Table2' */
     bpIdx = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U, &rtb_Abs_i);
     rtb_Product *= intrp1d_fu32fl_pw(bpIdx, rtb_Abs_i,
-      QS_InnerRateLoop_ConstP.pooled12);
+      QS_InnerRateLoop_ConstP.pooled13);
   }
 
   /* End of Switch: '<S94>/Switch' */
@@ -2564,7 +2564,7 @@ void QS_InnerRateLoopModelClass::step()
     bpIdx_0 = plook_u32ff_evencg(rtb_Saturation8, 0.0F, 1.75F, 4U,
       &rtb_uDLookupTable2_bw);
     rtb_Saturation8 = intrp1d_fu32fl_pw(bpIdx_0, rtb_uDLookupTable2_bw,
-      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_ej) * rtb_Product_ee;
+      QS_InnerRateLoop_ConstP.uDLookupTable2_tableData_e) * rtb_Product_ee;
   }
 
   /* End of Switch: '<S88>/Switch' */
