@@ -343,7 +343,7 @@ void ModeSystemId::run()
 	 	 
 	 // Logging
      if (log_counter_qs ++ % 10 == 0){
-            AP::logger().Write("QS", "TimeUS,p,q,r,ph,th,psi,lat,lon,col,pd,mx,my,mz,mth" , "Qffffffffffffff",
+            AP::logger().Write("QSS", "TimeUS,p,q,r,ph,th,psi,lat,lon,col,pd,mx,my,mz,mth" , "Qffffffffffffff",
                                                     AP_HAL::micros64(),
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.p_rps,
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.q_rps,
@@ -361,7 +361,7 @@ void ModeSystemId::run()
                                                     (double)(QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle + mix_throttle));
 
 
-            AP::logger().Write("QS2", "TimeUS,swpx,swpy,swpz,swpth,eng,phic,thtc,psic,vzc,CFz,CFvz" , "Qfffffffffff",
+            AP::logger().Write("QSS2", "TimeUS,swpx,swpy,swpz,swpth,eng,phic,thtc,psic,vzc,CFz,CFvz" , "Qfffffffffff",
                                                     AP_HAL::micros64(),
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.pitch_sweep,
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.roll_sweep,
@@ -375,7 +375,7 @@ void ModeSystemId::run()
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.CF_Alt,
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.CF_Vz);
 
-            AP::logger().Write("QS3", "TimeUS,pN,pE,pD,vN,vE,vD,tSW,tON,pNc,pEc,pDc,psc" , "Qffffffffffff",
+            AP::logger().Write("QSS3", "TimeUS,pN,pE,pD,vN,vE,vD,tSW,tON,pNc,pEc,pDc,psc" , "Qffffffffffff",
                                                     AP_HAL::micros64(),
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posNorthKF,
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posEastKF,
@@ -392,26 +392,23 @@ void ModeSystemId::run()
                                   }
 
 
-/*
      mix_x = (QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_x + mix_roll)*.9;
      mix_y = (QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_y + mix_pitch)*.9;
      mix_z = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_z + mix_yaw;
      throttle = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle + mix_throttle;
+
+
      motors->set_roll(constrain_float(mix_x,-1.0f,1.0f));
      motors->set_pitch(constrain_float(mix_y,-1.0f,1.0f));
      motors->set_yaw(constrain_float(mix_z,-1.0f,1.0f));
      motors->set_throttle(constrain_float(throttle,0.0f,1.0f));
-*/
 
-     mix_x = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_x*.9;
-     mix_y = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_y*.9;
-     mix_z = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_z;
-     throttle = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle;
-
+/*
      motors->set_roll(mix_x);
      motors->set_pitch(mix_y);
      motors->set_yaw(mix_z);
      motors->set_throttle(throttle);
+*/
 
 }
 

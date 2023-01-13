@@ -1186,11 +1186,11 @@ public:
     bool init(bool ignore_checks) override;
     void run() override;
 
-    bool requires_GPS() const override { return true; }
-    bool has_manual_throttle() const override { return false; }
+    bool requires_GPS() const override { return false; }
+    bool has_manual_throttle() const override { return true; }
     bool allows_arming(bool from_gcs) const override { return true; };
     bool is_autopilot() const override { return false; }
-    bool logs_attitude() const override { return true; }
+    bool logs_attitude() const override { return false; }
     void set_magnitude(float input) { waveform_magnitude = input; }
     void set_traj_sw(uint8_t sw_status) { traj_sw = sw_status; }
 

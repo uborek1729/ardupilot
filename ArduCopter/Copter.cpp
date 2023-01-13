@@ -236,7 +236,7 @@ void Copter::fast_loop()
     ins.update();
 
     // Bypass attitude controller if quadsquad is current flight mode. quadsquad is self contained
-    if (control_mode != Mode::Number::QUADSQUAD) {
+    if (control_mode != Mode::Number::QUADSQUAD && control_mode != Mode::Number::SYSTEMID) {
         // run low level rate controllers that only require IMU data
         attitude_control->rate_controller_run();
     }
