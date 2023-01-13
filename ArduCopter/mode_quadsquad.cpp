@@ -53,46 +53,17 @@ bool ModeQuadsquad::init(bool ignore_checks)
 // should be called at 100hz or more
 void ModeQuadsquad::run()
 {
-  //  int16_t target_roll, target_pitch;
- //    float target_yaw_rate;
- //    int16_t pilot_throttle_scaled;
-     float mix_x, mix_y, mix_z, throttle;
 
- //    float normInnov; // normalised innovation variance ratio for optical flow observations fused by the main nav filter
- //    float gndOffset; // estimated vertical position of the terrain relative to the nav filter zero datum
- //    float flowInnovX, flowInnovY; // optical flow LOS rate vector innovations from the main nav filter
-//     float auxFlowInnov; // optical flow LOS rate innovation from terrain offset estimator
-//     float HAGL; // height above ground level
- //    float rngInnov; // range finder innovations
- //    float range; // measured range
-//     float gndOffsetErr; // filter ground offset state error
-     //ahrs.get_NavEKF().getFlowDebug(normInnov, gndOffset, flowInnovX, flowInnovY, auxFlowInnov, HAGL, rngInnov, range, gndOffsetErr);
- //    float alpha = 0;
- //    float epsilon = 0;
+     float mix_x, mix_y, mix_z, throttle;
 
      const Vector3f &accel = copter.ins.get_accel();
      const Vector3f &gyro = copter.ins.get_gyro();
 
- //    Vector3f posNED
- //    Vector3f velNED;
-//     ahrs.get_NavEKF2().getVelNED(0,velNED);
-//     ahrs.get_NavEKF2().getPosNED(0,posNED);
      const Vector3f &curr_pos = inertial_nav.get_position();
      const Vector3f &curr_vel = inertial_nav.get_velocity();
-     //const Vector2f &flowRate = optflow.flowRate();
-     //const Vector2f &bodyRate = optflow.bodyRate();
 
     // apply simple mode transform to pilot inputs
     update_simple_mode();
-
-/*    // convert pilot input to lean angles
-    float target_roll, target_pitch;
-    get_pilot_desired_lean_angles(target_roll, target_pitch, copter.aparm.angle_max, copter.aparm.angle_max);
-
-    // get pilot's desired yaw rate
-    float target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
-*/
-
 
     if (!motors->armed()) {
         // Motors should be Stopped
@@ -130,14 +101,6 @@ void ModeQuadsquad::run()
         break;
     }
 
-/*    // call attitude controller
-    attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate);
-
-    // output pilot's throttle
-    attitude_control->set_throttle_out(get_pilot_desired_throttle(),
-                                       true,
-                                       g.throttle_filt);
-*/
         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lat = channel_roll->get_control_in()/float(4500); //
         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_lon = channel_pitch->get_control_in()/float(4500); //
         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.input_col = channel_throttle->get_control_in()/float(1000); //
@@ -187,17 +150,7 @@ void ModeQuadsquad::run()
  //    Trajectory on or off
 
      QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = traj_sw;
-     /*
-     if(GSInputs.ch2==0){
-         QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = 0;
- //        trajGen.enabled(false);
- //        trajGen.reset();
-     }
-     else{
-        QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.TrajectorySwitch = 1;
-  //       trajGen.enabled(true);
-     }
-     */
+
      alpha = 1.0; // hard coding alpha
      //Scale RV
          if(alpha <= 0 || alpha > 3 ){
@@ -210,22 +163,11 @@ void ModeQuadsquad::run()
              QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rp = 1;
 
 
-//
-//     trajGen.step();
-//
-//     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vel        = trajGen.getVel();
-// //    QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_flight = trajGen.getHdg();GSInputs.ch3
-//     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_flight = GSInputs.ch3;
-//     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.gamma      = trajGen.getGS();
-//     QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_quad   = trajGen.getvHdg();
 
      QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vel        = 0.0f;
-      //  QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_flight = trajGen.getHdg();GSInputs.ch3
      QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_flight_path = 0.0f;
      QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.gamma      =  0.0f;
      QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.psi_quad   =  0.0f;
-
-    //  QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.climbrate_fps = baro_climbrate *  (float)0.032808; //convert cm to fps
 
      QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.engage = engage;
 
@@ -284,55 +226,14 @@ void ModeQuadsquad::run()
                                                     (double)QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.vehheadingcmd);
                                   }
 
-    /* if (QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.ScoreOn==1){
-     trajectorycount = trajectorycount+1;
-     alpha = (float)1/QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.Rv;
-     VeSqrSum = VeSqrSum +
-             (QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vN_fpsKF)*(QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vN_fpsKF) +
-             (QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vE_fpsKF)*(QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vE_fpsKF) +
-             (QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vD_fpsKF)*(QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.vD_fpsKF);
-     pNcmd = pNcmd+QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd*0.0025;
-     pEcmd = pEcmd+QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd*0.0025;
-     pDcmd = pDcmd+QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd*0.0025;
-     if (vmax < sqrt(QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd*QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd+QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd*QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd+QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd*QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd)){
-     vmax = sqrt(QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd*QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vnorth_cmd+QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd*QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Veast_cmd+QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd*QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.Vdown_cmd);
-     }
-     if (pmax < sqrt(pNcmd*pNcmd+pEcmd*pEcmd+pDcmd*pDcmd)){
-     pmax = sqrt(pNcmd*pNcmd+pEcmd*pEcmd+pDcmd*pDcmd);
-     }
-     PeSqrSum = PeSqrSum +
-             (pNcmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posNorthKF)*(pNcmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posNorthKF) +
-             (pEcmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posEastKF)*(pEcmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posEastKF) +
-             (pDcmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posDownKF)*(pDcmd-QS_InnerRateLoop_Obj.QS_InnerRateLoop_U.posDownKF);
-     epsilon = 0.7*sqrt(VeSqrSum/trajectorycount)/vmax + 0.3*sqrt(PeSqrSum/trajectorycount)/pmax;
-     score = 200/(1+exp(0.6*(alpha-3)/(0-3)+0.4*(epsilon-0)/(0.6-0)));
-     }
-     else{
-         alpha = 0;
-         epsilon=0;
-         VeSqrSum= 0;
-         PeSqrSum= 0;
-         pNcmd= 0;
-         pEcmd= 0;
-         pDcmd= 0;
-         vmax = 1;
-         pmax = 1;
-         trajectorycount = 0;
 
-}
-
-*/
 
      mix_x = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_x*.9;
      mix_y = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_y*.9;
      mix_z = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_z;
      throttle = QS_InnerRateLoop_Obj.QS_InnerRateLoop_Y.mixer_throttle;
 
-//     gcs_send_text_fmt(MAV_SEVERITY_WARNING, "lat=%.6f col=%.6f",
-//                                       (double)mix_x,
-//                                       (double)throttle);
 
-     //     motors->set_stabilizing(true); old version of code used this.
      motors->set_roll(mix_x);
      motors->set_pitch(mix_y);
      motors->set_yaw(mix_z);
